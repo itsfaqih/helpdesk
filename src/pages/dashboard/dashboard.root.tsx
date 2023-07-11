@@ -1,4 +1,3 @@
-import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/base/avatar";
 import {
   Menu,
@@ -8,27 +7,27 @@ import {
 } from "@/components/base/menu";
 import localforage from "localforage";
 import { Outlet, useNavigate } from "react-router-dom";
-import { User, UserSchema } from "@/schemas/user.schema";
+import { UserWithoutPasswordSchema } from "@/schemas/user.schema";
 import { getInitials } from "@/utils/text.util";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { api } from "@/libs/api.lib";
+import { APIResponseSchema } from "@/schemas/api.schema";
 
 export function DashboardRoot() {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = React.useState<User | null>(null);
 
-  React.useEffect(() => {
-    const fetchCurrentUser = async () => {
-      const unparsedCurrentUser = await localforage.getItem("current_user");
-      const parsedCurrentUser = UserSchema.parse(unparsedCurrentUser);
+  const currentUserQuery = useCurrentUserQuery();
+  const currentUser = currentUserQuery.data?.data;
 
-      return parsedCurrentUser;
-    };
+  const logOutMutation = useLogOutMutation();
 
-    fetchCurrentUser()
-      .then((user) => setCurrentUser(user))
-      .catch(() => {
+  const handleLogOut = () => {
+    logOutMutation.mutate(undefined, {
+      onSuccess() {
         navigate("/auth/login");
-      });
-  }, [navigate]);
+      },
+    });
+  };
 
   return (
     <div>
@@ -60,14 +59,7 @@ export function DashboardRoot() {
             </MenuTrigger>
             <MenuContent>
               <MenuItem id="profile">Profile</MenuItem>
-              <MenuItem
-                id="logout"
-                onClick={async () => {
-                  await localforage.removeItem("current_user");
-
-                  navigate("/auth/login");
-                }}
-              >
+              <MenuItem id="logout" onClick={handleLogOut}>
                 Log out
               </MenuItem>
             </MenuContent>
@@ -81,4 +73,27 @@ export function DashboardRoot() {
       </main>
     </div>
   );
+}
+
+const CurrentUserResponseSchema = APIResponseSchema({
+  schema: UserWithoutPasswordSchema,
+});
+
+function useCurrentUserQuery() {
+  return useQuery({
+    queryKey: ["current_user"],
+    async queryFn() {
+      const res = await api.get("me").json();
+
+      return CurrentUserResponseSchema.parse(res);
+    },
+  });
+}
+
+function useLogOutMutation() {
+  return useMutation({
+    async mutationFn() {
+      await localforage.removeItem("current_user");
+    },
+  });
 }

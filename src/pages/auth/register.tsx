@@ -1,29 +1,19 @@
 import { Button } from "@/components/base/button";
 import { Link } from "@/components/base/link";
 import { Textbox } from "@/components/derived/textbox";
-import { UserSchema } from "@/schemas/user.schema";
+import { api } from "@/libs/api.lib";
+import {
+  AuthResponseSchema,
+  RegisterSchema,
+  RegisterSchemaType,
+} from "@/schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { HTTPError } from "ky";
 import localforage from "localforage";
-import { nanoid } from "nanoid";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-
-const RegisterSchema = z
-  .object({
-    full_name: z.string().nonempty({ message: "Full name is required" }),
-    email: z.string().email({ message: "Invalid email address" }),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters" }),
-    confirm_password: z
-      .string()
-      .min(8, { message: "Confirm password must be at least 8 characters" }),
-  })
-  .refine((data) => data.password === data.confirm_password, {
-    message: "Password and confirm password must be the same",
-    path: ["confirm_password"],
-  });
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -31,45 +21,32 @@ export function RegisterPage() {
     resolver: zodResolver(RegisterSchema),
   });
 
+  const registerMutation = useRegisterMutation();
+
+  const onSubmit = registerForm.handleSubmit((data) => {
+    registerMutation.mutate(data, {
+      async onSuccess(res) {
+        await localforage.setItem("current_user", res.data);
+
+        navigate("/");
+      },
+      onError(error) {
+        if (error instanceof Error) {
+          registerForm.setError("email", {
+            type: "custom",
+            message: error.message,
+          });
+        }
+      },
+    });
+  });
+
   return (
     <div className="max-w-sm mx-auto mt-32">
       <h1 className="text-2xl font-medium text-center text-gray-800">
         Register
       </h1>
-      <form
-        onSubmit={registerForm.handleSubmit(async (data) => {
-          const unparsedCurrentUsers =
-            (await localforage.getItem("users")) ?? [];
-          const currentUsers = UserSchema.array().parse(unparsedCurrentUsers);
-
-          const isUserExisted = currentUsers.some(
-            (user) => user.email === data.email
-          );
-
-          if (isUserExisted) {
-            registerForm.setError("email", {
-              type: "custom",
-              message: "Email is already registered",
-            });
-            return;
-          }
-
-          const newUser = {
-            id: nanoid(),
-            full_name: data.full_name,
-            email: data.email,
-            password: data.password,
-          };
-
-          const newUsers = [...currentUsers, newUser];
-
-          await localforage.setItem("users", newUsers);
-          await localforage.setItem("current_user", newUser);
-
-          navigate("/");
-        })}
-        className="flex flex-col mt-6 gap-y-4.5"
-      >
+      <form onSubmit={onSubmit} className="flex flex-col mt-6 gap-y-4.5">
         <Textbox
           {...registerForm.register("full_name")}
           label="Full Name"
@@ -106,4 +83,26 @@ export function RegisterPage() {
       </p>
     </div>
   );
+}
+
+function useRegisterMutation() {
+  return useMutation({
+    async mutationFn(data: RegisterSchemaType) {
+      try {
+        const res = await api.post("register", { json: data }).json();
+
+        return AuthResponseSchema.parse(res);
+      } catch (error) {
+        if (error instanceof HTTPError) {
+          if (error.response.status === 409) {
+            throw new Error("Email is already registered");
+          }
+        }
+
+        throw new Error(
+          "Something went wrong. Please contact the administrator"
+        );
+      }
+    },
+  });
 }

@@ -7,4 +7,6 @@ export const UserSchema = z.object({
   password: z.string().nonempty(),
 });
 
+export const UserWithoutPasswordSchema = UserSchema.omit({ password: true });
+
 export type User = z.infer<typeof UserSchema>;

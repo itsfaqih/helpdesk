@@ -2,23 +2,43 @@ import { Button } from "@/components/base/button";
 import { Link } from "@/components/base/link";
 import { Checkbox } from "@/components/derived/checkbox";
 import { Textbox } from "@/components/derived/textbox";
-import { UserSchema } from "@/schemas/user.schema";
+import { api } from "@/libs/api.lib";
+import {
+  AuthResponseSchema,
+  LoginSchema,
+  LoginSchemaType,
+} from "@/schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { HTTPError } from "ky";
 import localforage from "localforage";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { z } from "zod";
-
-const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-  remember_me: z.boolean().default(false),
-});
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const loginForm = useForm<z.infer<typeof LoginSchema>>({
+  const loginForm = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
+  });
+
+  const loginMutation = useLoginMutation();
+
+  const onSubmit = loginForm.handleSubmit((data) => {
+    loginMutation.mutate(data, {
+      async onSuccess(res) {
+        await localforage.setItem("current_user", res.data);
+
+        navigate("/");
+      },
+      onError(error) {
+        if (error instanceof Error) {
+          loginForm.setError("email", {
+            type: "custom",
+            message: error.message,
+          });
+        }
+      },
+    });
   });
 
   return (
@@ -26,34 +46,7 @@ export function LoginPage() {
       <h1 className="text-2xl font-medium text-center text-gray-800">
         Helpdesk Management
       </h1>
-      <form
-        onSubmit={loginForm.handleSubmit(async (data) => {
-          const unparsedCurrentUsers =
-            (await localforage.getItem("users")) ?? [];
-          const currentUsers = UserSchema.array().parse(unparsedCurrentUsers);
-
-          const user = currentUsers.find(
-            (user) =>
-              user.email === data.email && user.password === data.password
-          );
-
-          if (user) {
-            await localforage.setItem("current_user", user);
-
-            navigate("/");
-          } else {
-            loginForm.setError(
-              "email",
-              {
-                type: "custom",
-                message: "Invalid email or password",
-              },
-              { shouldFocus: true }
-            );
-          }
-        })}
-        className="flex flex-col mt-6 gap-y-4.5"
-      >
+      <form onSubmit={onSubmit} className="flex flex-col mt-6 gap-y-4.5">
         <Textbox
           {...loginForm.register("email")}
           label="Email"
@@ -99,4 +92,26 @@ export function LoginPage() {
       </p>
     </div>
   );
+}
+
+function useLoginMutation() {
+  return useMutation({
+    async mutationFn(data: LoginSchemaType) {
+      try {
+        const res = await api.post("login", { json: data }).json();
+
+        return AuthResponseSchema.parse(res);
+      } catch (error) {
+        if (error instanceof HTTPError) {
+          if (error.response.status === 401) {
+            throw new Error("Invalid email or password");
+          }
+        }
+
+        throw new Error(
+          "Something went wrong. Please contact the administrator"
+        );
+      }
+    },
+  });
 }
