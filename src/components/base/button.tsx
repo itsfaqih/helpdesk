@@ -3,12 +3,15 @@ import { VariantProps, cva } from "class-variance-authority";
 import { cn } from "@/libs/cn.lib";
 import { PropsWithAs, forwardRefWithAs } from "@/utils/as.util";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import { Check } from "@phosphor-icons/react";
 
 type ButtonProps = {
   size?: VariantProps<typeof buttonClass>["size"];
   variant?: VariantProps<typeof buttonClass>["variant"];
   leading?: React.ElementType;
   trailing?: React.ElementType;
+  loading?: boolean;
+  success?: boolean;
 };
 
 function ButtonComponent(
@@ -18,6 +21,9 @@ function ButtonComponent(
     variant = "transparent",
     leading: LeadingIcon,
     trailing: TrailingIcon,
+    loading,
+    success,
+    disabled,
     className,
     children,
     ...props
@@ -27,10 +33,12 @@ function ButtonComponent(
   return (
     <Component
       ref={ref}
+      disabled={loading || disabled}
       className={cn(
         buttonClass({
           size,
           variant,
+          loading,
           className,
         })
       )}
@@ -42,7 +50,15 @@ function ButtonComponent(
           className={iconClass({ size, leading: size })}
         />
       )}
-      {children}
+      {loading && (
+        <span className="inline-flex items-center gap-x-0.5 h-5">
+          <span className="animate-blink mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
+          <span className="animate-blink animation-delay-150 mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
+          <span className="animate-blink animation-delay-300 mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
+        </span>
+      )}
+      {success && <Check weight="bold" className="w-5 h-5" />}
+      {!loading && !success && children}
       {TrailingIcon && (
         <TrailingIcon
           aria-hidden={true}
@@ -56,7 +72,7 @@ function ButtonComponent(
 export const Button = forwardRefWithAs<ButtonProps, "button">(ButtonComponent);
 
 const buttonClass = cva(
-  "disabled:cursor-not-allowed disabled:opacity-60 rounded-md inline-flex font-medium tracking-wide active:scale-95 transition focus:outline-2 focus:outline-offset-4 items-center",
+  "disabled:opacity-70 rounded-md inline-flex font-medium tracking-wide active:scale-95 transition focus:outline-2 focus:outline-offset-4 items-center",
   {
     variants: {
       variant: {
@@ -72,6 +88,10 @@ const buttonClass = cva(
         sm: "py-2 sm:py-1 px-4",
         md: "px-3.5 py-1.5",
         lg: "px-4 py-2",
+      },
+      loading: {
+        true: "cursor-wait",
+        false: "disabled:cursor-not-allowed",
       },
     },
     compoundVariants: [

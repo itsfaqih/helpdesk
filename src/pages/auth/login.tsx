@@ -8,6 +8,7 @@ import {
   LoginSchema,
   LoginSchemaType,
 } from "@/schemas/auth.schema";
+import { sleep } from "@/utils/delay.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { HTTPError } from "ky";
@@ -28,6 +29,7 @@ export function LoginPage() {
       async onSuccess(res) {
         await localforage.setItem("current_user", res.data);
 
+        await sleep(1000);
         navigate("/");
       },
       onError(error) {
@@ -52,6 +54,7 @@ export function LoginPage() {
           label="Email"
           type="email"
           placeholder="Enter your email"
+          disabled={loginMutation.isLoading}
           error={loginForm.formState.errors.email?.message}
         />
         <Textbox
@@ -59,6 +62,7 @@ export function LoginPage() {
           label="Password"
           type="password"
           placeholder="Enter your password"
+          disabled={loginMutation.isLoading}
           error={loginForm.formState.errors.password?.message}
         />
         <div className="flex items-center justify-between">
@@ -77,13 +81,20 @@ export function LoginPage() {
                   );
                 }}
                 checked={field.value}
+                disabled={loginMutation.isLoading}
               />
             )}
           />
 
           <Link to="/auth/forgot-password">Forgot password?</Link>
         </div>
-        <Button variant="primary" type="submit" className="justify-center">
+        <Button
+          variant="primary"
+          loading={loginMutation.isLoading}
+          success={loginMutation.isSuccess}
+          type="submit"
+          className="justify-center"
+        >
           Login
         </Button>
       </form>

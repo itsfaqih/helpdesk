@@ -7,6 +7,7 @@ import {
   RegisterSchema,
   RegisterSchemaType,
 } from "@/schemas/auth.schema";
+import { sleep } from "@/utils/delay.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { HTTPError } from "ky";
@@ -28,6 +29,7 @@ export function RegisterPage() {
       async onSuccess(res) {
         await localforage.setItem("current_user", res.data);
 
+        await sleep(1000);
         navigate("/");
       },
       onError(error) {
@@ -74,7 +76,13 @@ export function RegisterPage() {
           placeholder="Enter confirm password"
           error={registerForm.formState.errors.confirm_password?.message}
         />
-        <Button variant="primary" type="submit" className="justify-center">
+        <Button
+          variant="primary"
+          loading={registerMutation.isLoading}
+          success={registerMutation.isSuccess}
+          type="submit"
+          className="justify-center"
+        >
           Register
         </Button>
       </form>

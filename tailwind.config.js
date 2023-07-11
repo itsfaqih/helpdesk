@@ -7,17 +7,33 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
+      animation: {
+        blink: "blink 1.4s infinite both",
+      },
+      boxShadow: {
+        menu: "0px 1px 9px 1px rgba(0, 0, 0, 0.06), 0px 0px 0px 1px rgba(18, 24, 38, 0.08), 0px 1px 2px rgba(18, 24, 38, 0.12)",
       },
       colors: {
         brand: colors.blue,
       },
+      fontFamily: {
+        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
+      },
+      keyframes: {
+        blink: {
+          "0%": {
+            opacity: "0.2",
+          },
+          "20%": {
+            opacity: "1",
+          },
+          "100%": {
+            opacity: " 0.2",
+          },
+        },
+      },
       spacing: {
         4.5: "1.125rem",
-      },
-      boxShadow: {
-        menu: "0px 1px 9px 1px rgba(0, 0, 0, 0.06), 0px 0px 0px 1px rgba(18, 24, 38, 0.08), 0px 1px 2px rgba(18, 24, 38, 0.12)",
       },
     },
   },
@@ -86,6 +102,20 @@ export default {
         },
         {
           values,
+        }
+      );
+    }),
+    plugin(({ matchUtilities, theme }) => {
+      matchUtilities(
+        {
+          "animation-delay": (value) => {
+            return {
+              "animation-delay": value,
+            };
+          },
+        },
+        {
+          values: theme("transitionDelay"),
         }
       );
     }),
