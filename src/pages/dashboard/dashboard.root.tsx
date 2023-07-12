@@ -6,12 +6,14 @@ import {
   MenuTrigger,
 } from "@/components/base/menu";
 import localforage from "localforage";
-import { Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { UserWithoutPasswordSchema } from "@/schemas/user.schema";
 import { getInitials } from "@/utils/text.util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/libs/api.lib";
 import { APIResponseSchema } from "@/schemas/api.schema";
+import { cn } from "@/libs/cn.lib";
+import { AddressBook, House, Ticket, Users } from "@phosphor-icons/react";
 
 export function DashboardRoot() {
   const navigate = useNavigate();
@@ -67,11 +69,78 @@ export function DashboardRoot() {
         </div>
       </nav>
       <main className="pt-8">
-        <div className="container mx-auto">
-          <Outlet />
+        <div className="container flex mx-auto gap-x-12">
+          <nav className="flex-shrink-0 w-64">
+            <ul className="flex flex-col gap-y-2.5">
+              <li>
+                <MainMenuItem to="/" icon={House} label="Dashboard" />
+              </li>
+              <li>
+                <MainMenuItem to="/tickets" icon={Ticket} label="Tickets" />
+              </li>
+              <li>
+                <MainMenuItem
+                  to="/clients"
+                  icon={AddressBook}
+                  label="Clients"
+                />
+              </li>
+              <li>
+                <MainMenuItem
+                  to="/admins"
+                  icon={Users}
+                  label="Administrators"
+                />
+              </li>
+            </ul>
+          </nav>
+          <div className="flex-1">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>
+  );
+}
+
+type MainMenuItemProps = Omit<
+  React.ComponentPropsWithoutRef<typeof NavLink>,
+  "children"
+> & {
+  icon: React.ElementType;
+  label: string;
+};
+
+function MainMenuItem({
+  icon: Icon,
+  label,
+  className,
+  ...props
+}: MainMenuItemProps) {
+  return (
+    <NavLink
+      className={({ isActive, isPending }) =>
+        cn(
+          "px-3 py-2.5 rounded-md w-full flex gap-x-2.5 items-center font-medium text-sm",
+          {
+            "text-gray-500 hover:shadow-haptic-gray-300 hover:text-gray-600 active:bg-gray-50 active:shadow-haptic-gray-400":
+              !isActive,
+            "text-gray-800 shadow-haptic-gray-300 hover:shadow-haptic-gray-400 active:bg-gray-50":
+              isActive,
+            "animate-pulse": isPending,
+          },
+          className
+        )
+      }
+      {...props}
+    >
+      {({ isActive }) => (
+        <>
+          <Icon weight={isActive ? "duotone" : "regular"} className="w-5 h-5" />
+          {label}
+        </>
+      )}
+    </NavLink>
   );
 }
 
