@@ -85,9 +85,9 @@ const buttonClass = cva(
         transparent: "hover:bg-gray-100 text-gray-700",
       },
       size: {
-        sm: "py-2 sm:py-1 px-4",
-        md: "px-3.5 py-1.5",
-        lg: "px-4 py-2",
+        sm: "py-2 sm:py-1 px-2.5",
+        md: "px-3.5 py-2",
+        lg: "px-4 py-2.5",
       },
       loading: {
         true: "cursor-wait",

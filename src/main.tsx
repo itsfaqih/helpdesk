@@ -13,7 +13,7 @@ import { RegisterPage } from "./pages/auth/register";
 import { ForgotPasswordPage } from "./pages/auth/forgot-password";
 import { DashboardRoot } from "./pages/dashboard/dashboard.root";
 import { DashboardOverviewPage } from "./pages/dashboard/overview";
-import { UserManagementIndex } from "./pages/user-management/user-management.index";
+import { AdminIndexPage } from "./pages/admin/admin.index";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
@@ -69,10 +69,10 @@ prepare()
             index: true,
           },
           {
-            path: "user-management",
+            path: "admins",
             children: [
               {
-                element: <UserManagementIndex />,
+                element: <AdminIndexPage />,
                 index: true,
               },
             ],

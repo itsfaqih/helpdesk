@@ -68,7 +68,7 @@ export function DashboardRoot() {
           </Menu>
         </div>
       </nav>
-      <main className="pt-8">
+      <div className="pt-8">
         <div className="container flex mx-auto gap-x-12">
           <nav className="flex-shrink-0 w-64">
             <ul className="flex flex-col gap-y-2.5">
@@ -94,11 +94,11 @@ export function DashboardRoot() {
               </li>
             </ul>
           </nav>
-          <div className="flex-1">
+          <main className="flex-1">
             <Outlet />
-          </div>
+          </main>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
