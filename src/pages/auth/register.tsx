@@ -2,11 +2,7 @@ import { Button } from "@/components/base/button";
 import { Link } from "@/components/base/link";
 import { Textbox } from "@/components/derived/textbox";
 import { api } from "@/libs/api.lib";
-import {
-  AuthResponseSchema,
-  RegisterSchema,
-  RegisterSchemaType,
-} from "@/schemas/auth.schema";
+import { AuthResponseSchema, RegisterSchema } from "@/schemas/auth.schema";
 import { sleep } from "@/utils/delay.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -27,7 +23,7 @@ export function RegisterPage() {
   const onSubmit = registerForm.handleSubmit((data) => {
     registerMutation.mutate(data, {
       async onSuccess(res) {
-        await localforage.setItem("current_user", res.data);
+        await localforage.setItem("current_admin", res.data);
 
         await sleep(1000);
         navigate("/");
@@ -95,7 +91,7 @@ export function RegisterPage() {
 
 function useRegisterMutation() {
   return useMutation({
-    async mutationFn(data: RegisterSchemaType) {
+    async mutationFn(data: RegisterSchema) {
       try {
         const res = await api.post("register", { json: data }).json();
 

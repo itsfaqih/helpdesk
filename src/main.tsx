@@ -28,9 +28,9 @@ prepare()
       {
         path: "auth",
         async loader() {
-          const unparsedCurrentUser = await localforage.getItem("current_user");
+          const unparsedCurrentAdmin = await localforage.getItem("current_admin");
 
-          if (unparsedCurrentUser) {
+          if (unparsedCurrentAdmin) {
             return redirect("/");
           }
 
@@ -54,9 +54,9 @@ prepare()
       {
         path: "/",
         async loader() {
-          const unparsedCurrentUser = await localforage.getItem("current_user");
+          const unparsedCurrentAdmin = await localforage.getItem("current_admin");
 
-          if (!unparsedCurrentUser) {
+          if (!unparsedCurrentAdmin) {
             return redirect("/auth/login");
           }
 

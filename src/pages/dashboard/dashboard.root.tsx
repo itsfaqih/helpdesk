@@ -5,21 +5,18 @@ import {
   MenuItem,
   MenuTrigger,
 } from "@/components/base/menu";
-import localforage from "localforage";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { UserWithoutPasswordSchema } from "@/schemas/user.schema";
 import { getInitials } from "@/utils/text.util";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { api } from "@/libs/api.lib";
-import { APIResponseSchema } from "@/schemas/api.schema";
 import { cn } from "@/libs/cn.lib";
 import { AddressBook, House, Ticket, Users } from "@phosphor-icons/react";
+import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { useLogOutMutation } from "@/mutations/log-out.mutation";
 
 export function DashboardRoot() {
   const navigate = useNavigate();
 
-  const currentUserQuery = useCurrentUserQuery();
-  const currentUser = currentUserQuery.data?.data;
+  const currentAdminQuery = useCurrentAdminQuery();
+  const currentAdmin = currentAdminQuery.data?.data;
 
   const logOutMutation = useLogOutMutation();
 
@@ -44,17 +41,17 @@ export function DashboardRoot() {
                 <Avatar>
                   <AvatarImage src={undefined} />
                   <AvatarFallback>
-                    {currentUser?.full_name
-                      ? getInitials(currentUser.full_name)
+                    {currentAdmin?.full_name
+                      ? getInitials(currentAdmin.full_name)
                       : ""}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col text-left w-36">
                   <span className="text-sm font-medium text-gray-800 truncate">
-                    {currentUser?.full_name}
+                    {currentAdmin?.full_name}
                   </span>
                   <span className="text-sm text-gray-600 truncate">
-                    {currentUser?.email}
+                    {currentAdmin?.email}
                   </span>
                 </div>
               </button>
@@ -142,27 +139,4 @@ function MainMenuItem({
       )}
     </NavLink>
   );
-}
-
-const CurrentUserResponseSchema = APIResponseSchema({
-  schema: UserWithoutPasswordSchema,
-});
-
-function useCurrentUserQuery() {
-  return useQuery({
-    queryKey: ["current_user"],
-    async queryFn() {
-      const res = await api.get("me").json();
-
-      return CurrentUserResponseSchema.parse(res);
-    },
-  });
-}
-
-function useLogOutMutation() {
-  return useMutation({
-    async mutationFn() {
-      await localforage.removeItem("current_user");
-    },
-  });
 }

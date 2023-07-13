@@ -3,11 +3,7 @@ import { Link } from "@/components/base/link";
 import { Checkbox } from "@/components/derived/checkbox";
 import { Textbox } from "@/components/derived/textbox";
 import { api } from "@/libs/api.lib";
-import {
-  AuthResponseSchema,
-  LoginSchema,
-  LoginSchemaType,
-} from "@/schemas/auth.schema";
+import { AuthResponseSchema, LoginSchema } from "@/schemas/auth.schema";
 import { sleep } from "@/utils/delay.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -18,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const loginForm = useForm<LoginSchemaType>({
+  const loginForm = useForm<LoginSchema>({
     resolver: zodResolver(LoginSchema),
   });
 
@@ -27,7 +23,7 @@ export function LoginPage() {
   const onSubmit = loginForm.handleSubmit((data) => {
     loginMutation.mutate(data, {
       async onSuccess(res) {
-        await localforage.setItem("current_user", res.data);
+        await localforage.setItem("current_admin", res.data);
 
         await sleep(1000);
         navigate("/");
@@ -107,7 +103,7 @@ export function LoginPage() {
 
 function useLoginMutation() {
   return useMutation({
-    async mutationFn(data: LoginSchemaType) {
+    async mutationFn(data: LoginSchema) {
       try {
         const res = await api.post("login", { json: data }).json();
 

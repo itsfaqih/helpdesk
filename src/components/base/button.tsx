@@ -33,7 +33,7 @@ function ButtonComponent(
   return (
     <Component
       ref={ref}
-      disabled={loading || disabled}
+      disabled={loading || success || disabled}
       className={cn(
         buttonClass({
           size,
@@ -51,14 +51,25 @@ function ButtonComponent(
         />
       )}
       {loading && (
-        <span className="inline-flex items-center gap-x-0.5 h-5">
+        <span className="inline-flex items-center gap-x-0.5 h-5 absolute left-1/2 -translate-x-1/2">
           <span className="animate-blink mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
           <span className="animate-blink animation-delay-150 mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
           <span className="animate-blink animation-delay-300 mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
         </span>
       )}
-      {success && <Check weight="bold" className="w-5 h-5" />}
-      {!loading && !success && children}
+      {success && (
+        <Check
+          weight="bold"
+          className="absolute w-5 h-5 -translate-x-1/2 left-1/2"
+        />
+      )}
+      <span
+        className={cn({
+          invisible: loading || success,
+        })}
+      >
+        {children}
+      </span>
       {TrailingIcon && (
         <TrailingIcon
           aria-hidden={true}
@@ -72,16 +83,16 @@ function ButtonComponent(
 export const Button = forwardRefWithAs<ButtonProps, "button">(ButtonComponent);
 
 const buttonClass = cva(
-  "disabled:opacity-70 rounded-md inline-flex font-medium tracking-wide active:scale-95 transition focus:outline-2 focus:outline-offset-4 items-center",
+  "relative disabled:opacity-70 rounded-md inline-flex font-medium tracking-wide active:scale-95 transition focus:outline-2 focus:outline-offset-4 items-center",
   {
     variants: {
       variant: {
         primary:
-          "bg-haptic-brand-700 hover:bg-haptic-brand-800 shadow-haptic-brand-900",
+          "bg-haptic-brand-700 hover:bg-haptic-brand-800 shadow-haptic-brand-900 hover:shadow-haptic-brand-950",
         danger:
-          "bg-haptic-red-700 hover:bg-haptic-red-800 outline-red-600 shadow-haptic-red-900",
+          "bg-haptic-red-700 hover:bg-haptic-red-800 outline-red-600 shadow-haptic-red-900 hover:shadow-haptic-red-950",
         white:
-          "bg-white hover:bg-gray-100 text-gray-700 shadow-haptic-gray-300",
+          "bg-white hover:bg-gray-100 text-gray-700 shadow-haptic-gray-300 hover:shadow-haptic-gray-400",
         transparent: "hover:bg-gray-100 text-gray-700",
       },
       size: {
@@ -156,7 +167,7 @@ function IconButtonComponent(
 ) {
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger asChild>
         <div className="inline-flex">
           <Component
             ref={ref}

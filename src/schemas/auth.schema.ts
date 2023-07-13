@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { APIResponseSchema } from "./api.schema";
-import { UserWithoutPasswordSchema } from "./user.schema";
+import { AdminWithoutPasswordSchema } from "./admin.schema";
 
 export const LoginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -8,12 +8,12 @@ export const LoginSchema = z.object({
   remember_me: z.boolean().default(false),
 });
 
-export type LoginSchemaType = z.infer<typeof LoginSchema>;
+export type LoginSchema = z.infer<typeof LoginSchema>;
 
 export const RegisterSchema = z
   .object({
     full_name: z.string().nonempty({ message: "Full name is required" }),
-    email: z.string().email({ message: "Invalid email address" }),
+    email: z.string().email({ message: "Please enter a valid email address" }),
     password: z
       .string()
       .min(8, { message: "Password must be at least 8 characters" }),
@@ -26,8 +26,8 @@ export const RegisterSchema = z
     path: ["confirm_password"],
   });
 
-export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
+export type RegisterSchema = z.infer<typeof RegisterSchema>;
 
 export const AuthResponseSchema = APIResponseSchema({
-  schema: UserWithoutPasswordSchema,
+  schema: AdminWithoutPasswordSchema,
 });
