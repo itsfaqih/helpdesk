@@ -4,9 +4,9 @@ import { Textbox } from "@/components/derived/textbox";
 import { api } from "@/libs/api.lib";
 import { AuthResponseSchema, RegisterSchema } from "@/schemas/auth.schema";
 import { sleep } from "@/utils/delay.util";
+import { ConflictError } from "@/utils/error.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { HTTPError } from "ky";
 import localforage from "localforage";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -93,14 +93,12 @@ function useRegisterMutation() {
   return useMutation({
     async mutationFn(data: RegisterSchema) {
       try {
-        const res = await api.post("register", { json: data }).json();
+        const res = await api.post(data, "/register");
 
         return AuthResponseSchema.parse(res);
       } catch (error) {
-        if (error instanceof HTTPError) {
-          if (error.response.status === 409) {
-            throw new Error("Email is already registered");
-          }
+        if (error instanceof ConflictError) {
+          throw new Error("Email is already registered");
         }
 
         throw new Error(

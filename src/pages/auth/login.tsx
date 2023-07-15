@@ -5,9 +5,9 @@ import { Textbox } from "@/components/derived/textbox";
 import { api } from "@/libs/api.lib";
 import { AuthResponseSchema, LoginSchema } from "@/schemas/auth.schema";
 import { sleep } from "@/utils/delay.util";
+import { UnauthorizedError } from "@/utils/error.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { HTTPError } from "ky";
 import localforage from "localforage";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -105,14 +105,12 @@ function useLoginMutation() {
   return useMutation({
     async mutationFn(data: LoginSchema) {
       try {
-        const res = await api.post("login", { json: data }).json();
+        const res = await api.post(data, "/login");
 
         return AuthResponseSchema.parse(res);
       } catch (error) {
-        if (error instanceof HTTPError) {
-          if (error.response.status === 401) {
-            throw new Error("Invalid email or password");
-          }
+        if (error instanceof UnauthorizedError) {
+          throw new Error("Invalid email or password");
         }
 
         throw new Error(

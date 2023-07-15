@@ -28,7 +28,9 @@ prepare()
       {
         path: "auth",
         async loader() {
-          const unparsedCurrentAdmin = await localforage.getItem("current_admin");
+          const unparsedCurrentAdmin = await localforage.getItem(
+            "current_admin"
+          );
 
           if (unparsedCurrentAdmin) {
             return redirect("/");
@@ -54,7 +56,9 @@ prepare()
       {
         path: "/",
         async loader() {
-          const unparsedCurrentAdmin = await localforage.getItem("current_admin");
+          const unparsedCurrentAdmin = await localforage.getItem(
+            "current_admin"
+          );
 
           if (!unparsedCurrentAdmin) {
             return redirect("/auth/login");
@@ -73,6 +77,7 @@ prepare()
             children: [
               {
                 element: <AdminIndexPage />,
+                loader: AdminIndexPage.loader(queryClient),
                 index: true,
               },
             ],

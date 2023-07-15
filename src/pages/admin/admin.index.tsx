@@ -1,6 +1,7 @@
 import React from "react";
 import { PencilSimple, Plus, Power } from "@phosphor-icons/react";
 import { Controller, useForm } from "react-hook-form";
+import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
 import {
   Dialog,
@@ -34,13 +35,30 @@ import {
   UpdateAdminSchema,
 } from "@/schemas/admin.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { api } from "@/libs/api.lib";
 import { APIResponseSchema } from "@/schemas/api.schema";
-import { HTTPError } from "ky";
 import { useCurrentAdminQuery } from "@/queries/current-admin.query";
-import { roleToLabel } from "@/utils/role.util";
-import { useAdminIndexQuery } from "@/queries/admin.index.query";
+import { roleValueToLabel } from "@/utils/admin-role.util";
+import {
+  AdminIndexRequest,
+  AdminIndexRequestSchema,
+  fetchAdminIndexQuery,
+  useAdminIndexQuery,
+} from "@/queries/admin.index.query";
+import {
+  LoaderFunctionArgs,
+  useLoaderData,
+  useSearchParams,
+} from "react-router-dom";
+import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
+import { ConflictError } from "@/utils/error.util";
+import { cn } from "@/libs/cn.lib";
+import { Skeleton } from "@/components/base/skeleton";
 
 const roles = [
   {
@@ -53,12 +71,50 @@ const roles = [
   },
 ];
 
+function loader(queryClient: QueryClient) {
+  return async ({ request }: LoaderFunctionArgs) => {
+    const requestData = AdminIndexRequestSchema.parse(
+      Object.fromEntries(new URL(request.url).searchParams)
+    );
+
+    fetchAdminIndexQuery({ queryClient, request: requestData }).catch((err) => {
+      console.error(err);
+    });
+
+    return loaderResponse({
+      pageTitle: "Administrators",
+      data: { request: requestData },
+    });
+  };
+}
+
 export function AdminIndexPage() {
+  const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
+  const [_, setSearchParams] = useSearchParams();
+
   const currentAdminQuery = useCurrentAdminQuery();
   const currentAdmin = currentAdminQuery.data?.data;
 
-  const adminIndexQuery = useAdminIndexQuery({ is_active: "1" });
+  const filtersForm = useForm<AdminIndexRequest>({
+    resolver: zodResolver(AdminIndexRequestSchema),
+    defaultValues: loaderData.data.request,
+  });
+
+  const adminIndexQuery = useAdminIndexQuery(loaderData.data.request);
   const admins = adminIndexQuery.data?.data;
+
+  filtersForm.watch((data, { name }) => {
+    if (name === "is_active") {
+      data.search = undefined;
+      data.role = undefined;
+    }
+
+    const queryStrings = qs.stringify(data);
+    const searchParams = new URLSearchParams(queryStrings);
+
+    setSearchParams(searchParams);
+  });
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -67,41 +123,102 @@ export function AdminIndexPage() {
           <CreateAdminDialog key={admins?.length} />
         )}
       </div>
-      <Tabs defaultValue="active" className="mt-5">
-        <TabList>
-          <TabTrigger value="active">Active</TabTrigger>
-          <TabTrigger value="deactivated">Deactivated</TabTrigger>
-          <TabIndicator />
-        </TabList>
-      </Tabs>
-      <form className="mt-5">
+      <Controller
+        control={filtersForm.control}
+        name="is_active"
+        render={({ field }) => (
+          <Tabs
+            value={field.value ?? "1"}
+            onChange={({ value }) => {
+              if (value && (value === "1" || value === "0")) {
+                field.onChange(value);
+              }
+            }}
+            className="mt-5"
+          >
+            <TabList>
+              <TabTrigger value="1">Active</TabTrigger>
+              <TabTrigger value="0">Deactivated</TabTrigger>
+              <TabIndicator />
+            </TabList>
+          </Tabs>
+        )}
+      />
+
+      <div className="mt-5">
         <div className="flex items-center gap-x-3">
-          <Input
-            type="search"
-            placeholder="Search by full name or email"
-            className="flex-1"
-          />
-          <Select defaultValue={{ label: "All role", value: "all" }}>
-            {({ selectedOption }) => (
-              <>
-                <SelectLabel className="sr-only">Role</SelectLabel>
-                <SelectTrigger className="w-48">
-                  {(selectedOption as { label?: string })?.label ??
-                    "Select role"}
-                </SelectTrigger>
-                <SelectContent className="w-48">
-                  <SelectOption value="all" label="All role" />
-                  <SelectOption value="super_admin" label="Super Admin" />
-                  <SelectOption value="operator" label="Operator" />
-                </SelectContent>
-              </>
+          <Controller
+            control={filtersForm.control}
+            name="search"
+            render={({ field }) => (
+              <Input
+                ref={field.ref}
+                name={field.name}
+                onBlur={field.onBlur}
+                onChange={field.onChange}
+                value={field.value}
+                type="search"
+                placeholder="Search by full name or email"
+                className="flex-1"
+              />
             )}
-          </Select>
-          <Button variant="transparent" type="reset" className="text-red-500">
+          />
+          <Controller
+            control={filtersForm.control}
+            name="role"
+            render={({ field }) => (
+              <Select
+                name={field.name}
+                selectedOption={{
+                  label: roleValueToLabel(field.value ?? ""),
+                  value: field.value ?? "",
+                }}
+                onChange={(selectedOption) => {
+                  const value = selectedOption?.value;
+
+                  if (
+                    value === "" ||
+                    value === "super_admin" ||
+                    value === "operator"
+                  ) {
+                    field.onChange(value);
+                  }
+                }}
+              >
+                {({ selectedOption }) => (
+                  <>
+                    <SelectLabel className="sr-only">Role</SelectLabel>
+                    <SelectTrigger className="w-48">
+                      {(selectedOption as { label?: string })?.label ??
+                        "Select role"}
+                    </SelectTrigger>
+                    <SelectContent className="w-48">
+                      <SelectOption value="" label="All role" />
+                      <SelectOption value="super_admin" label="Super Admin" />
+                      <SelectOption value="operator" label="Operator" />
+                    </SelectContent>
+                  </>
+                )}
+              </Select>
+            )}
+          />
+
+          <Button
+            onClick={() =>
+              filtersForm.reset({
+                is_active: loaderData.data.request.is_active,
+                role: undefined,
+                search: undefined,
+              })
+            }
+            variant="transparent"
+            type="reset"
+            className="text-red-500"
+          >
             Reset
           </Button>
         </div>
-      </form>
+      </div>
       <div className="mt-5">
         <table className="w-full overflow-hidden text-sm rounded-md shadow-haptic-gray-300">
           <thead className="text-gray-500">
@@ -120,13 +237,29 @@ export function AdminIndexPage() {
             </tr>
           </thead>
           <tbody className="text-gray-800 divide-y divide-gray-300">
+            {adminIndexQuery.isLoading && (
+              <tr data-testid={`table-loading`}>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <td
+                    key={i}
+                    className={cn("py-3.5", {
+                      "sm:pl-4": i === 0,
+                      "relative px-3": i === 5 - 1,
+                      "px-3": i !== 0 && i !== 5 - 1,
+                    })}
+                  >
+                    <Skeleton />
+                  </td>
+                ))}
+              </tr>
+            )}
             {admins?.map((admin) => (
               <tr key={admin.id} className="hover:bg-gray-50">
                 <td className="py-3.5 pl-4 pr-3">{admin.full_name}</td>
                 <td className="px-3 py-3.5">{admin.email}</td>
-                <td className="px-3 py-3.5">{roleToLabel(admin.role)}</td>
+                <td className="px-3 py-3.5">{roleValueToLabel(admin.role)}</td>
                 <td className="px-3 py-3.5">{admin.created_at}</td>
-                <td className="flex items-center justify-end px-3 py-3.5 gap-x-1">
+                <td className="flex items-center justify-end px-3 py-2.5 gap-x-1">
                   {currentAdmin?.id !== admin.id &&
                     currentAdmin?.role === "super_admin" && (
                       <>
@@ -158,6 +291,8 @@ export function AdminIndexPage() {
     </div>
   );
 }
+
+AdminIndexPage.loader = loader;
 
 function CreateAdminDialog() {
   const [open, setOpen] = React.useState(false);
@@ -299,14 +434,12 @@ function useCreateAdminMutation() {
   return useMutation({
     async mutationFn(data: CreateAdminSchema) {
       try {
-        const res = await api.post("admins", { json: data }).json();
+        const res = await api.post(data, "/admins");
 
         return CreateAdminResponseSchema.parse(res);
       } catch (error) {
-        if (error instanceof HTTPError) {
-          if (error.response.status === 409) {
-            throw new Error("Email is already registered");
-          }
+        if (error instanceof ConflictError) {
+          throw new Error("Email is already registered");
         }
 
         throw new Error(
@@ -459,7 +592,7 @@ function useUpdateAdminMutation({ adminId }: UseUpdateAdminMutationParams) {
   return useMutation({
     async mutationFn(data: UpdateAdminSchema) {
       try {
-        const res = await api.put(`admins/${adminId}`, { json: data }).json();
+        const res = await api.put(data, `/admins/${adminId}`);
 
         return UpdateAdminResponseSchema.parse(res);
       } catch (error) {
@@ -546,7 +679,7 @@ function useDeactivateAdminMutation({
   return useMutation({
     async mutationFn() {
       try {
-        const res = await api.put(`admins/${adminId}/deactivate`).json();
+        const res = await api.put(`/admins/${adminId}/deactivate`);
 
         return DeactivateAdminResponseSchema.parse(res);
       } catch (error) {

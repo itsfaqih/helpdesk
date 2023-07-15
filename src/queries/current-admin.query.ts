@@ -15,7 +15,7 @@ export function useCurrentAdminQuery() {
     queryKey: ["current_admin"],
     async queryFn() {
       try {
-        const res = await api.get("me").json();
+        const res = await api.get("/me");
 
         return CurrentAdminResponseSchema.parse(res);
       } catch (error) {
