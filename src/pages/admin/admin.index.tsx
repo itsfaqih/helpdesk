@@ -376,20 +376,22 @@ export function AdminIndexPage() {
                     <PaginationListItem>
                       <PaginationPrevPageTrigger />
                     </PaginationListItem>
-                    {pages.map((page, index) =>
-                      page.type === "page" ? (
-                        <PaginationListItem key={index}>
-                          <PaginationPageTrigger {...page}>
-                            {page.value}
-                          </PaginationPageTrigger>
-                        </PaginationListItem>
-                      ) : (
-                        <PaginationListItem key={index}>
-                          <PaginationEllipsis index={index}>
-                            &#8230;
-                          </PaginationEllipsis>
-                        </PaginationListItem>
-                      )
+                    {/* temporarily cast type until it's properly typed */}
+                    {(pages as { type: "page"; value: number }[]).map(
+                      (page, index) =>
+                        page.type === "page" ? (
+                          <PaginationListItem key={index}>
+                            <PaginationPageTrigger {...page}>
+                              {page.value}
+                            </PaginationPageTrigger>
+                          </PaginationListItem>
+                        ) : (
+                          <PaginationListItem key={index}>
+                            <PaginationEllipsis index={index}>
+                              &#8230;
+                            </PaginationEllipsis>
+                          </PaginationListItem>
+                        )
                     )}
                     <PaginationListItem>
                       <PaginationNextPageTrigger />

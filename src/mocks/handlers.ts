@@ -242,9 +242,13 @@ export const handlers = [
       }
 
       if (filters.is_active) {
-        if (admin.is_active !== (filters.is_active === "1")) {
+        if (filters.is_active === "1" && !admin.is_active) {
+          return false;
+        } else if (filters.is_active === "0" && admin.is_active) {
           return false;
         }
+      } else {
+        return admin.is_active;
       }
 
       return true;
