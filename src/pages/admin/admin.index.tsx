@@ -60,6 +60,16 @@ import { ConflictError } from "@/utils/error.util";
 import { cn } from "@/libs/cn.lib";
 import { Skeleton } from "@/components/base/skeleton";
 import { linkClass } from "@/components/base/link";
+import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationList,
+  PaginationListItem,
+  PaginationNextPageTrigger,
+  PaginationPageTrigger,
+  PaginationPrevPageTrigger,
+} from "@/components/base/pagination";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const roles = [
   {
@@ -102,12 +112,16 @@ export function AdminIndexPage() {
   });
 
   const adminIndexQuery = useAdminIndexQuery(loaderData.data.request);
-  const admins = adminIndexQuery.data?.data;
+  const admins = adminIndexQuery.data?.data ?? [];
 
   filtersForm.watch((data, { name }) => {
     if (name === "is_active") {
       data.search = undefined;
       data.role = undefined;
+    }
+
+    if (name !== "page") {
+      data.page = undefined;
     }
 
     const queryStrings = qs.stringify(data);
@@ -116,12 +130,29 @@ export function AdminIndexPage() {
     setSearchParams(searchParams);
   });
 
+  React.useEffect(() => {
+    if (
+      filtersForm.getValues("is_active") !== loaderData.data.request.is_active
+    ) {
+      filtersForm.setValue("is_active", loaderData.data.request.is_active);
+    }
+    if (filtersForm.getValues("role") !== loaderData.data.request.role) {
+      filtersForm.setValue("role", loaderData.data.request.role);
+    }
+    if (filtersForm.getValues("search") !== loaderData.data.request.search) {
+      filtersForm.setValue("search", loaderData.data.request.search);
+    }
+    if (filtersForm.getValues("page") !== loaderData.data.request.page) {
+      filtersForm.setValue("page", loaderData.data.request.page);
+    }
+  }, [filtersForm, loaderData.data.request]);
+
   return (
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Administrators</h1>
         {currentAdmin?.role === "super_admin" && (
-          <CreateAdminDialog key={admins?.length} />
+          <CreateAdminDialog key={admins.length} />
         )}
       </div>
       <Controller
@@ -210,6 +241,7 @@ export function AdminIndexPage() {
                 is_active: loaderData.data.request.is_active,
                 role: undefined,
                 search: "",
+                page: undefined,
               })
             }
             variant="transparent"
@@ -220,7 +252,7 @@ export function AdminIndexPage() {
           </Button>
         </div>
       </div>
-      <div className="mt-5">
+      <div className="mt-5 min-h-[34.25rem]">
         <table className="w-full overflow-hidden text-sm rounded-md shadow-haptic-gray-300">
           <thead className="text-gray-500">
             <tr className="border-b border-gray-300">
@@ -267,7 +299,7 @@ export function AdminIndexPage() {
                 </td>
               </tr>
             )}
-            {adminIndexQuery.isSuccess && admins?.length === 0 && (
+            {adminIndexQuery.isSuccess && admins.length === 0 && (
               <tr data-testid={`table-empty`}>
                 <td
                   colSpan={5}
@@ -277,7 +309,7 @@ export function AdminIndexPage() {
                 </td>
               </tr>
             )}
-            {admins?.map((admin) => (
+            {admins.map((admin) => (
               <tr key={admin.id} className="hover:bg-gray-50">
                 <td className="py-3.5 pl-4 pr-3">{admin.full_name}</td>
                 <td className="px-3 py-3.5">{admin.email}</td>
@@ -324,6 +356,51 @@ export function AdminIndexPage() {
           </tbody>
         </table>
       </div>
+      {adminIndexQuery.isSuccess && (
+        <div className="mt-5">
+          <Controller
+            control={filtersForm.control}
+            name="page"
+            render={({ field }) => (
+              <Pagination
+                page={field.value ?? 1}
+                count={adminIndexQuery.data.meta?.pagination?.total ?? 1}
+                pageSize={adminIndexQuery.data.meta?.pagination?.per_page ?? 1}
+                onChange={({ page }) => {
+                  field.onChange(page);
+                }}
+                className="justify-center"
+              >
+                {({ pages }) => (
+                  <PaginationList>
+                    <PaginationListItem>
+                      <PaginationPrevPageTrigger />
+                    </PaginationListItem>
+                    {pages.map((page, index) =>
+                      page.type === "page" ? (
+                        <PaginationListItem key={index}>
+                          <PaginationPageTrigger {...page}>
+                            {page.value}
+                          </PaginationPageTrigger>
+                        </PaginationListItem>
+                      ) : (
+                        <PaginationListItem key={index}>
+                          <PaginationEllipsis index={index}>
+                            &#8230;
+                          </PaginationEllipsis>
+                        </PaginationListItem>
+                      )
+                    )}
+                    <PaginationListItem>
+                      <PaginationNextPageTrigger />
+                    </PaginationListItem>
+                  </PaginationList>
+                )}
+              </Pagination>
+            )}
+          />
+        </div>
+      )}
     </div>
   );
 }

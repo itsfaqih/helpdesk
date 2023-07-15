@@ -3,12 +3,14 @@ import { AdminWithoutPasswordSchema } from "@/schemas/admin.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { UserError } from "@/utils/error.util";
 import { QueryClient, useQuery } from "@tanstack/react-query";
+import qs from "qs";
 import { z } from "zod";
 
 export const AdminIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
   role: z.enum(["", "super_admin", "operator"]).optional().catch(undefined),
   is_active: z.enum(["1", "0"]).optional().catch(undefined),
+  page: z.coerce.number().optional().catch(undefined),
 });
 
 export type AdminIndexRequest = z.infer<typeof AdminIndexRequestSchema>;
@@ -21,8 +23,8 @@ export function adminIndexQuery(request: AdminIndexRequest = {}) {
   return {
     queryKey: ["admin", "index", request],
     async queryFn() {
-      const qs = new URLSearchParams(request).toString();
-      const res = await api.get(`/admins?${qs}`);
+      const queryStrings = qs.stringify(request);
+      const res = await api.get(`/admins?${queryStrings}`);
 
       return AdminIndexResponseSchema.parse(res);
     },

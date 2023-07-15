@@ -8,11 +8,22 @@ type BaseResponseParams = {
 
 type SuccessResponseParams<TData> = BaseResponseParams & {
   data: TData;
+  meta?: {
+    pagination?: {
+      current_page: number;
+      per_page: number;
+      from: number;
+      to: number;
+      total: number;
+      last_page: number;
+    };
+  };
 };
 
 export function successResponse<TData>({
   data,
   message,
+  meta,
   status = 200,
   transformers,
 }: SuccessResponseParams<TData>) {
@@ -21,6 +32,7 @@ export function successResponse<TData>({
     context.json({
       data,
       message,
+      meta,
     }),
     context.status(status),
     context.delay()

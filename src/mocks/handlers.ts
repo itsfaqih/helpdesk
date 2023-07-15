@@ -11,6 +11,7 @@ import { rest } from "msw";
 import { errorResponse, successResponse } from "./res";
 import { nanoid } from "nanoid";
 import { AdminIndexRequestSchema } from "@/queries/admin.index.query";
+import { generatePaginationMeta } from "@/utils/api.util";
 
 export const handlers = [
   rest.post("/api/login", async (req) => {
@@ -249,9 +250,19 @@ export const handlers = [
       return true;
     });
 
+    const page = filters.page ?? 1;
+
+    const paginatedAdmins = filteredAdmins.slice((page - 1) * 10, page * 10);
+
     return successResponse({
-      data: filteredAdmins,
+      data: paginatedAdmins,
       message: "Successfully retrieved admins",
+      meta: {
+        ...generatePaginationMeta({
+          currentPage: page,
+          total: filteredAdmins.length,
+        }),
+      },
     });
   }),
   rest.put("/api/admins/:adminId/deactivate", async (req) => {
