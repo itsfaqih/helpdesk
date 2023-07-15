@@ -59,6 +59,7 @@ import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { ConflictError } from "@/utils/error.util";
 import { cn } from "@/libs/cn.lib";
 import { Skeleton } from "@/components/base/skeleton";
+import { linkClass } from "@/components/base/link";
 
 const roles = [
   {
@@ -253,6 +254,29 @@ export function AdminIndexPage() {
                 ))}
               </tr>
             )}
+            {adminIndexQuery.isError && (
+              <tr data-testid={`table-error`}>
+                <td colSpan={5} className="py-3.5 px-3">
+                  {(typeof adminIndexQuery.error === "object" &&
+                    adminIndexQuery.error instanceof Error &&
+                    adminIndexQuery.error.message) ||
+                    undefined}
+                  <button onClick={() => adminIndexQuery.refetch()}>
+                    <button className={linkClass}>Muat ulang</button>
+                  </button>
+                </td>
+              </tr>
+            )}
+            {adminIndexQuery.isSuccess && admins?.length === 0 && (
+              <tr data-testid={`table-empty`}>
+                <td
+                  colSpan={5}
+                  className="py-3.5 px-3 text-gray-500 text-center"
+                >
+                  No data
+                </td>
+              </tr>
+            )}
             {admins?.map((admin) => (
               <tr key={admin.id} className="hover:bg-gray-50">
                 <td className="py-3.5 pl-4 pr-3">{admin.full_name}</td>
@@ -261,7 +285,8 @@ export function AdminIndexPage() {
                 <td className="px-3 py-3.5">{admin.created_at}</td>
                 <td className="flex items-center justify-end px-3 py-2.5 gap-x-1">
                   {currentAdmin?.id !== admin.id &&
-                    currentAdmin?.role === "super_admin" && (
+                    currentAdmin?.role === "super_admin" &&
+                    (admin.is_active ? (
                       <>
                         <UpdateAdminDialog
                           admin={admin}
@@ -276,12 +301,23 @@ export function AdminIndexPage() {
                             <IconButton
                               icon={Power}
                               label="Deactivate"
-                              className="text-red-500"
+                              className="text-red-600"
                             />
                           }
                         />
                       </>
-                    )}
+                    ) : (
+                      <ReactivateAdminDialog
+                        adminId={admin.id}
+                        trigger={
+                          <IconButton
+                            icon={Power}
+                            label="Reactivate"
+                            className="text-green-600"
+                          />
+                        }
+                      />
+                    ))}
                 </td>
               </tr>
             ))}
@@ -679,9 +715,96 @@ function useDeactivateAdminMutation({
   return useMutation({
     async mutationFn() {
       try {
-        const res = await api.put(`/admins/${adminId}/deactivate`);
+        const res = await api.put(undefined, `/admins/${adminId}/deactivate`);
 
         return DeactivateAdminResponseSchema.parse(res);
+      } catch (error) {
+        throw new Error(
+          "Something went wrong. Please contact the administrator"
+        );
+      }
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries(["admin", "index"]);
+    },
+  });
+}
+
+type ReactivateAdminDialogProps = {
+  adminId: Admin["id"];
+  trigger: React.ReactNode;
+};
+
+function ReactivateAdminDialog({
+  adminId,
+  trigger,
+}: ReactivateAdminDialogProps) {
+  const [open, setOpen] = React.useState(false);
+
+  const reactivateAdminMutation = useReactivateAdminMutation({ adminId });
+
+  React.useEffect(() => {
+    if (reactivateAdminMutation.isSuccess) {
+      setOpen(false);
+    }
+  }, [reactivateAdminMutation.isSuccess]);
+
+  return (
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      onOpen={() => setOpen(true)}
+    >
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent className="w-[36rem]">
+        <DialogHeader>
+          <DialogTitle>Reactivate Admin</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to reactivate this admin? After reactivating
+            the admin will be able to login to the system
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="mt-5">
+          <Button
+            type="button"
+            variant="primary"
+            loading={reactivateAdminMutation.isLoading}
+            success={reactivateAdminMutation.isSuccess}
+            onClick={() => reactivateAdminMutation.mutate()}
+          >
+            Reactivate Admin
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const ReactivateAdminResponseSchema = APIResponseSchema({
+  schema: AdminSchema.pick({
+    id: true,
+    email: true,
+    full_name: true,
+    role: true,
+    is_active: true,
+  }),
+});
+
+type UseReactivateAdminMutationParams = {
+  adminId: Admin["id"];
+};
+
+function useReactivateAdminMutation({
+  adminId,
+}: UseReactivateAdminMutationParams) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn() {
+      try {
+        const res = await api.put(undefined, `/admins/${adminId}/activate`);
+
+        return ReactivateAdminResponseSchema.parse(res);
       } catch (error) {
         throw new Error(
           "Something went wrong. Please contact the administrator"

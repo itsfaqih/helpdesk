@@ -174,7 +174,7 @@ function IconButtonComponent(
             className={iconButtonClass({ size, variant, className })}
             {...props}
           >
-            <Icon className={iconButtonIconClass()} />
+            <Icon weight="bold" className={iconButtonIconClass()} />
             <span className="sr-only">{label}</span>
           </Component>
         </div>

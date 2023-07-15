@@ -2,6 +2,8 @@ import { cn } from "@/libs/cn.lib";
 import React from "react";
 import { Link as ReactRouterLink } from "react-router-dom";
 
+export const linkClass = "text-sm font-medium text-brand-600 hover:underline";
+
 export const Link = React.forwardRef<
   React.ElementRef<typeof ReactRouterLink>,
   React.ComponentPropsWithoutRef<typeof ReactRouterLink>
@@ -9,10 +11,7 @@ export const Link = React.forwardRef<
   return (
     <ReactRouterLink
       ref={ref}
-      className={cn(
-        "text-sm font-medium text-brand-600 hover:underline",
-        className
-      )}
+      className={cn(linkClass, className)}
       {...props}
     />
   );

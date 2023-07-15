@@ -307,4 +307,57 @@ export const handlers = [
       message: "Successfully deactivated admin",
     });
   }),
+  rest.put("/api/admins/:adminId/activate", async (req) => {
+    const currentAdmin = await localforage.getItem("current_admin");
+
+    if (!currentAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const parsedCurrentAdmin = AdminWithoutPasswordSchema.parse(currentAdmin);
+
+    if (parsedCurrentAdmin.role !== "super_admin") {
+      return errorResponse({
+        message: "Forbidden",
+        status: 403,
+      });
+    }
+
+    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
+    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+
+    const adminId = req.params.adminId;
+
+    const adminToUpdate = currentAdmins.find((admin) => admin.id === adminId);
+
+    if (!adminToUpdate) {
+      return errorResponse({
+        message: "Admin is not found",
+        status: 404,
+      });
+    }
+
+    const updatedAdmin: Admin = {
+      ...adminToUpdate,
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    const newAdmins = currentAdmins.map((admin) =>
+      admin.id === adminId ? updatedAdmin : admin
+    );
+
+    await localforage.setItem("admins", newAdmins);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...updatedAdminWithoutPassword } = updatedAdmin;
+
+    return successResponse({
+      data: updatedAdminWithoutPassword,
+      message: "Successfully activated admin",
+    });
+  }),
 ];
