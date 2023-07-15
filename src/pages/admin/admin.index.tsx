@@ -208,7 +208,7 @@ export function AdminIndexPage() {
               filtersForm.reset({
                 is_active: loaderData.data.request.is_active,
                 role: undefined,
-                search: undefined,
+                search: "",
               })
             }
             variant="transparent"
