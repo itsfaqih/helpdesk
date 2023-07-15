@@ -355,7 +355,7 @@ export function AdminIndexPage() {
           </tbody>
         </table>
       </div>
-      {adminIndexQuery.isSuccess && (
+      {adminIndexQuery.isSuccess && adminIndexQuery.data.data.length > 0 && (
         <div className="mt-5">
           <Controller
             control={filtersForm.control}
