@@ -69,6 +69,7 @@ import {
   PaginationPageTrigger,
   PaginationPrevPageTrigger,
 } from "@/components/base/pagination";
+import { FadeInContainer } from "@/components/base/fade-in-container";
 
 const roles = [
   {
@@ -147,7 +148,7 @@ export function AdminIndexPage() {
   }, [filtersForm, loaderData.data.request]);
 
   return (
-    <div>
+    <FadeInContainer>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Administrators</h1>
         {currentAdmin?.role === "super_admin" && (
@@ -402,7 +403,7 @@ export function AdminIndexPage() {
           />
         </div>
       )}
-    </div>
+    </FadeInContainer>
   );
 }
 

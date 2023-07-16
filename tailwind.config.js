@@ -9,6 +9,7 @@ export default {
     extend: {
       animation: {
         blink: "blink 1.4s infinite both",
+        "fade-in": "fade-in 0.3s ease-out",
       },
       boxShadow: {
         menu: "0px 1px 9px 1px rgba(0, 0, 0, 0.06), 0px 0px 0px 1px rgba(18, 24, 38, 0.08), 0px 1px 2px rgba(18, 24, 38, 0.12)",
@@ -29,6 +30,14 @@ export default {
           },
           "100%": {
             opacity: " 0.2",
+          },
+        },
+        "fade-in": {
+          "0%": {
+            opacity: "0",
+          },
+          "100%": {
+            opacity: "1",
           },
         },
       },

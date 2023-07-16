@@ -7,10 +7,11 @@ import {
   Ticket,
 } from "@phosphor-icons/react";
 import { cn } from "@/libs/cn.lib";
+import { FadeInContainer } from "@/components/base/fade-in-container";
 
 export function DashboardOverviewPage() {
   return (
-    <div className="grid grid-cols-4 gap-8">
+    <FadeInContainer className="grid grid-cols-4 gap-8">
       <OverviewCard
         icon={Archive}
         title="Total Tickets"
@@ -38,7 +39,7 @@ export function DashboardOverviewPage() {
           icon: "text-emerald-700",
         }}
       />
-    </div>
+    </FadeInContainer>
   );
 }
 

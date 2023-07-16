@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import localforage from "localforage";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { FadeInContainer } from "@/components/base/fade-in-container";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export function LoginPage() {
   });
 
   return (
-    <div className="max-w-sm mx-auto mt-32">
+    <FadeInContainer className="max-w-sm mx-auto mt-32">
       <h1 className="text-2xl font-medium text-center text-gray-800">
         Helpdesk Management
       </h1>
@@ -97,7 +98,7 @@ export function LoginPage() {
       <p className="mt-4.5 text-sm text-gray-600 text-center">
         Not registered yet? <Link to="/auth/register">Register</Link>
       </p>
-    </div>
+    </FadeInContainer>
   );
 }
 

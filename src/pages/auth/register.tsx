@@ -1,4 +1,5 @@
 import { Button } from "@/components/base/button";
+import { FadeInContainer } from "@/components/base/fade-in-container";
 import { Link } from "@/components/base/link";
 import { Textbox } from "@/components/derived/textbox";
 import { api } from "@/libs/api.lib";
@@ -40,7 +41,7 @@ export function RegisterPage() {
   });
 
   return (
-    <div className="max-w-sm mx-auto mt-32">
+    <FadeInContainer className="max-w-sm mx-auto mt-32">
       <h1 className="text-2xl font-medium text-center text-gray-800">
         Register
       </h1>
@@ -85,7 +86,7 @@ export function RegisterPage() {
       <p className="mt-4.5 text-sm text-gray-600 text-center">
         Already have an account? <Link to="/auth/login">Login</Link>
       </p>
-    </div>
+    </FadeInContainer>
   );
 }
 

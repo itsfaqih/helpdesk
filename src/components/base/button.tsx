@@ -1,9 +1,9 @@
 import { forwardRef } from "react";
 import { VariantProps, cva } from "class-variance-authority";
+import { Check } from "@phosphor-icons/react";
 import { cn } from "@/libs/cn.lib";
 import { PropsWithAs, forwardRefWithAs } from "@/utils/as.util";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
-import { Check } from "@phosphor-icons/react";
 
 type ButtonProps = {
   size?: VariantProps<typeof buttonClass>["size"];
@@ -51,7 +51,7 @@ function ButtonComponent(
         />
       )}
       {loading && (
-        <span className="inline-flex items-center gap-x-0.5 h-5 absolute left-1/2 -translate-x-1/2">
+        <span className="animate-fade-in inline-flex items-center gap-x-0.5 h-5 absolute left-1/2 -translate-x-1/2">
           <span className="animate-blink mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
           <span className="animate-blink animation-delay-150 mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
           <span className="animate-blink animation-delay-300 mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
@@ -60,7 +60,7 @@ function ButtonComponent(
       {success && (
         <Check
           weight="bold"
-          className="absolute w-5 h-5 -translate-x-1/2 left-1/2"
+          className="absolute w-5 h-5 -translate-x-1/2 left-1/2 animate-fade-in"
         />
       )}
       <span

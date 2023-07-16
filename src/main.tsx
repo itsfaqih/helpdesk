@@ -8,11 +8,12 @@ import {
   redirect,
   RouterProvider,
 } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { LoginPage } from "./pages/auth/login";
 import { RegisterPage } from "./pages/auth/register";
 import { ForgotPasswordPage } from "./pages/auth/forgot-password";
 import { DashboardRoot } from "./pages/dashboard/dashboard.root";
-import { DashboardOverviewPage } from "./pages/dashboard/overview";
+import { DashboardOverviewPage } from "./pages/dashboard/overview.dashboard";
 import { AdminIndexPage } from "./pages/admin/admin.index";
 
 async function prepare() {
@@ -89,7 +90,9 @@ prepare()
     ReactDOM.createRoot(document.getElementById("root")!).render(
       <React.StrictMode>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <AnimatePresence>
+            <RouterProvider router={router} />
+          </AnimatePresence>
         </QueryClientProvider>
       </React.StrictMode>
     );
