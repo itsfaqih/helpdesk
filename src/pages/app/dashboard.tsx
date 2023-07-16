@@ -9,7 +9,7 @@ import {
 import { cn } from "@/libs/cn.lib";
 import { FadeInContainer } from "@/components/base/fade-in-container";
 
-export function DashboardOverviewPage() {
+export function DashboardPage() {
   return (
     <FadeInContainer className="grid grid-cols-4 gap-8">
       <OverviewCard

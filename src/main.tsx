@@ -12,9 +12,9 @@ import { AnimatePresence } from "framer-motion";
 import { LoginPage } from "./pages/auth/login";
 import { RegisterPage } from "./pages/auth/register";
 import { ForgotPasswordPage } from "./pages/auth/forgot-password";
-import { DashboardRoot } from "./pages/dashboard/dashboard.root";
-import { DashboardOverviewPage } from "./pages/dashboard/overview.dashboard";
-import { AdminIndexPage } from "./pages/admin/admin.index";
+import { AppRoot } from "./pages/app/app.root";
+import { DashboardPage } from "./pages/app/dashboard";
+import { AdminIndexPage } from "./pages/app/admin/admin.index";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
@@ -67,10 +67,10 @@ prepare()
 
           return null;
         },
-        element: <DashboardRoot />,
+        element: <AppRoot />,
         children: [
           {
-            element: <DashboardOverviewPage />,
+            element: <DashboardPage />,
             index: true,
           },
           {

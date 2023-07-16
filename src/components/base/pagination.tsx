@@ -46,7 +46,7 @@ export const PaginationPrevPageTrigger = React.forwardRef<
   <Ark.PaginationPrevPageTrigger
     ref={ref}
     className={cn(
-      "px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-md w-9 h-9 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800",
+      "px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-md w-9 h-9 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800 disabled:opacity-40",
       className
     )}
     {...props}
@@ -65,7 +65,7 @@ export const PaginationNextPageTrigger = React.forwardRef<
   <Ark.PaginationNextPageTrigger
     ref={ref}
     className={cn(
-      "px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-md w-9 h-9 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800",
+      "px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-md w-9 h-9 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800 disabled:opacity-40",
       className
     )}
     {...props}

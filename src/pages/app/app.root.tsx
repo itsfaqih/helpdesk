@@ -13,7 +13,7 @@ import { useCurrentAdminQuery } from "@/queries/current-admin.query";
 import { useLogOutMutation } from "@/mutations/log-out.mutation";
 import { FadeInContainer } from "@/components/base/fade-in-container";
 
-export function DashboardRoot() {
+export function AppRoot() {
   const navigate = useNavigate();
 
   const currentAdminQuery = useCurrentAdminQuery();
