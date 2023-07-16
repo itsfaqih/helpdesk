@@ -70,6 +70,7 @@ import {
   PaginationPrevPageTrigger,
 } from "@/components/base/pagination";
 import { FadeInContainer } from "@/components/base/fade-in-container";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const roles = [
   {
@@ -110,6 +111,11 @@ export function AdminIndexPage() {
     resolver: zodResolver(AdminIndexRequestSchema),
     defaultValues: loaderData.data.request,
   });
+
+  const [search, setSearch] = React.useState("");
+  useDebounce(() => {
+    filtersForm.setValue("search", search);
+  }, 500);
 
   const adminIndexQuery = useAdminIndexQuery(loaderData.data.request);
   const admins = adminIndexQuery.data?.data ?? [];
@@ -176,25 +182,17 @@ export function AdminIndexPage() {
           </Tabs>
         )}
       />
-
       <div className="mt-5">
         <div className="flex items-center gap-x-3">
-          <Controller
-            control={filtersForm.control}
+          <Input
             name="search"
-            render={({ field }) => (
-              <Input
-                ref={field.ref}
-                name={field.name}
-                onBlur={field.onBlur}
-                onChange={field.onChange}
-                value={field.value}
-                type="search"
-                placeholder="Search by full name or email"
-                className="flex-1"
-              />
-            )}
+            onChange={(e) => setSearch(e.target.value)}
+            value={search}
+            type="search"
+            placeholder="Search by full name or email"
+            className="flex-1"
           />
+
           <Controller
             control={filtersForm.control}
             name="role"
