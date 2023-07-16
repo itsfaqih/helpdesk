@@ -15,6 +15,8 @@ import { ForgotPasswordPage } from "./pages/auth/forgot-password";
 import { AppRoot } from "./pages/app/app.root";
 import { DashboardPage } from "./pages/app/dashboard";
 import { AdminIndexPage } from "./pages/app/admin/admin.index";
+import { AdminCreatePage } from "./pages/app/admin/admin.create";
+import { AdminShowPage } from "./pages/app/admin/admin.show";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
@@ -80,6 +82,15 @@ prepare()
                 element: <AdminIndexPage />,
                 loader: AdminIndexPage.loader(queryClient),
                 index: true,
+              },
+              {
+                path: ":id",
+                loader: AdminShowPage.loader(queryClient),
+                element: <AdminShowPage />,
+              },
+              {
+                path: "create",
+                element: <AdminCreatePage />,
               },
             ],
           },

@@ -1,10 +1,15 @@
-"use client";
-
 import React from "react";
 import * as Ark from "@ark-ui/react";
 import { cn } from "@/libs/cn.lib";
 
-export const Select = Ark.Select;
+export function Select({
+  positioning,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof Ark.Select>) {
+  return (
+    <Ark.Select positioning={{ sameWidth: true, ...positioning }} {...props} />
+  );
+}
 
 export const SelectLabel = React.forwardRef<
   React.ElementRef<typeof Ark.SelectLabel>,
@@ -25,13 +30,14 @@ type SelectTriggerProps = React.ComponentPropsWithoutRef<
   typeof Ark.SelectTrigger
 > & {
   error?: string;
+  errorPlaceholder?: boolean;
 };
 
 export const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof Ark.SelectTrigger>,
   SelectTriggerProps
->(({ error, children, className, ...props }, ref) => (
-  <div>
+>(({ error, errorPlaceholder, children, className, ...props }, ref) => (
+  <div className="grid gap-1.5">
     <Ark.SelectTrigger
       ref={ref}
       className={cn(
@@ -58,7 +64,8 @@ export const SelectTrigger = React.forwardRef<
         />
       </svg>
     </Ark.SelectTrigger>
-    {error && <p className="text-sm text-rose-500 mt-1.5">{error}</p>}
+    {!error && errorPlaceholder && <div className="h-5" />}
+    {error && <p className="text-sm text-rose-500">{error}</p>}
   </div>
 ));
 

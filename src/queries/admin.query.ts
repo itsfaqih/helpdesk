@@ -53,3 +53,49 @@ export async function fetchAdminIndexQuery({
       }
     }));
 }
+
+export const AdminShowRequestSchema = z.object({
+  id: z.string(),
+});
+
+export type AdminShowRequest = z.infer<typeof AdminShowRequestSchema>;
+
+const AdminShowResponseSchema = APIResponseSchema({
+  schema: AdminWithoutPasswordSchema,
+});
+
+export function adminShowQuery(request: AdminShowRequest) {
+  const { id, ...requestWithoutId } = request;
+
+  return {
+    queryKey: ["admin", "show", id, requestWithoutId],
+    async queryFn() {
+      const res = await api.get(`/admins/${id}`);
+
+      return AdminShowResponseSchema.parse(res);
+    },
+  };
+}
+
+export function useAdminShowQuery(request: AdminShowRequest) {
+  return useQuery(adminShowQuery(request));
+}
+
+type FetchAdminShowQueryParams = {
+  queryClient: QueryClient;
+  request: AdminShowRequest;
+};
+
+export async function fetchAdminShowQuery({
+  queryClient,
+  request,
+}: FetchAdminShowQueryParams) {
+  const adminShowQueryOpt = adminShowQuery(request);
+
+  queryClient.getQueryData(adminShowQueryOpt.queryKey) ??
+    (await queryClient.fetchQuery(adminShowQueryOpt).catch((error) => {
+      if (error instanceof UserError) {
+        throw error;
+      }
+    }));
+}

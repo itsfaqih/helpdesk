@@ -1,4 +1,3 @@
-import { forwardRef } from "react";
 import { VariantProps, cva } from "class-variance-authority";
 import { Check } from "@phosphor-icons/react";
 import { cn } from "@/libs/cn.lib";
@@ -146,9 +145,9 @@ const iconClass = cva("", {
   },
 });
 
-type IconButtonProps = React.ComponentPropsWithoutRef<"button"> & {
-  icon: React.ElementType;
-  label: string;
+type IconButtonProps = {
+  icon?: React.ElementType;
+  label?: string;
   size?: VariantProps<typeof buttonClass>["size"];
   variant?: VariantProps<typeof buttonClass>["variant"];
 };
@@ -174,7 +173,7 @@ function IconButtonComponent(
             className={iconButtonClass({ size, variant, className })}
             {...props}
           >
-            <Icon weight="bold" className={iconButtonIconClass()} />
+            {Icon && <Icon weight="bold" className={iconButtonIconClass()} />}
             <span className="sr-only">{label}</span>
           </Component>
         </div>
@@ -184,7 +183,9 @@ function IconButtonComponent(
   );
 }
 
-export const IconButton = forwardRef(IconButtonComponent);
+export const IconButton = forwardRefWithAs<IconButtonProps, "button">(
+  IconButtonComponent
+);
 
 const baseIconButtonClass = cva("", {
   variants: {

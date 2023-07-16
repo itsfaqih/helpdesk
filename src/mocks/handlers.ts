@@ -10,7 +10,7 @@ import localforage from "localforage";
 import { rest } from "msw";
 import { errorResponse, successResponse } from "./res";
 import { nanoid } from "nanoid";
-import { AdminIndexRequestSchema } from "@/queries/admin.index.query";
+import { AdminIndexRequestSchema } from "@/queries/admin.query";
 import { generatePaginationMeta } from "@/utils/api.util";
 
 export const handlers = [
@@ -267,6 +267,35 @@ export const handlers = [
           total: filteredAdmins.length,
         }),
       },
+    });
+  }),
+  rest.get("/api/admins/:adminId", async (req) => {
+    const currentAdmin = await localforage.getItem("current_admin");
+
+    if (!currentAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
+    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+
+    const adminId = req.params.adminId;
+
+    const admin = currentAdmins.find((admin) => admin.id === adminId);
+
+    if (!admin) {
+      return errorResponse({
+        message: "Admin is not found",
+        status: 404,
+      });
+    }
+
+    return successResponse({
+      data: admin,
+      message: "Successfully retrieved admin",
     });
   }),
   rest.put("/api/admins/:adminId/deactivate", async (req) => {

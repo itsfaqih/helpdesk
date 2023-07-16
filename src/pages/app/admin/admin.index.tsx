@@ -26,14 +26,7 @@ import {
   TabTrigger,
   Tabs,
 } from "@/components/base/tabs";
-import { Textbox } from "@/components/derived/textbox";
-import {
-  Admin,
-  AdminSchema,
-  AdminWithoutPassword,
-  CreateAdminSchema,
-  UpdateAdminSchema,
-} from "@/schemas/admin.schema";
+import { Admin, AdminSchema } from "@/schemas/admin.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   QueryClient,
@@ -49,14 +42,14 @@ import {
   AdminIndexRequestSchema,
   fetchAdminIndexQuery,
   useAdminIndexQuery,
-} from "@/queries/admin.index.query";
+} from "@/queries/admin.query";
 import {
+  Link,
   LoaderFunctionArgs,
   useLoaderData,
   useSearchParams,
 } from "react-router-dom";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { ConflictError } from "@/utils/error.util";
 import { cn } from "@/libs/cn.lib";
 import { Skeleton } from "@/components/base/skeleton";
 import { linkClass } from "@/components/base/link";
@@ -71,17 +64,7 @@ import {
 } from "@/components/base/pagination";
 import { FadeInContainer } from "@/components/base/fade-in-container";
 import { useDebounce } from "@/hooks/use-debounce";
-
-const roles = [
-  {
-    label: "Super Admin",
-    value: "super_admin",
-  },
-  {
-    label: "Operator",
-    value: "operator",
-  },
-];
+import { AppPageTitle } from "../_components/page-title.app";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -100,6 +83,8 @@ function loader(queryClient: QueryClient) {
   };
 }
 
+AdminIndexPage.loader = loader;
+
 export function AdminIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
@@ -112,8 +97,9 @@ export function AdminIndexPage() {
     defaultValues: loaderData.data.request,
   });
 
-  const [search, setSearch] = React.useState("");
+  const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
+    if (search === null) return;
     filtersForm.setValue("search", search);
   }, 500);
 
@@ -155,12 +141,21 @@ export function AdminIndexPage() {
 
   return (
     <FadeInContainer className="pb-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Administrators</h1>
-        {currentAdmin?.role === "super_admin" && (
-          <CreateAdminDialog key={admins.length} />
-        )}
-      </div>
+      <AppPageTitle
+        title="Administrators"
+        actions={
+          currentAdmin?.role === "super_admin" && (
+            <Button
+              as={Link}
+              to="/admins/create"
+              variant="primary"
+              leading={Plus}
+            >
+              New Admin
+            </Button>
+          )
+        }
+      />
       <Controller
         control={filtersForm.control}
         name="is_active"
@@ -187,7 +182,7 @@ export function AdminIndexPage() {
           <Input
             name="search"
             onChange={(e) => setSearch(e.target.value)}
-            value={search}
+            value={search ?? ""}
             type="search"
             placeholder="Search by full name or email"
             className="flex-1"
@@ -292,7 +287,7 @@ export function AdminIndexPage() {
                     adminIndexQuery.error.message) ||
                     undefined}
                   <button onClick={() => adminIndexQuery.refetch()}>
-                    <button className={linkClass}>Muat ulang</button>
+                    <button className={linkClass()}>Muat ulang</button>
                   </button>
                 </td>
               </tr>
@@ -318,11 +313,11 @@ export function AdminIndexPage() {
                     currentAdmin?.role === "super_admin" &&
                     (admin.is_active ? (
                       <>
-                        <UpdateAdminDialog
-                          admin={admin}
-                          trigger={
-                            <IconButton icon={PencilSimple} label="Edit" />
-                          }
+                        <IconButton
+                          as={Link}
+                          to={`/admins/${admin.id}`}
+                          icon={PencilSimple}
+                          label="Edit"
                         />
 
                         <DeactivateAdminDialog
@@ -403,321 +398,6 @@ export function AdminIndexPage() {
       )}
     </FadeInContainer>
   );
-}
-
-AdminIndexPage.loader = loader;
-
-function CreateAdminDialog() {
-  const [open, setOpen] = React.useState(false);
-
-  const createAdminForm = useForm<CreateAdminSchema>({
-    resolver: zodResolver(CreateAdminSchema),
-  });
-
-  const createAdminMutation = useCreateAdminMutation();
-
-  const onSubmit = createAdminForm.handleSubmit((data) => {
-    createAdminMutation.mutate(data, {
-      onSuccess() {
-        setOpen(false);
-      },
-    });
-  });
-
-  return (
-    <Dialog
-      open={open}
-      onClose={() => {
-        setOpen(false);
-        createAdminForm.reset();
-      }}
-      onOpen={() => setOpen(true)}
-      closeOnOutsideClick={false}
-    >
-      <DialogTrigger asChild>
-        <Button variant="primary" leading={Plus}>
-          New Admin
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="w-96">
-        <DialogHeader>
-          <DialogTitle>Create New Admin</DialogTitle>
-          <DialogDescription>
-            Create new admin for managing the system
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          id="create-admin-form"
-          onSubmit={onSubmit}
-          className="flex flex-col pt-5 pb-8 gap-y-4.5"
-        >
-          <Textbox
-            {...createAdminForm.register("full_name")}
-            label="Full Name"
-            placeholder="Enter Full Name"
-            disabled={createAdminMutation.isLoading}
-            error={createAdminForm.formState.errors.full_name?.message}
-          />
-          <Textbox
-            {...createAdminForm.register("email")}
-            label="Email"
-            type="email"
-            placeholder="Enter Email"
-            disabled={createAdminMutation.isLoading}
-            error={createAdminForm.formState.errors.email?.message}
-          />
-          <Textbox
-            {...createAdminForm.register("password")}
-            label="Password"
-            type="password"
-            placeholder="Enter Password"
-            disabled={createAdminMutation.isLoading}
-            error={createAdminForm.formState.errors.password?.message}
-          />
-          <Controller
-            control={createAdminForm.control}
-            name="role"
-            render={({ field }) => (
-              <Select
-                name={field.name}
-                disabled={createAdminMutation.isLoading}
-                onChange={(selectedOption) => {
-                  const value = selectedOption?.value;
-
-                  if (value === "super_admin" || value === "operator") {
-                    field.onChange(value);
-                  }
-                }}
-                selectedOption={roles.find(
-                  (role) => role.value === field.value
-                )}
-              >
-                {({ selectedOption }) => (
-                  <>
-                    <div className="grid w-full items-center gap-1.5">
-                      <SelectLabel>Role</SelectLabel>
-                      <SelectTrigger
-                        ref={field.ref}
-                        error={createAdminForm.formState.errors.role?.message}
-                        className="w-full"
-                      >
-                        {(selectedOption as { label?: string })?.label ??
-                          "Select role"}
-                      </SelectTrigger>
-                    </div>
-                    <SelectContent className="w-full">
-                      <SelectOption value="super_admin" label="Super Admin" />
-                      <SelectOption value="operator" label="Operator" />
-                    </SelectContent>
-                  </>
-                )}
-              </Select>
-            )}
-          />
-        </form>
-        <DialogFooter>
-          <Button
-            form="create-admin-form"
-            type="submit"
-            variant="primary"
-            loading={createAdminMutation.isLoading}
-            success={createAdminMutation.isSuccess}
-          >
-            Create Admin
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-const CreateAdminResponseSchema = APIResponseSchema({
-  schema: AdminSchema.pick({
-    id: true,
-    email: true,
-    full_name: true,
-    role: true,
-    is_active: true,
-  }),
-});
-
-function useCreateAdminMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn(data: CreateAdminSchema) {
-      try {
-        const res = await api.post(data, "/admins");
-
-        return CreateAdminResponseSchema.parse(res);
-      } catch (error) {
-        if (error instanceof ConflictError) {
-          throw new Error("Email is already registered");
-        }
-
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries(["admin", "index"]);
-    },
-  });
-}
-
-type UpdateAdminDialogProps = {
-  admin: AdminWithoutPassword;
-  trigger: React.ReactNode;
-};
-
-function UpdateAdminDialog({ admin, trigger }: UpdateAdminDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
-  const updateAdminForm = useForm<UpdateAdminSchema>({
-    resolver: zodResolver(UpdateAdminSchema),
-    defaultValues: admin,
-  });
-
-  const updateAdminMutation = useUpdateAdminMutation({ adminId: admin.id });
-
-  const onSubmit = updateAdminForm.handleSubmit((data) => {
-    updateAdminMutation.mutate(data);
-  });
-
-  React.useEffect(() => {
-    updateAdminForm.reset(admin);
-  }, [admin, updateAdminForm]);
-
-  return (
-    <Dialog
-      open={open}
-      onClose={() => {
-        setOpen(false);
-        updateAdminForm.reset();
-      }}
-      onOpen={() => setOpen(true)}
-      closeOnOutsideClick={false}
-    >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="w-96">
-        <DialogHeader>
-          <DialogTitle>Update Admin</DialogTitle>
-          <DialogDescription>Update admin data</DialogDescription>
-        </DialogHeader>
-        <form
-          id="update-admin-form"
-          onSubmit={onSubmit}
-          className="flex flex-col pt-5 pb-8 gap-y-4.5"
-        >
-          <Textbox
-            {...updateAdminForm.register("full_name")}
-            label="Full Name"
-            placeholder="Enter Full Name"
-            disabled={updateAdminMutation.isLoading}
-            error={updateAdminForm.formState.errors.full_name?.message}
-          />
-          <Textbox
-            label="Email"
-            type="email"
-            placeholder="Enter Email"
-            disabled={updateAdminMutation.isLoading}
-            value={admin.email}
-            readOnly
-          />
-          <Controller
-            control={updateAdminForm.control}
-            name="role"
-            render={({ field }) => (
-              <Select
-                name={field.name}
-                disabled={updateAdminMutation.isLoading}
-                onChange={(selectedOption) => {
-                  const value = selectedOption?.value;
-
-                  if (value === "super_admin" || value === "operator") {
-                    field.onChange(value);
-                  }
-                }}
-                selectedOption={roles.find(
-                  (role) => role.value === field.value
-                )}
-              >
-                {({ selectedOption }) => (
-                  <>
-                    <div className="grid w-full items-center gap-1.5">
-                      <SelectLabel>Role</SelectLabel>
-                      <SelectTrigger
-                        ref={field.ref}
-                        error={updateAdminForm.formState.errors.role?.message}
-                        className="w-full"
-                      >
-                        {(selectedOption as { label?: string })?.label ??
-                          "Select role"}
-                      </SelectTrigger>
-                    </div>
-                    <SelectContent className="w-full">
-                      <SelectOption value="super_admin" label="Super Admin" />
-                      <SelectOption value="operator" label="Operator" />
-                    </SelectContent>
-                  </>
-                )}
-              </Select>
-            )}
-          />
-        </form>
-        <DialogFooter>
-          <Button
-            form="update-admin-form"
-            type="submit"
-            variant="primary"
-            loading={updateAdminMutation.isLoading}
-            success={
-              updateAdminMutation.isSuccess &&
-              !updateAdminForm.formState.isDirty
-            }
-          >
-            Update Admin
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-const UpdateAdminResponseSchema = APIResponseSchema({
-  schema: AdminSchema.pick({
-    id: true,
-    email: true,
-    full_name: true,
-    role: true,
-    is_active: true,
-  }),
-});
-
-type UseUpdateAdminMutationParams = {
-  adminId: Admin["id"];
-};
-
-function useUpdateAdminMutation({ adminId }: UseUpdateAdminMutationParams) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn(data: UpdateAdminSchema) {
-      try {
-        const res = await api.put(data, `/admins/${adminId}`);
-
-        return UpdateAdminResponseSchema.parse(res);
-      } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries(["admin", "index"]);
-    },
-  });
 }
 
 type DeactivateAdminDialogProps = {

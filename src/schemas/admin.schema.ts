@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export const AdminRoleEnum = z.enum(["super_admin", "operator"]);
+export type AdminRole = z.infer<typeof AdminRoleEnum>;
+
 export const AdminSchema = z.object({
   id: z.string().nonempty(),
   full_name: z.string().nonempty("Full name is required"),
@@ -11,7 +14,7 @@ export const AdminSchema = z.object({
     .string()
     .min(8, { message: "Password must be at least 8 characters long" })
     .nonempty("Password is required"),
-  role: z.enum(["super_admin", "operator"], {
+  role: z.enum(AdminRoleEnum.options, {
     required_error: "Role is required",
   }),
   is_active: z.boolean().default(true),
