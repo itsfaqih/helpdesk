@@ -65,6 +65,7 @@ import {
 import { FadeInContainer } from "@/components/base/fade-in-container";
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
+import { Table } from "@/components/base/table";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -140,263 +141,237 @@ export function AdminIndexPage() {
   }, [filtersForm, loaderData.data.request]);
 
   return (
-    <FadeInContainer className="pb-5">
-      <AppPageTitle
-        title="Administrators"
-        actions={
-          currentAdmin?.role === "super_admin" && (
-            <Button
-              as={Link}
-              to="/admins/create"
-              variant="primary"
-              leading={Plus}
-            >
-              New Admin
-            </Button>
-          )
-        }
-      />
-      <Controller
-        control={filtersForm.control}
-        name="is_active"
-        render={({ field }) => (
-          <Tabs
-            value={field.value ?? "1"}
-            onChange={({ value }) => {
-              if (value && (value === "1" || value === "0")) {
-                field.onChange(value);
-              }
-            }}
-            className="mt-5"
-          >
-            <TabList>
-              <TabTrigger value="1">Active</TabTrigger>
-              <TabTrigger value="0">Deactivated</TabTrigger>
-              <TabIndicator />
-            </TabList>
-          </Tabs>
-        )}
-      />
-      <div className="mt-5">
-        <div className="flex items-center gap-x-3">
-          <Input
-            name="search"
-            onChange={(e) => setSearch(e.target.value)}
-            value={search ?? ""}
-            type="search"
-            placeholder="Search by full name or email"
-            className="flex-1"
-          />
-
-          <Controller
-            control={filtersForm.control}
-            name="role"
-            render={({ field }) => (
-              <Select
-                name={field.name}
-                selectedOption={{
-                  label: roleValueToLabel(field.value ?? ""),
-                  value: field.value ?? "",
-                }}
-                onChange={(selectedOption) => {
-                  const value = selectedOption?.value;
-
-                  if (
-                    value === "" ||
-                    value === "super_admin" ||
-                    value === "operator"
-                  ) {
-                    field.onChange(value);
-                  }
-                }}
-              >
-                {({ selectedOption }) => (
-                  <>
-                    <SelectLabel className="sr-only">Role</SelectLabel>
-                    <SelectTrigger className="w-48">
-                      {(selectedOption as { label?: string })?.label ??
-                        "Select role"}
-                    </SelectTrigger>
-                    <SelectContent className="w-48">
-                      <SelectOption value="" label="All role" />
-                      <SelectOption value="super_admin" label="Super Admin" />
-                      <SelectOption value="operator" label="Operator" />
-                    </SelectContent>
-                  </>
-                )}
-              </Select>
-            )}
-          />
-
-          <Button
-            onClick={() =>
-              filtersForm.reset({
-                is_active: loaderData.data.request.is_active,
-                role: undefined,
-                search: "",
-                page: undefined,
-              })
-            }
-            variant="transparent"
-            type="reset"
-            className="text-red-500"
-          >
-            Reset
-          </Button>
-        </div>
-      </div>
-      <div className="mt-5 min-h-[34.25rem]">
-        <table className="w-full overflow-hidden text-sm rounded-md shadow-haptic-gray-300">
-          <thead className="text-gray-500">
-            <tr className="border-b border-gray-300">
-              <th className="pl-4 pr-3 py-2.5 font-medium text-left">
-                Full Name
-              </th>
-              <th className="px-3 py-2.5 font-medium text-left">Email</th>
-              <th className="px-3 py-2.5 font-medium text-left">Role</th>
-              <th className="px-3 py-2.5 font-medium text-left">
-                Date created
-              </th>
-              <th>
-                <span className="sr-only">Action</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-800 divide-y divide-gray-300">
-            {adminIndexQuery.isLoading && (
-              <tr data-testid={`table-loading`}>
-                {Array.from({ length: 5 }, (_, i) => (
-                  <td
-                    key={i}
-                    className={cn("py-3.5", {
-                      "sm:pl-4": i === 0,
-                      "relative px-3": i === 5 - 1,
-                      "px-3": i !== 0 && i !== 5 - 1,
-                    })}
-                  >
-                    <Skeleton />
-                  </td>
-                ))}
-              </tr>
-            )}
-            {adminIndexQuery.isError && (
-              <tr data-testid={`table-error`}>
-                <td colSpan={5} className="py-3.5 px-3">
-                  {(typeof adminIndexQuery.error === "object" &&
-                    adminIndexQuery.error instanceof Error &&
-                    adminIndexQuery.error.message) ||
-                    undefined}
-                  <button onClick={() => adminIndexQuery.refetch()}>
-                    <button className={linkClass()}>Muat ulang</button>
-                  </button>
-                </td>
-              </tr>
-            )}
-            {adminIndexQuery.isSuccess && admins.length === 0 && (
-              <tr data-testid={`table-empty`}>
-                <td
-                  colSpan={5}
-                  className="py-3.5 px-3 text-gray-500 text-center"
-                >
-                  No data
-                </td>
-              </tr>
-            )}
-            {admins.map((admin) => (
-              <tr key={admin.id} className="hover:bg-gray-50">
-                <td className="py-3.5 pl-4 pr-3">{admin.full_name}</td>
-                <td className="px-3 py-3.5">{admin.email}</td>
-                <td className="px-3 py-3.5">{roleValueToLabel(admin.role)}</td>
-                <td className="px-3 py-3.5">{admin.created_at}</td>
-                <td className="flex items-center justify-end px-3 py-2.5 gap-x-1">
-                  {currentAdmin?.id !== admin.id &&
-                    currentAdmin?.role === "super_admin" &&
-                    (admin.is_active ? (
-                      <>
-                        <IconButton
-                          as={Link}
-                          to={`/admins/${admin.id}`}
-                          icon={PencilSimple}
-                          label="Edit"
-                        />
-
-                        <DeactivateAdminDialog
-                          adminId={admin.id}
-                          trigger={
-                            <IconButton
-                              icon={Power}
-                              label="Deactivate"
-                              className="text-red-600"
-                            />
-                          }
-                        />
-                      </>
-                    ) : (
-                      <ReactivateAdminDialog
-                        adminId={admin.id}
-                        trigger={
-                          <IconButton
-                            icon={Power}
-                            label="Reactivate"
-                            className="text-green-600"
-                          />
-                        }
-                      />
-                    ))}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {adminIndexQuery.isSuccess && adminIndexQuery.data.data.length > 0 && (
-        <div className="mt-5">
-          <Controller
-            control={filtersForm.control}
-            name="page"
-            render={({ field }) => (
-              <Pagination
-                page={field.value ?? 1}
-                count={adminIndexQuery.data.meta?.pagination?.total ?? 1}
-                pageSize={adminIndexQuery.data.meta?.pagination?.per_page ?? 1}
-                onChange={({ page }) => {
-                  field.onChange(page);
-                }}
-                className="justify-center"
-              >
-                {({ pages }) => (
-                  <PaginationList>
-                    <PaginationListItem>
-                      <PaginationPrevPageTrigger />
-                    </PaginationListItem>
-                    {/* temporarily cast type until it's properly typed */}
-                    {(pages as { type: "page"; value: number }[]).map(
-                      (page, index) =>
-                        page.type === "page" ? (
-                          <PaginationListItem key={index}>
-                            <PaginationPageTrigger {...page}>
-                              {page.value}
-                            </PaginationPageTrigger>
-                          </PaginationListItem>
-                        ) : (
-                          <PaginationListItem key={index}>
-                            <PaginationEllipsis index={index}>
-                              &#8230;
-                            </PaginationEllipsis>
-                          </PaginationListItem>
-                        )
-                    )}
-                    <PaginationListItem>
-                      <PaginationNextPageTrigger />
-                    </PaginationListItem>
-                  </PaginationList>
-                )}
-              </Pagination>
-            )}
-          />
-        </div>
+    <>
+      {currentAdmin?.role === "super_admin" && (
+        <Link
+          to="/admins/create"
+          className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </Link>
       )}
-    </FadeInContainer>
+      <FadeInContainer className="pb-5">
+        <AppPageTitle
+          title="Administrators"
+          actions={
+            currentAdmin?.role === "super_admin" && (
+              <Button
+                as={Link}
+                to="/admins/create"
+                variant="primary"
+                leading={Plus}
+                className="hidden sm:inline-flex"
+              >
+                New Admin
+              </Button>
+            )
+          }
+        />
+
+        <Controller
+          control={filtersForm.control}
+          name="is_active"
+          render={({ field }) => (
+            <Tabs
+              value={field.value ?? "1"}
+              onChange={({ value }) => {
+                if (value && (value === "1" || value === "0")) {
+                  field.onChange(value);
+                }
+              }}
+              className="mt-5"
+            >
+              <TabList>
+                <TabTrigger value="1">Active</TabTrigger>
+                <TabTrigger value="0">Deactivated</TabTrigger>
+                <TabIndicator />
+              </TabList>
+            </Tabs>
+          )}
+        />
+        <div className="mt-5">
+          <div className="flex flex-wrap gap-3 sm:items-center">
+            <Input
+              name="search"
+              onChange={(e) => setSearch(e.target.value)}
+              value={search ?? ""}
+              type="search"
+              placeholder="Search by full name or email"
+              className="flex-1 min-w-[20rem]"
+            />
+
+            <Controller
+              control={filtersForm.control}
+              name="role"
+              render={({ field }) => (
+                <Select
+                  name={field.name}
+                  selectedOption={{
+                    label: roleValueToLabel(field.value ?? ""),
+                    value: field.value ?? "",
+                  }}
+                  onChange={(selectedOption) => {
+                    const value = selectedOption?.value;
+
+                    if (
+                      value === "" ||
+                      value === "super_admin" ||
+                      value === "operator"
+                    ) {
+                      field.onChange(value);
+                    }
+                  }}
+                >
+                  {({ selectedOption }) => (
+                    <>
+                      <SelectLabel className="sr-only">Role</SelectLabel>
+                      <SelectTrigger className="w-48">
+                        {(selectedOption as { label?: string })?.label ??
+                          "Select role"}
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectOption value="" label="All role" />
+                        <SelectOption value="super_admin" label="Super Admin" />
+                        <SelectOption value="operator" label="Operator" />
+                      </SelectContent>
+                    </>
+                  )}
+                </Select>
+              )}
+            />
+
+            <Button
+              onClick={() =>
+                filtersForm.reset({
+                  is_active: loaderData.data.request.is_active,
+                  role: undefined,
+                  search: "",
+                  page: undefined,
+                })
+              }
+              variant="transparent"
+              type="reset"
+              className="ml-auto text-red-500"
+            >
+              Reset
+            </Button>
+          </div>
+        </div>
+        <Table
+          id="admins"
+          loading={adminIndexQuery.isLoading}
+          error={adminIndexQuery.isError}
+          errorMessage={
+            (typeof adminIndexQuery.error === "object" &&
+              adminIndexQuery.error instanceof Error &&
+              adminIndexQuery.error.message) ||
+            undefined
+          }
+          refetch={adminIndexQuery.refetch}
+          headings={["Full Name", "Email", "Role", "Date created"]}
+          rows={adminIndexQuery.data?.data.map((admin) => [
+            admin.full_name,
+            admin.email,
+            roleValueToLabel(admin.role),
+            admin.created_at,
+            <div className="flex items-center justify-end gap-x-1">
+              {currentAdmin?.id === admin.id && (
+                <IconButton
+                  as={Link}
+                  to={`/profile`}
+                  icon={PencilSimple}
+                  label="Edit"
+                />
+              )}
+              {currentAdmin?.id !== admin.id &&
+                currentAdmin?.role === "super_admin" &&
+                (admin.is_active ? (
+                  <>
+                    <IconButton
+                      as={Link}
+                      to={`/admins/${admin.id}`}
+                      icon={PencilSimple}
+                      label="Edit"
+                    />
+
+                    <DeactivateAdminDialog
+                      adminId={admin.id}
+                      trigger={
+                        <IconButton
+                          icon={Power}
+                          label="Deactivate"
+                          className="text-red-600"
+                        />
+                      }
+                    />
+                  </>
+                ) : (
+                  <ReactivateAdminDialog
+                    adminId={admin.id}
+                    trigger={
+                      <IconButton
+                        icon={Power}
+                        label="Reactivate"
+                        className="text-green-600"
+                      />
+                    }
+                  />
+                ))}
+            </div>,
+          ])}
+          className="mt-5"
+        />
+        {adminIndexQuery.isSuccess && adminIndexQuery.data.data.length > 0 && (
+          <div className="mt-5">
+            <Controller
+              control={filtersForm.control}
+              name="page"
+              render={({ field }) => (
+                <Pagination
+                  page={field.value ?? 1}
+                  count={adminIndexQuery.data.meta?.pagination?.total ?? 1}
+                  pageSize={
+                    adminIndexQuery.data.meta?.pagination?.per_page ?? 1
+                  }
+                  onChange={({ page }) => {
+                    field.onChange(page);
+                  }}
+                  className="justify-center"
+                >
+                  {({ pages }) => (
+                    <PaginationList>
+                      <PaginationListItem>
+                        <PaginationPrevPageTrigger />
+                      </PaginationListItem>
+                      {/* temporarily cast type until it's properly typed */}
+                      {(pages as { type: "page"; value: number }[]).map(
+                        (page, index) =>
+                          page.type === "page" ? (
+                            <PaginationListItem key={index}>
+                              <PaginationPageTrigger {...page}>
+                                {page.value}
+                              </PaginationPageTrigger>
+                            </PaginationListItem>
+                          ) : (
+                            <PaginationListItem key={index}>
+                              <PaginationEllipsis index={index}>
+                                &#8230;
+                              </PaginationEllipsis>
+                            </PaginationListItem>
+                          )
+                      )}
+                      <PaginationListItem>
+                        <PaginationNextPageTrigger />
+                      </PaginationListItem>
+                    </PaginationList>
+                  )}
+                </Pagination>
+              )}
+            />
+          </div>
+        )}
+      </FadeInContainer>
+    </>
   );
 }
 

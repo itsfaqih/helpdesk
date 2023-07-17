@@ -11,7 +11,7 @@ import { FadeInContainer } from "@/components/base/fade-in-container";
 
 export function DashboardPage() {
   return (
-    <FadeInContainer className="grid grid-cols-4 gap-8">
+    <FadeInContainer className="grid grid-cols-1 gap-4 sm:gap-8 sm:grid-cols-2 xl:grid-cols-4">
       <OverviewCard
         icon={Archive}
         title="Total Tickets"

@@ -51,13 +51,13 @@ export function AdminCreatePage() {
         <span>Back</span>
       </Link>
       <AppPageTitle title="Create Administrator" className="mt-4" />
-      <Card className="px-4.5 pt-6 pb-5 mt-7">
+      <Card className="px-4.5 pt-6 pb-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="create-admin-form"
           onSubmit={onSubmit}
-          className="flex flex-col gap-y-6"
+          className="flex flex-col gap-y-4"
         >
-          <div className="grid grid-cols-4">
+          <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="full_name">Full Name</Label>
             <div className="col-span-3">
               <Textbox
@@ -71,7 +71,7 @@ export function AdminCreatePage() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-4">
+          <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="email">Email</Label>
             <div className="col-span-3">
               <Textbox
@@ -86,7 +86,7 @@ export function AdminCreatePage() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-4">
+          <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="password">Password</Label>
             <div className="col-span-3">
               <Textbox
@@ -101,7 +101,7 @@ export function AdminCreatePage() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-4">
+          <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="role">Role</Label>
             <div className="col-span-3">
               <Controller

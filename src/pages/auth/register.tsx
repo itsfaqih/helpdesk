@@ -41,7 +41,7 @@ export function RegisterPage() {
   });
 
   return (
-    <FadeInContainer className="max-w-sm mx-auto mt-32">
+    <FadeInContainer className="max-w-xs mx-auto mt-32 sm:max-w-sm">
       <h1 className="text-2xl font-medium text-center text-gray-800">
         Register
       </h1>
