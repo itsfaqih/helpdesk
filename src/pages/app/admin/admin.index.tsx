@@ -50,9 +50,6 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { cn } from "@/libs/cn.lib";
-import { Skeleton } from "@/components/base/skeleton";
-import { linkClass } from "@/components/base/link";
 import {
   Pagination,
   PaginationEllipsis,
@@ -105,7 +102,6 @@ export function AdminIndexPage() {
   }, 500);
 
   const adminIndexQuery = useAdminIndexQuery(loaderData.data.request);
-  const admins = adminIndexQuery.data?.data ?? [];
 
   filtersForm.watch((data, { name }) => {
     if (name === "is_active") {
