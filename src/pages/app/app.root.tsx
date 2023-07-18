@@ -186,7 +186,7 @@ function MainMenuItem({
           {
             "text-gray-500 hover:shadow-haptic-gray-300 hover:text-gray-600 active:bg-gray-50 active:shadow-haptic-gray-400":
               !isActive,
-            "text-gray-800 shadow-haptic-gray-300 hover:shadow-haptic-gray-400 active:bg-gray-50":
+            "text-brand-800 shadow-haptic-brand-300 hover:shadow-haptic-brand-400 active:bg-brand-100 bg-brand-50":
               isActive,
             "animate-pulse": isPending,
           },
