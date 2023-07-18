@@ -4,7 +4,7 @@ import localforage from "localforage";
 export function useLogOutMutation() {
   return useMutation({
     async mutationFn() {
-      await localforage.removeItem("current_admin");
+      await localforage.removeItem("logged_in_admin");
     },
   });
 }

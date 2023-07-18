@@ -24,7 +24,7 @@ export function RegisterPage() {
   const onSubmit = registerForm.handleSubmit((data) => {
     registerMutation.mutate(data, {
       async onSuccess(res) {
-        await localforage.setItem("current_admin", res.data);
+        await localforage.setItem("logged_in_admin", res.data);
 
         await sleep(1000);
         navigate("/");

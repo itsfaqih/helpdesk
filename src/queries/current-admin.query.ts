@@ -12,7 +12,7 @@ export function useCurrentAdminQuery() {
   const logOutMutation = useLogOutMutation();
 
   return useQuery({
-    queryKey: ["current_admin"],
+    queryKey: ["logged_in_admin"],
     async queryFn() {
       try {
         const res = await api.get("/me");

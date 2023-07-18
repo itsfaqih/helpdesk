@@ -36,7 +36,7 @@ export function AppRoot() {
   return (
     <div>
       <FadeInContainer from="left">
-        <nav className="fixed top-0 left-0 z-10 hidden w-64 h-full px-4 bg-white border-r border-gray-300 lg:block">
+        <nav className="fixed top-0 left-0 hidden w-64 h-full px-4 bg-white border-r border-gray-300 lg:block">
           <span className="block py-6 font-medium text-center">
             Helpdesk Management
           </span>

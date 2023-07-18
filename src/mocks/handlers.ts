@@ -12,14 +12,21 @@ import { errorResponse, successResponse } from "./res";
 import { nanoid } from "nanoid";
 import { AdminIndexRequestSchema } from "@/queries/admin.query";
 import { generatePaginationMeta } from "@/utils/api.util";
+import {
+  Client,
+  ClientSchema,
+  CreateClientSchema,
+  UpdateClientSchema,
+} from "@/schemas/client.schema";
+import { ClientIndexRequestSchema } from "@/queries/client.query";
 
-export const handlers = [
+export const authHandlers = [
   rest.post("/api/login", async (req) => {
     const data = LoginSchema.parse(await req.json());
-    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
-    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-    const admin = currentAdmins.find(
+    const admin = storedAdmins.find(
       (admin) => admin.email === data.email && admin.password === data.password
     );
 
@@ -37,10 +44,10 @@ export const handlers = [
   }),
   rest.post("/api/register", async (req) => {
     const data = RegisterSchema.parse(await req.json());
-    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
-    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-    const isAdminExisted = currentAdmins.some(
+    const isAdminExisted = storedAdmins.some(
       (admin) => admin.email === data.email
     );
 
@@ -62,10 +69,10 @@ export const handlers = [
       updated_at: new Date().toISOString(),
     };
 
-    const newAdmins = [...currentAdmins, newAdmin];
+    const newAdmins = [...storedAdmins, newAdmin];
 
     await localforage.setItem("admins", newAdmins);
-    await localforage.setItem("current_admin", newAdmin);
+    await localforage.setItem("logged_in_admin", newAdmin);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...newAdminWithoutPassword } = newAdmin;
@@ -76,35 +83,42 @@ export const handlers = [
     });
   }),
   rest.get("/api/me", async () => {
-    const currentAdmin = await localforage.getItem("current_admin");
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
 
-    if (!currentAdmin) {
+    if (!unparsedLoggedInAdmin) {
       return errorResponse({
         message: "Unauthorized",
         status: 401,
       });
     }
 
-    const parsedCurrentAdmin = AdminWithoutPasswordSchema.parse(currentAdmin);
+    const loggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
 
     return successResponse({
-      data: parsedCurrentAdmin,
+      data: loggedInAdmin,
       message: "Successfully retrieved current admin",
     });
   }),
-  rest.post("/api/admins", async (req) => {
-    const currentAdmin = await localforage.getItem("current_admin");
+];
 
-    if (!currentAdmin) {
+export const adminHandlers = [
+  rest.post("/api/admins", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
       return errorResponse({
         message: "Unauthorized",
         status: 401,
       });
     }
 
-    const parsedCurrentAdmin = AdminWithoutPasswordSchema.parse(currentAdmin);
+    const loggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
 
-    if (parsedCurrentAdmin.role !== "super_admin") {
+    if (loggedInAdmin.role !== "super_admin") {
       return errorResponse({
         message: "Forbidden",
         status: 403,
@@ -113,10 +127,10 @@ export const handlers = [
 
     const data = CreateAdminSchema.parse(await req.json());
 
-    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
-    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-    const isAdminExisted = currentAdmins.some(
+    const isAdminExisted = storedAdmins.some(
       (admin) => admin.email === data.email
     );
 
@@ -138,7 +152,7 @@ export const handlers = [
       updated_at: new Date().toISOString(),
     };
 
-    const newAdmins = [...currentAdmins, newAdmin];
+    const newAdmins = [...storedAdmins, newAdmin];
 
     await localforage.setItem("admins", newAdmins);
 
@@ -151,18 +165,20 @@ export const handlers = [
     });
   }),
   rest.put("/api/admins/:adminId", async (req) => {
-    const currentAdmin = await localforage.getItem("current_admin");
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
 
-    if (!currentAdmin) {
+    if (!unparsedLoggedInAdmin) {
       return errorResponse({
         message: "Unauthorized",
         status: 401,
       });
     }
 
-    const parsedCurrentAdmin = AdminWithoutPasswordSchema.parse(currentAdmin);
+    const loggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
 
-    if (parsedCurrentAdmin.role !== "super_admin") {
+    if (loggedInAdmin.role !== "super_admin") {
       return errorResponse({
         message: "Forbidden",
         status: 403,
@@ -171,12 +187,12 @@ export const handlers = [
 
     const data = UpdateAdminSchema.parse(await req.json());
 
-    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
-    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
     const adminId = req.params.adminId;
 
-    const adminToUpdate = currentAdmins.find((admin) => admin.id === adminId);
+    const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
 
     if (!adminToUpdate) {
       return errorResponse({
@@ -192,7 +208,7 @@ export const handlers = [
       updated_at: new Date().toISOString(),
     };
 
-    const newAdmins = currentAdmins.map((admin) =>
+    const newAdmins = storedAdmins.map((admin) =>
       admin.id === adminId ? updatedAdmin : admin
     );
 
@@ -207,22 +223,22 @@ export const handlers = [
     });
   }),
   rest.get("/api/admins", async (req) => {
-    const currentAdmin = await localforage.getItem("current_admin");
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
 
-    if (!currentAdmin) {
+    if (!unparsedLoggedInAdmin) {
       return errorResponse({
         message: "Unauthorized",
         status: 401,
       });
     }
 
-    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
-    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
     const unparsedFilters = Object.fromEntries(req.url.searchParams);
     const filters = AdminIndexRequestSchema.parse(unparsedFilters);
 
-    const filteredAdmins = currentAdmins.filter((admin) => {
+    const filteredAdmins = storedAdmins.filter((admin) => {
       if (filters.search) {
         const search = filters.search.toLowerCase();
 
@@ -270,21 +286,21 @@ export const handlers = [
     });
   }),
   rest.get("/api/admins/:adminId", async (req) => {
-    const currentAdmin = await localforage.getItem("current_admin");
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
 
-    if (!currentAdmin) {
+    if (!unparsedLoggedInAdmin) {
       return errorResponse({
         message: "Unauthorized",
         status: 401,
       });
     }
 
-    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
-    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
     const adminId = req.params.adminId;
 
-    const admin = currentAdmins.find((admin) => admin.id === adminId);
+    const admin = storedAdmins.find((admin) => admin.id === adminId);
 
     if (!admin) {
       return errorResponse({
@@ -299,30 +315,32 @@ export const handlers = [
     });
   }),
   rest.put("/api/admins/:adminId/deactivate", async (req) => {
-    const currentAdmin = await localforage.getItem("current_admin");
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
 
-    if (!currentAdmin) {
+    if (!unparsedLoggedInAdmin) {
       return errorResponse({
         message: "Unauthorized",
         status: 401,
       });
     }
 
-    const parsedCurrentAdmin = AdminWithoutPasswordSchema.parse(currentAdmin);
+    const loggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
 
-    if (parsedCurrentAdmin.role !== "super_admin") {
+    if (loggedInAdmin.role !== "super_admin") {
       return errorResponse({
         message: "Forbidden",
         status: 403,
       });
     }
 
-    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
-    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
     const adminId = req.params.adminId;
 
-    const adminToUpdate = currentAdmins.find((admin) => admin.id === adminId);
+    const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
 
     if (!adminToUpdate) {
       return errorResponse({
@@ -337,7 +355,7 @@ export const handlers = [
       updated_at: new Date().toISOString(),
     };
 
-    const newAdmins = currentAdmins.map((admin) =>
+    const newAdmins = storedAdmins.map((admin) =>
       admin.id === adminId ? updatedAdmin : admin
     );
 
@@ -352,30 +370,32 @@ export const handlers = [
     });
   }),
   rest.put("/api/admins/:adminId/activate", async (req) => {
-    const currentAdmin = await localforage.getItem("current_admin");
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
 
-    if (!currentAdmin) {
+    if (!unparsedLoggedInAdmin) {
       return errorResponse({
         message: "Unauthorized",
         status: 401,
       });
     }
 
-    const parsedCurrentAdmin = AdminWithoutPasswordSchema.parse(currentAdmin);
+    const loggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
 
-    if (parsedCurrentAdmin.role !== "super_admin") {
+    if (loggedInAdmin.role !== "super_admin") {
       return errorResponse({
         message: "Forbidden",
         status: 403,
       });
     }
 
-    const unparsedCurrentAdmins = (await localforage.getItem("admins")) ?? [];
-    const currentAdmins = AdminSchema.array().parse(unparsedCurrentAdmins);
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
     const adminId = req.params.adminId;
 
-    const adminToUpdate = currentAdmins.find((admin) => admin.id === adminId);
+    const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
 
     if (!adminToUpdate) {
       return errorResponse({
@@ -390,7 +410,7 @@ export const handlers = [
       updated_at: new Date().toISOString(),
     };
 
-    const newAdmins = currentAdmins.map((admin) =>
+    const newAdmins = storedAdmins.map((admin) =>
       admin.id === adminId ? updatedAdmin : admin
     );
 
@@ -405,3 +425,310 @@ export const handlers = [
     });
   }),
 ];
+
+export const clientHandlers = [
+  rest.post("/api/clients", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const loggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
+
+    if (loggedInAdmin.role !== "super_admin") {
+      return errorResponse({
+        message: "Forbidden",
+        status: 403,
+      });
+    }
+
+    const data = CreateClientSchema.parse(await req.json());
+
+    const unparsedStoredAdmins = (await localforage.getItem("clients")) ?? [];
+    const storedAdmins = ClientSchema.array().parse(unparsedStoredAdmins);
+
+    const isClientExisted = storedAdmins.some(
+      (client) => client.full_name === data.full_name
+    );
+
+    if (isClientExisted) {
+      return errorResponse({
+        message: "Client with the same name is already registered",
+        status: 409,
+      });
+    }
+
+    const newClient: Client = {
+      id: nanoid(),
+      full_name: data.full_name,
+      is_archived: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    const newClients = [...storedAdmins, newClient];
+
+    await localforage.setItem("clients", newClients);
+
+    return successResponse({
+      data: newClient,
+      message: "Successfully created client",
+    });
+  }),
+  rest.put("/api/clients/:clientId", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const loggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
+
+    if (loggedInAdmin.role !== "super_admin") {
+      return errorResponse({
+        message: "Forbidden",
+        status: 403,
+      });
+    }
+
+    const data = UpdateClientSchema.parse(await req.json());
+
+    const unparsedStoredClients = (await localforage.getItem("clients")) ?? [];
+    const storedClients = ClientSchema.array().parse(unparsedStoredClients);
+
+    const clientId = req.params.clientId;
+
+    const clientToUpdate = storedClients.find(
+      (client) => client.id === clientId
+    );
+
+    if (!clientToUpdate) {
+      return errorResponse({
+        message: "Client is not found",
+        status: 404,
+      });
+    }
+
+    const updatedClient: Client = {
+      ...clientToUpdate,
+      full_name: data.full_name,
+      updated_at: new Date().toISOString(),
+    };
+
+    const newClients = storedClients.map((client) =>
+      client.id === clientId ? updatedClient : client
+    );
+
+    await localforage.setItem("clients", newClients);
+
+    return successResponse({
+      data: updatedClient,
+      message: "Successfully updated client",
+    });
+  }),
+  rest.get("/api/clients", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const unparsedStoredClients = (await localforage.getItem("clients")) ?? [];
+    const storedClients = ClientSchema.array().parse(unparsedStoredClients);
+
+    const unparsedFilters = Object.fromEntries(req.url.searchParams);
+    const filters = ClientIndexRequestSchema.parse(unparsedFilters);
+
+    const filteredClients = storedClients.filter((client) => {
+      if (filters.search) {
+        const search = filters.search.toLowerCase();
+
+        const isMatched = client.full_name.toLowerCase().includes(search);
+
+        if (!isMatched) {
+          return false;
+        }
+      }
+
+      if (filters.is_archived) {
+        if (filters.is_archived === "1" && !client.is_archived) {
+          return false;
+        } else if (filters.is_archived === "0" && client.is_archived) {
+          return false;
+        }
+      } else {
+        return client.is_archived === false;
+      }
+
+      return true;
+    });
+
+    const page = filters.page ?? 1;
+
+    const paginatedClients = filteredClients.slice((page - 1) * 10, page * 10);
+
+    return successResponse({
+      data: paginatedClients,
+      message: "Successfully retrieved clients",
+      meta: {
+        ...generatePaginationMeta({
+          currentPage: page,
+          total: filteredClients.length,
+        }),
+      },
+    });
+  }),
+  rest.get("/api/clients/:clientId", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const unparsedStoredClients = (await localforage.getItem("clients")) ?? [];
+    const storedClients = ClientSchema.array().parse(unparsedStoredClients);
+
+    const clientId = req.params.clientId;
+
+    const client = storedClients.find((client) => client.id === clientId);
+
+    if (!client) {
+      return errorResponse({
+        message: "Client is not found",
+        status: 404,
+      });
+    }
+
+    return successResponse({
+      data: client,
+      message: "Successfully retrieved client",
+    });
+  }),
+  rest.put("/api/clients/:clientId/archive", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const parsedUnparsedLoggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
+
+    if (parsedUnparsedLoggedInAdmin.role !== "super_admin") {
+      return errorResponse({
+        message: "Forbidden",
+        status: 403,
+      });
+    }
+
+    const unparsedStoredClient = (await localforage.getItem("clients")) ?? [];
+    const storedClients = ClientSchema.array().parse(unparsedStoredClient);
+
+    const clientId = req.params.clientId;
+
+    const clientToUpdate = storedClients.find(
+      (client) => client.id === clientId
+    );
+
+    if (!clientToUpdate) {
+      return errorResponse({
+        message: "Client is not found",
+        status: 404,
+      });
+    }
+
+    const updatedClient: Client = {
+      ...clientToUpdate,
+      is_archived: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    const newClients = storedClients.map((client) =>
+      client.id === clientId ? updatedClient : client
+    );
+
+    await localforage.setItem("clients", newClients);
+
+    return successResponse({
+      data: updatedClient,
+      message: "Successfully archived client",
+    });
+  }),
+  rest.put("/api/clients/:clientId/restore", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const parsedUnparsedLoggedInAdmin = AdminWithoutPasswordSchema.parse(
+      unparsedLoggedInAdmin
+    );
+
+    if (parsedUnparsedLoggedInAdmin.role !== "super_admin") {
+      return errorResponse({
+        message: "Forbidden",
+        status: 403,
+      });
+    }
+
+    const unparsedStoredClients = (await localforage.getItem("clients")) ?? [];
+    const storedClients = ClientSchema.array().parse(unparsedStoredClients);
+
+    const clientId = req.params.clientId;
+
+    const clientToUpdate = storedClients.find(
+      (client) => client.id === clientId
+    );
+
+    if (!clientToUpdate) {
+      return errorResponse({
+        message: "Client is not found",
+        status: 404,
+      });
+    }
+
+    const updatedClient: Client = {
+      ...clientToUpdate,
+      is_archived: false,
+      updated_at: new Date().toISOString(),
+    };
+
+    const newClients = storedClients.map((client) =>
+      client.id === clientId ? updatedClient : client
+    );
+
+    await localforage.setItem("clients", newClients);
+
+    return successResponse({
+      data: updatedClient,
+      message: "Successfully activated client",
+    });
+  }),
+];
+
+export const handlers = [...authHandlers, ...adminHandlers, ...clientHandlers];
