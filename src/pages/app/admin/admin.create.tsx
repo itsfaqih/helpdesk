@@ -15,7 +15,7 @@ import {
 } from "@/components/base/select";
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TextboxProps } from "@/components/derived/textbox";
+import { Textbox } from "@/components/derived/textbox";
 import { adminRoleOptions } from "@/utils/admin-role.util";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";

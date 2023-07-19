@@ -26,7 +26,7 @@ import {
   useAdminShowQuery,
 } from "@/queries/admin.query";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { TextboxProps } from "@/components/derived/textbox";
+import { Textbox } from "@/components/derived/textbox";
 import { Button } from "@/components/base/button";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";
