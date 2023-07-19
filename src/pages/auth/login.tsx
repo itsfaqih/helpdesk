@@ -1,7 +1,7 @@
 import { Button } from "@/components/base/button";
 import { Link } from "@/components/base/link";
 import { Checkbox } from "@/components/derived/checkbox";
-import { Textbox } from "@/components/derived/textbox";
+import { TextboxProps } from "@/components/derived/textbox";
 import { api } from "@/libs/api.lib";
 import { AuthResponseSchema, LoginSchema } from "@/schemas/auth.schema";
 import { sleep } from "@/utils/delay.util";

@@ -22,7 +22,7 @@ import {
   useClientShowQuery,
 } from "@/queries/client.query";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { Textbox } from "@/components/derived/textbox";
+import { TextboxProps } from "@/components/derived/textbox";
 import { Button } from "@/components/base/button";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";

@@ -39,6 +39,9 @@ export const api = wretch(`${import.meta.env.VITE_API_URL}/api`).resolve(
         return await BaseAPIResponseSchema.parseAsync(json).catch(() => {
           throw new BadResponseError();
         });
+      })
+      .catch(() => {
+        throw new BadResponseError();
       });
   }
 );

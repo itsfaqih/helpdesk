@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { ConflictError } from "@/utils/error.util";
 import { api } from "@/libs/api.lib";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Textbox } from "@/components/derived/textbox";
+import { TextboxProps } from "@/components/derived/textbox";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";
 import { Button } from "@/components/base/button";

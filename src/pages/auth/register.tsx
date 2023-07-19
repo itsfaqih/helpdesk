@@ -1,7 +1,7 @@
 import { Button } from "@/components/base/button";
 import { FadeInContainer } from "@/components/base/fade-in-container";
 import { Link } from "@/components/base/link";
-import { Textbox } from "@/components/derived/textbox";
+import { TextboxProps } from "@/components/derived/textbox";
 import { api } from "@/libs/api.lib";
 import { AuthResponseSchema, RegisterSchema } from "@/schemas/auth.schema";
 import { sleep } from "@/utils/delay.util";

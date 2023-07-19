@@ -1,6 +1,6 @@
 import { Button } from "@/components/base/button";
 import { Link } from "@/components/base/link";
-import { Textbox } from "@/components/derived/textbox";
+import { TextboxProps } from "@/components/derived/textbox";
 
 export function ForgotPasswordPage() {
   return (

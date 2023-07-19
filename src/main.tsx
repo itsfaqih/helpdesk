@@ -20,6 +20,7 @@ import { AdminShowPage } from "./pages/app/admin/admin.show";
 import { ClientIndexPage } from "./pages/app/client/client.index";
 import { ClientShowPage } from "./pages/app/client/client.show";
 import { ClientCreatePage } from "./pages/app/client/client.create";
+import { TicketIndexPage } from "./pages/app/ticket/ticket.index";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
@@ -113,6 +114,16 @@ prepare()
               {
                 path: "create",
                 element: <ClientCreatePage />,
+              },
+            ],
+          },
+          {
+            path: "tickets",
+            children: [
+              {
+                element: <TicketIndexPage />,
+                loader: TicketIndexPage.loader(queryClient),
+                index: true,
               },
             ],
           },

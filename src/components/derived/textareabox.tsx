@@ -1,16 +1,19 @@
 import React from "react";
 import { Label } from "@/components/base/label";
-import { Input } from "@/components/base/input";
 import { cn } from "@/libs/cn.lib";
+import { TextArea } from "../base/textarea";
 
-type TextboxProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type TextAreaboxProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label: string;
   error?: string;
   srOnlyLabel?: boolean;
   errorPlaceholder?: boolean;
 };
 
-export const Textbox = React.forwardRef<HTMLInputElement, TextboxProps>(
+export const TextAreabox = React.forwardRef<
+  HTMLTextAreaElement,
+  TextAreaboxProps
+>(
   (
     {
       label,
@@ -37,7 +40,7 @@ export const Textbox = React.forwardRef<HTMLInputElement, TextboxProps>(
         >
           {label}
         </Label>
-        <Input
+        <TextArea
           ref={ref}
           name={name}
           id={elementId}
