@@ -1,10 +1,11 @@
 import { Button } from "@/components/base/button";
+import { FadeInContainer } from "@/components/base/fade-in-container";
 import { Link } from "@/components/base/link";
 import { Textbox } from "@/components/derived/textbox";
 
 export function ForgotPasswordPage() {
   return (
-    <div className="max-w-sm mx-auto mt-32">
+    <FadeInContainer className="max-w-sm mx-auto mt-32">
       <h1 className="text-2xl font-medium text-center text-gray-800">
         Forgot Password
       </h1>
@@ -22,6 +23,6 @@ export function ForgotPasswordPage() {
         Recalled your password already?{" "}
         <Link to="/auth/login">Back to login</Link>
       </p>
-    </div>
+    </FadeInContainer>
   );
 }
