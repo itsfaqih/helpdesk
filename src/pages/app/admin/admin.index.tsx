@@ -36,7 +36,7 @@ import {
 import { api } from "@/libs/api.lib";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { useCurrentAdminQuery } from "@/queries/current-admin.query";
-import { roleValueToLabel } from "@/utils/admin-role.util";
+import { adminRoleValueToLabel } from "@/utils/admin";
 import {
   AdminIndexRequest,
   AdminIndexRequestSchema,
@@ -203,7 +203,7 @@ export function AdminIndexPage() {
                 <Select
                   name={field.name}
                   selectedOption={{
-                    label: roleValueToLabel(field.value ?? ""),
+                    label: adminRoleValueToLabel(field.value ?? ""),
                     value: field.value ?? "",
                   }}
                   onChange={(selectedOption) => {
@@ -268,7 +268,7 @@ export function AdminIndexPage() {
           rows={adminIndexQuery.data?.data.map((admin) => [
             admin.full_name,
             admin.email,
-            roleValueToLabel(admin.role),
+            adminRoleValueToLabel(admin.role),
             admin.created_at,
             <div className="flex items-center justify-end gap-x-1">
               {currentAdmin?.id === admin.id && (

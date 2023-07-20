@@ -1,5 +1,8 @@
 import { api } from "@/libs/api.lib";
-import { AdminWithoutPasswordSchema } from "@/schemas/admin.schema";
+import {
+  AdminRoleEnum,
+  AdminWithoutPasswordSchema,
+} from "@/schemas/admin.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { UserError } from "@/utils/error.util";
 import { QueryClient, useQuery } from "@tanstack/react-query";
@@ -8,7 +11,10 @@ import { z } from "zod";
 
 export const AdminIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
-  role: z.enum(["", "super_admin", "operator"]).optional().catch(undefined),
+  role: z
+    .enum(["", ...AdminRoleEnum.options])
+    .optional()
+    .catch(undefined),
   is_active: z.enum(["1", "0"]).optional().catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });

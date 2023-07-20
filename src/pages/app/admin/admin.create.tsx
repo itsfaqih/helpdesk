@@ -16,7 +16,7 @@ import {
 import { Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textbox } from "@/components/derived/textbox";
-import { adminRoleOptions } from "@/utils/admin-role.util";
+import { adminRoleOptions } from "@/utils/admin";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";
 import { Button } from "@/components/base/button";
@@ -51,7 +51,7 @@ export function AdminCreatePage() {
         <span>Back</span>
       </Link>
       <AppPageTitle title="Create Administrator" className="mt-4" />
-      <Card className="px-4.5 pt-6 pb-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
+      <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="create-admin-form"
           onSubmit={onSubmit}

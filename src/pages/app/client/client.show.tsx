@@ -85,7 +85,7 @@ export function ClientShowPage() {
         <span>Back</span>
       </Link>
       <AppPageTitle title="Update Client" className="mt-4" />
-      <Card className="px-4.5 pt-6 pb-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
+      <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="update-client-form"
           onSubmit={onSubmit}

@@ -22,7 +22,6 @@ import { ClientIndexRequestSchema } from "@/queries/client.query";
 import {
   CreateTicketSchema,
   Ticket,
-  TicketMessageSchema,
   TicketSchema,
 } from "@/schemas/ticket.schema";
 import { TicketIndexRequestSchema } from "@/queries/ticket.query";
@@ -757,6 +756,7 @@ export const ticketHandlers = [
     const newTicket: Ticket = {
       id: nanoid(),
       title: data.title,
+      platform: "System",
       status: "open",
       is_archived: false,
       created_at: new Date().toISOString(),
@@ -796,6 +796,12 @@ export const ticketHandlers = [
         const isMatched = ticket.title.toLowerCase().includes(search);
 
         if (!isMatched) {
+          return false;
+        }
+      }
+
+      if (filters.status) {
+        if (ticket.status !== filters.status) {
           return false;
         }
       }
@@ -855,45 +861,6 @@ export const ticketHandlers = [
     return successResponse({
       data: ticket,
       message: "Successfully retrieved ticket",
-    });
-  }),
-  rest.get("/api/tickets/:ticketId/messages", async (req) => {
-    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
-
-    if (!unparsedLoggedInAdmin) {
-      return errorResponse({
-        message: "Unauthorized",
-        status: 401,
-      });
-    }
-
-    const unparsedStoredTickets = (await localforage.getItem("tickets")) ?? [];
-    const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
-
-    const ticketId = req.params.ticketId;
-
-    const ticket = storedTickets.find((ticket) => ticket.id === ticketId);
-
-    if (!ticket) {
-      return errorResponse({
-        message: "Ticket is not found",
-        status: 404,
-      });
-    }
-
-    const unparsedStoredTicketMessages =
-      (await localforage.getItem("ticket_messages")) ?? [];
-    const storedTicketMessages = TicketMessageSchema.array().parse(
-      unparsedStoredTicketMessages
-    );
-
-    const ticketMessages = storedTicketMessages.filter(
-      (ticketMessage) => ticketMessage.ticket_id === ticketId
-    );
-
-    return successResponse({
-      data: ticketMessages,
-      message: "Successfully retrieved ticket messages",
     });
   }),
   rest.put("/api/tickets/:ticketId/archive", async (req) => {

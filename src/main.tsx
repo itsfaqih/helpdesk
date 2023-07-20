@@ -21,10 +21,116 @@ import { ClientIndexPage } from "./pages/app/client/client.index";
 import { ClientShowPage } from "./pages/app/client/client.show";
 import { ClientCreatePage } from "./pages/app/client/client.create";
 import { TicketIndexPage } from "./pages/app/ticket/ticket.index";
+import { Admin } from "./schemas/admin.schema";
+import { nanoid } from "nanoid";
+import { Client } from "./schemas/client.schema";
+import { Ticket } from "./schemas/ticket.schema";
+import { TicketShowPage } from "./pages/app/ticket/ticket.show";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
   await worker.start();
+
+  // seed dummy data to indexeddb
+  let existingAdmins = await localforage.getItem<Admin[]>("admins");
+  if (!existingAdmins) {
+    existingAdmins = [
+      {
+        id: nanoid(),
+        full_name: "Super Admin",
+        email: "superadmin@example.com",
+        password: "qwerty123",
+        is_active: true,
+        role: "super_admin",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: nanoid(),
+        full_name: "Operator",
+        email: "operator@example.com",
+        password: "qwerty123",
+        is_active: true,
+        role: "operator",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ];
+
+    await localforage.setItem<Admin[]>("admins", existingAdmins);
+  }
+
+  let existingClients = await localforage.getItem<Client[]>("clients");
+  if (!existingClients) {
+    existingClients = [
+      {
+        id: nanoid(),
+        full_name: "Client 1",
+        is_archived: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: nanoid(),
+        full_name: "Client 2",
+        is_archived: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ];
+
+    await localforage.setItem<Client[]>("clients", existingClients);
+  }
+
+  let existingTickets = await localforage.getItem<Ticket[]>("tickets");
+  if (!existingTickets) {
+    existingTickets = [
+      {
+        id: nanoid(),
+        client_id: existingClients[0].id,
+        title: "Masalah Pelayanan",
+        description: `Gue mau lapor nih tentang pengalaman gue di Restoran XYZ. Jadi ceritanya, gue tuh nyoba mampir ke restoran itu pada tanggal XX/XX/XXXX, dan wah, bener-bener kecewa deh sama pelayanannya. Stafnya tuh kurang ramah banget, pelayanannya juga lama banget, dan gak jarang pesenan gue dikasih yang salah, gitu loh!\nJadi, beneran deh, gue harap banget masalah ini bisa diatasi dengan serius dan diperbaiki secepatnya. Gue pengen kasih masukan yang membangun biar pengalaman nyokap-nyokap Jakarta Selatan yang lain juga bisa lebih kece di restoran ini.`,
+        platform: "Email",
+        status: "open",
+        is_archived: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: nanoid(),
+        client_id: existingClients[0].id,
+        title: "Saran Menu Makanan: Sate Ayam",
+        platform: "WhatsApp",
+        status: "open",
+        is_archived: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: nanoid(),
+        client_id: existingClients[1].id,
+        title: "Staf kurang ramah, pelayanan lelet",
+        description: `Jadi, ceritanya pas aku kesana tanggal XX/XX/XXXX, aku bener-bener kecewa sama pelayanannya. Stafnya kurang ramah banget, pelayanannya juga lama banget, dan kadang pesenan aku dikasih yang salah, gitu loh!`,
+        platform: "Instagram",
+        status: "open",
+        is_archived: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: nanoid(),
+        client_id: existingClients[1].id,
+        title: "Makanannya basi",
+        platform: "Twitter",
+        status: "open",
+        is_archived: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ];
+
+    await localforage.setItem<Ticket[]>("tickets", existingTickets);
+  }
 }
 
 prepare()
@@ -124,6 +230,11 @@ prepare()
                 element: <TicketIndexPage />,
                 loader: TicketIndexPage.loader(queryClient),
                 index: true,
+              },
+              {
+                path: ":id",
+                loader: TicketShowPage.loader(queryClient),
+                element: <TicketShowPage />,
               },
             ],
           },

@@ -1,5 +1,5 @@
 import { api } from "@/libs/api.lib";
-import { TicketSchema } from "@/schemas/ticket.schema";
+import { TicketSchema, TicketStatusEnum } from "@/schemas/ticket.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { UserError } from "@/utils/error.util";
 import { QueryClient, useQuery } from "@tanstack/react-query";
@@ -9,6 +9,10 @@ import { z } from "zod";
 export const TicketIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
   is_archived: z.enum(["1", "0"]).optional().catch(undefined),
+  status: z
+    .enum(["", ...TicketStatusEnum.options])
+    .optional()
+    .catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });
 
@@ -40,13 +44,13 @@ type FetchTicketIndexQueryParams = {
 };
 
 export async function fetchTicketIndexQuery({
-  queryClient: queryTicket,
+  queryClient: queryClient,
   request = {},
 }: FetchTicketIndexQueryParams) {
   const ticketIndexQueryOpt = ticketIndexQuery(request);
 
-  queryTicket.getQueryData(ticketIndexQueryOpt.queryKey) ??
-    (await queryTicket.fetchQuery(ticketIndexQueryOpt).catch((error) => {
+  queryClient.getQueryData(ticketIndexQueryOpt.queryKey) ??
+    (await queryClient.fetchQuery(ticketIndexQueryOpt).catch((error) => {
       if (error instanceof UserError) {
         throw error;
       }
@@ -81,18 +85,18 @@ export function useTicketShowQuery(request: TicketShowRequest) {
 }
 
 type FetchTicketShowQueryParams = {
-  queryTicket: QueryClient;
+  queryClient: QueryClient;
   request: TicketShowRequest;
 };
 
 export async function fetchTicketShowQuery({
-  queryTicket,
+  queryClient,
   request,
 }: FetchTicketShowQueryParams) {
   const ticketShowQueryOpt = ticketShowQuery(request);
 
-  queryTicket.getQueryData(ticketShowQueryOpt.queryKey) ??
-    (await queryTicket.fetchQuery(ticketShowQueryOpt).catch((error) => {
+  queryClient.getQueryData(ticketShowQueryOpt.queryKey) ??
+    (await queryClient.fetchQuery(ticketShowQueryOpt).catch((error) => {
       if (error instanceof UserError) {
         throw error;
       }

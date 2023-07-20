@@ -1,11 +1,20 @@
 import { z } from "zod";
 
+export const TicketStatusEnum = z.enum([
+  "open",
+  "in_progress",
+  "resolved",
+  "unresolved",
+]);
+
+export type TicketStatus = z.infer<typeof TicketStatusEnum>;
+
 export const TicketSchema = z.object({
   id: z.string().nonempty(),
   title: z.string().nonempty("Title is required"),
-  status: z
-    .enum(["open", "in_progress", "resolved", "unresolved"])
-    .default("open"),
+  description: z.string().optional(),
+  platform: z.string().nonempty("Platform is required"),
+  status: TicketStatusEnum.default("open"),
   is_archived: z.boolean().default(false),
   client_id: z.string().nonempty(),
   created_at: z.string().datetime(),
@@ -22,14 +31,3 @@ export const CreateTicketSchema = TicketSchema.pick({
 });
 
 export type CreateTicketSchema = z.infer<typeof CreateTicketSchema>;
-
-export const TicketMessageSchema = z.object({
-  id: z.string().nonempty(),
-  message: z.string().nonempty(),
-  ticket_id: z.string().nonempty(),
-  messageable_id: z.string().nonempty(),
-  messageable_type: z.enum(["client", "admin"]),
-  created_at: z.string().datetime(),
-});
-
-export type TicketMessage = z.infer<typeof TicketMessageSchema>;

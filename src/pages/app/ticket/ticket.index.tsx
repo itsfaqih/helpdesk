@@ -39,6 +39,19 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
 import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { Badge } from "@/components/base/badge";
+import {
+  ticketStatusToBadgeColor,
+  ticketStatusToLabel,
+} from "@/utils/ticket.util";
+import {
+  Select,
+  SelectContent,
+  SelectLabel,
+  SelectOption,
+  SelectTrigger,
+} from "@/components/base/select";
+import { TicketStatusEnum } from "@/schemas/ticket.schema";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -156,6 +169,53 @@ export function TicketIndexPage() {
               className="flex-1 min-w-[20rem]"
             />
 
+            <Controller
+              control={filtersForm.control}
+              name="status"
+              render={({ field }) => (
+                <Select
+                  name={field.name}
+                  selectedOption={{
+                    label: ticketStatusToLabel(field.value ?? ""),
+                    value: field.value ?? "",
+                  }}
+                  onChange={(selectedOption) => {
+                    const value = selectedOption?.value;
+
+                    if (
+                      value === "" ||
+                      value === "open" ||
+                      value === "in_progress" ||
+                      value === "resolved" ||
+                      value === "unresolved"
+                    ) {
+                      field.onChange(value);
+                    }
+                  }}
+                >
+                  {({ selectedOption }) => (
+                    <>
+                      <SelectLabel className="sr-only">Status</SelectLabel>
+                      <SelectTrigger className="w-48">
+                        {(selectedOption as { label?: string })?.label ??
+                          "Select status"}
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectOption value="" label="All status" />
+                        {TicketStatusEnum.options.map((status) => (
+                          <SelectOption
+                            key={status}
+                            value={status}
+                            label={ticketStatusToLabel(status)}
+                          />
+                        ))}
+                      </SelectContent>
+                    </>
+                  )}
+                </Select>
+              )}
+            />
+
             <Button
               onClick={() =>
                 filtersForm.reset({
@@ -193,7 +253,9 @@ export function TicketIndexPage() {
           rows={ticketIndexQuery.data?.data.map((ticket) => [
             ticket.title,
             ticket.client_id,
-            ticket.status,
+            <Badge color={ticketStatusToBadgeColor(ticket.status)}>
+              {ticketStatusToLabel(ticket.status)}
+            </Badge>,
             ticket.created_at,
             ticket.updated_at,
             <div className="flex items-center justify-end gap-x-1">
