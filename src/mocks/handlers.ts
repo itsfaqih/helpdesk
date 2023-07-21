@@ -768,6 +768,7 @@ export const ticketHandlers = [
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       client_id: data.client_id,
+      category_id: data.category_id
     };
 
     const newTickets = [...storedAdmins, newTicket];
