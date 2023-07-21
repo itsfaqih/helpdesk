@@ -41,7 +41,7 @@ export const SelectTrigger = React.forwardRef<
     <Ark.SelectTrigger
       ref={ref}
       className={cn(
-        "flex w-full justify-between cursor-default items-center rounded-md bg-white px-3 py-2 text-sm font-medium transition hover:bg-gray-100 focus:outline-2",
+        "whitespace-nowrap flex w-full justify-between cursor-default items-center rounded-md bg-white px-3 py-2 text-sm font-medium transition hover:bg-gray-100 focus:outline-2",
         error
           ? "focus:outline-rose-600 shadow-haptic-rose-300 enabled:hover:shadow-haptic-rose-400"
           : "focus:outline-brand-600 shadow-haptic-gray-300 enabled:hover:shadow-haptic-gray-400",

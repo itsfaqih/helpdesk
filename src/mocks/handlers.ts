@@ -20,11 +20,17 @@ import {
 } from "@/schemas/client.schema";
 import { ClientIndexRequestSchema } from "@/queries/client.query";
 import {
+  CreateTicketCategorySchema,
   CreateTicketSchema,
   Ticket,
+  TicketCategory,
+  TicketCategorySchema,
   TicketSchema,
 } from "@/schemas/ticket.schema";
-import { TicketIndexRequestSchema } from "@/queries/ticket.query";
+import {
+  TicketCategoryIndexRequestSchema,
+  TicketIndexRequestSchema,
+} from "@/queries/ticket.query";
 
 export const authHandlers = [
   rest.post("/api/login", async (req) => {
@@ -806,6 +812,12 @@ export const ticketHandlers = [
         }
       }
 
+      if (filters.category_id) {
+        if (ticket.category_id !== filters.category_id) {
+          return false;
+        }
+      }
+
       if (filters.is_archived) {
         if (filters.is_archived === "1" && !ticket.is_archived) {
           return false;
@@ -973,9 +985,137 @@ export const ticketHandlers = [
   }),
 ];
 
+export const ticketCategoryHandlers = [
+  rest.post("/api/ticket-categories", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const data = CreateTicketCategorySchema.parse(await req.json());
+
+    const unparsedStoredTicketCategories =
+      (await localforage.getItem("ticket_categories")) ?? [];
+    const storedTicketCategories = TicketCategorySchema.array().parse(
+      unparsedStoredTicketCategories
+    );
+
+    const newTicketCategory: TicketCategory = {
+      id: nanoid(),
+      name: data.name,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    const newTicketCategories = [...storedTicketCategories, newTicketCategory];
+
+    await localforage.setItem("ticket_categories", newTicketCategories);
+
+    return successResponse({
+      data: newTicketCategory,
+      message: "Successfully created ticket category",
+    });
+  }),
+  rest.get("/api/ticket-categories", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const unparsedStoredTicketCategories =
+      (await localforage.getItem("ticket_categories")) ?? [];
+    const storedTicketCategories = TicketCategorySchema.array().parse(
+      unparsedStoredTicketCategories
+    );
+
+    const unparsedFilters = Object.fromEntries(req.url.searchParams);
+    const filters = TicketCategoryIndexRequestSchema.parse(unparsedFilters);
+
+    const filteredTicketCategories = storedTicketCategories.filter(
+      (ticketCategory) => {
+        if (filters.search) {
+          const search = filters.search.toLowerCase();
+
+          const isMatched = ticketCategory.name.toLowerCase().includes(search);
+
+          if (!isMatched) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+    );
+
+    return successResponse({
+      data: filteredTicketCategories,
+      message: "Successfully retrieved ticket categories",
+    });
+  }),
+  rest.put("/api/ticket-categories/:ticketCategoryId", async (req) => {
+    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+
+    if (!unparsedLoggedInAdmin) {
+      return errorResponse({
+        status: 401,
+        message: "Unauthorized",
+      });
+    }
+
+    const data = CreateTicketCategorySchema.parse(await req.json());
+
+    const unparsedStoredTicketCategories =
+      (await localforage.getItem("ticket_categories")) ?? [];
+    const storedTicketCategories = TicketCategorySchema.array().parse(
+      unparsedStoredTicketCategories
+    );
+
+    const ticketCategoryId = req.params.ticketCategoryId;
+
+    const ticketCategoryToUpdate = storedTicketCategories.find(
+      (ticketCategory) => ticketCategory.id === ticketCategoryId
+    );
+
+    if (!ticketCategoryToUpdate) {
+      return errorResponse({
+        message: "Ticket category is not found",
+        status: 404,
+      });
+    }
+
+    const updatedTicketCategory: TicketCategory = {
+      ...ticketCategoryToUpdate,
+      name: data.name,
+      updated_at: new Date().toISOString(),
+    };
+
+    const newTicketCategories = storedTicketCategories.map((ticketCategory) =>
+      ticketCategory.id === ticketCategoryId
+        ? updatedTicketCategory
+        : ticketCategory
+    );
+
+    await localforage.setItem("ticket_categories", newTicketCategories);
+
+    return successResponse({
+      data: updatedTicketCategory,
+      message: "Successfully updated ticket category",
+    });
+  }),
+];
+
 export const handlers = [
   ...authHandlers,
   ...adminHandlers,
   ...clientHandlers,
   ...ticketHandlers,
+  ...ticketCategoryHandlers,
 ];

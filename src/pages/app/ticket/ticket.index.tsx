@@ -16,6 +16,7 @@ import {
   TicketIndexRequest,
   TicketIndexRequestSchema,
   fetchTicketIndexQuery,
+  useTicketCategoryIndexQuery,
   useTicketIndexQuery,
 } from "@/queries/ticket.query";
 import {
@@ -81,11 +82,6 @@ export function TicketIndexPage() {
   const currentAdminQuery = useCurrentAdminQuery();
   const currentAdmin = currentAdminQuery.data?.data;
 
-  const filtersForm = useForm<TicketIndexRequest>({
-    resolver: zodResolver(TicketIndexRequestSchema),
-    defaultValues: loaderData.data.request,
-  });
-
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
     if (search === null) return;
@@ -93,6 +89,11 @@ export function TicketIndexPage() {
   }, 500);
 
   const ticketIndexQuery = useTicketIndexQuery(loaderData.data.request);
+
+  const filtersForm = useForm<TicketIndexRequest>({
+    resolver: zodResolver(TicketIndexRequestSchema),
+    defaultValues: loaderData.data.request,
+  });
 
   filtersForm.watch((data, { name }) => {
     if (name === "is_archived") {
@@ -123,6 +124,13 @@ export function TicketIndexPage() {
       filtersForm.setValue("page", loaderData.data.request.page);
     }
   }, [filtersForm, loaderData.data.request]);
+
+  const ticketCategoryIndexQuery = useTicketCategoryIndexQuery();
+  const ticketCategoryOptions =
+    ticketCategoryIndexQuery.data?.data.map((category) => ({
+      label: category.name,
+      value: category.id,
+    })) ?? [];
 
   return (
     <>
@@ -216,6 +224,46 @@ export function TicketIndexPage() {
               )}
             />
 
+            <Controller
+              control={filtersForm.control}
+              name="category_id"
+              render={({ field }) => (
+                <Select
+                  name={field.name}
+                  selectedOption={
+                    ticketCategoryOptions.find(
+                      (option) => option.value === field.value
+                    ) ?? { label: "All category", value: "" }
+                  }
+                  onChange={(selectedOption) => {
+                    const value = selectedOption?.value;
+
+                    field.onChange(value);
+                  }}
+                >
+                  {({ selectedOption }) => (
+                    <>
+                      <SelectLabel className="sr-only">Category</SelectLabel>
+                      <SelectTrigger className="w-48">
+                        {(selectedOption as { label?: string })?.label ??
+                          "Select category"}
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectOption value="" label="All category" />
+                        {ticketCategoryOptions.map((option) => (
+                          <SelectOption
+                            key={option.value}
+                            value={option.value}
+                            label={option.label}
+                          />
+                        ))}
+                      </SelectContent>
+                    </>
+                  )}
+                </Select>
+              )}
+            />
+
             <Button
               onClick={() =>
                 filtersForm.reset({
@@ -247,6 +295,7 @@ export function TicketIndexPage() {
             "Title",
             "Client's name",
             "Status",
+            "Category",
             "Last updated",
             "Date created",
           ]}
@@ -256,6 +305,7 @@ export function TicketIndexPage() {
             <Badge color={ticketStatusToBadgeColor(ticket.status)}>
               {ticketStatusToLabel(ticket.status)}
             </Badge>,
+            ticket.category_id,
             ticket.created_at,
             ticket.updated_at,
             <div className="flex items-center justify-end gap-x-1">

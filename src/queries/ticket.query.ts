@@ -1,5 +1,9 @@
 import { api } from "@/libs/api.lib";
-import { TicketSchema, TicketStatusEnum } from "@/schemas/ticket.schema";
+import {
+  TicketCategorySchema,
+  TicketSchema,
+  TicketStatusEnum,
+} from "@/schemas/ticket.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { UserError } from "@/utils/error.util";
 import { QueryClient, useQuery } from "@tanstack/react-query";
@@ -13,6 +17,7 @@ export const TicketIndexRequestSchema = z.object({
     .enum(["", ...TicketStatusEnum.options])
     .optional()
     .catch(undefined),
+  category_id: z.string().optional().catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });
 
@@ -101,4 +106,48 @@ export async function fetchTicketShowQuery({
         throw error;
       }
     }));
+}
+
+export const TicketCategoryIndexRequestSchema = z.object({
+  search: z.string().optional().catch(undefined),
+});
+
+export type TicketCategoryRequest = z.infer<typeof TicketCategoryIndexRequestSchema>;
+
+export const TicketCategoryIndexResponseSchema = APIResponseSchema({
+  schema: TicketCategorySchema.array(),
+});
+
+export function ticketCategoryIndexQuery() {
+  return {
+    queryKey: ["ticket-category", "index"],
+    async queryFn() {
+      const res = await api.get("/ticket-categories");
+
+      return TicketCategoryIndexResponseSchema.parse(res);
+    },
+  };
+}
+
+export function useTicketCategoryIndexQuery() {
+  return useQuery(ticketCategoryIndexQuery());
+}
+
+type FetchTicketCategoryIndexQueryParams = {
+  queryClient: QueryClient;
+};
+
+export async function fetchTicketCategoryIndexQuery({
+  queryClient,
+}: FetchTicketCategoryIndexQueryParams) {
+  const ticketCategoryIndexQueryOpt = ticketCategoryIndexQuery();
+
+  queryClient.getQueryData(ticketCategoryIndexQueryOpt.queryKey) ??
+    (await queryClient
+      .fetchQuery(ticketCategoryIndexQueryOpt)
+      .catch((error) => {
+        if (error instanceof UserError) {
+          throw error;
+        }
+      }));
 }

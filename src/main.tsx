@@ -24,7 +24,7 @@ import { TicketIndexPage } from "./pages/app/ticket/ticket.index";
 import { Admin } from "./schemas/admin.schema";
 import { nanoid } from "nanoid";
 import { Client } from "./schemas/client.schema";
-import { Ticket } from "./schemas/ticket.schema";
+import { Ticket, TicketCategory } from "./schemas/ticket.schema";
 import { TicketShowPage } from "./pages/app/ticket/ticket.show";
 
 async function prepare() {
@@ -82,13 +82,52 @@ async function prepare() {
     await localforage.setItem<Client[]>("clients", existingClients);
   }
 
+  let existingTicketCategories = await localforage.getItem<TicketCategory[]>(
+    "ticket_categories"
+  );
+
+  if (!existingTicketCategories) {
+    existingTicketCategories = [
+      {
+        id: nanoid(),
+        name: "Masalah Pelayanan",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: nanoid(),
+        name: "Masalah Menu",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: nanoid(),
+        name: "Saran Menu",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: nanoid(),
+        name: "Lainnya",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ];
+
+    await localforage.setItem<TicketCategory[]>(
+      "ticket_categories",
+      existingTicketCategories
+    );
+  }
+
   let existingTickets = await localforage.getItem<Ticket[]>("tickets");
   if (!existingTickets) {
     existingTickets = [
       {
         id: nanoid(),
         client_id: existingClients[0].id,
-        title: "Masalah Pelayanan",
+        category_id: existingTicketCategories[0].id,
+        title: "Staf kurang ramah",
         description: `Gue mau lapor nih tentang pengalaman gue di Restoran XYZ. Jadi ceritanya, gue tuh nyoba mampir ke restoran itu pada tanggal XX/XX/XXXX, dan wah, bener-bener kecewa deh sama pelayanannya. Stafnya tuh kurang ramah banget, pelayanannya juga lama banget, dan gak jarang pesenan gue dikasih yang salah, gitu loh!\nJadi, beneran deh, gue harap banget masalah ini bisa diatasi dengan serius dan diperbaiki secepatnya. Gue pengen kasih masukan yang membangun biar pengalaman nyokap-nyokap Jakarta Selatan yang lain juga bisa lebih kece di restoran ini.`,
         platform: "Email",
         status: "open",
@@ -99,6 +138,7 @@ async function prepare() {
       {
         id: nanoid(),
         client_id: existingClients[0].id,
+        category_id: existingTicketCategories[2].id,
         title: "Saran Menu Makanan: Sate Ayam",
         platform: "WhatsApp",
         status: "open",
@@ -109,6 +149,7 @@ async function prepare() {
       {
         id: nanoid(),
         client_id: existingClients[1].id,
+        category_id: existingTicketCategories[0].id,
         title: "Staf kurang ramah, pelayanan lelet",
         description: `Jadi, ceritanya pas aku kesana tanggal XX/XX/XXXX, aku bener-bener kecewa sama pelayanannya. Stafnya kurang ramah banget, pelayanannya juga lama banget, dan kadang pesenan aku dikasih yang salah, gitu loh!`,
         platform: "Instagram",
@@ -120,6 +161,7 @@ async function prepare() {
       {
         id: nanoid(),
         client_id: existingClients[1].id,
+        category_id: existingTicketCategories[1].id,
         title: "Makanannya basi",
         platform: "Twitter",
         status: "open",
