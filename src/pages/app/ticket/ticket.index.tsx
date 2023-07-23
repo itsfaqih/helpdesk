@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Plus } from "@phosphor-icons/react";
+import { ArrowRight } from "@phosphor-icons/react";
 import { Controller, useForm } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
@@ -39,7 +39,6 @@ import { FadeInContainer } from "@/components/base/fade-in-container";
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
-import { useCurrentAdminQuery } from "@/queries/current-admin.query";
 import { Badge } from "@/components/base/badge";
 import {
   ticketStatusToBadgeColor,
@@ -78,9 +77,6 @@ TicketIndexPage.loader = loader;
 export function TicketIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
-
-  const currentAdminQuery = useCurrentAdminQuery();
-  const currentAdmin = currentAdminQuery.data?.data;
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
@@ -125,7 +121,7 @@ export function TicketIndexPage() {
     }
   }, [filtersForm, loaderData.data.request]);
 
-  const ticketCategoryIndexQuery = useTicketCategoryIndexQuery();
+  const ticketCategoryIndexQuery = useTicketCategoryIndexQuery({});
   const ticketCategoryOptions =
     ticketCategoryIndexQuery.data?.data.map((category) => ({
       label: category.name,
@@ -134,14 +130,6 @@ export function TicketIndexPage() {
 
   return (
     <>
-      {currentAdmin?.role === "super_admin" && (
-        <Link
-          to="/tickets/create"
-          className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
-        >
-          <Plus className="w-6 h-6 text-white" />
-        </Link>
-      )}
       <FadeInContainer className="pb-5">
         <AppPageTitle title={loaderData.pageTitle} />
 

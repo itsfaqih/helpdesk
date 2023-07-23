@@ -9,7 +9,14 @@ import {
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { getInitials } from "@/utils/text.util";
 import { cn } from "@/libs/cn.lib";
-import { AddressBook, House, List, Ticket, Users } from "@phosphor-icons/react";
+import {
+  AddressBook,
+  House,
+  List,
+  Tag,
+  Ticket,
+  Users,
+} from "@phosphor-icons/react";
 import { useCurrentAdminQuery } from "@/queries/current-admin.query";
 import { useLogOutMutation } from "@/mutations/log-out.mutation";
 import { FadeInContainer } from "@/components/base/fade-in-container";
@@ -46,6 +53,13 @@ export function AppRoot() {
             </li>
             <li>
               <MainMenuItem to="/tickets" icon={Ticket} label="Tickets" />
+            </li>
+            <li>
+              <MainMenuItem
+                to="/ticket-categories"
+                icon={Tag}
+                label="Ticket Categories"
+              />
             </li>
             <li>
               <MainMenuItem to="/clients" icon={AddressBook} label="Clients" />

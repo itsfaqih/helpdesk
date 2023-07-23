@@ -26,6 +26,9 @@ import { nanoid } from "nanoid";
 import { Client } from "./schemas/client.schema";
 import { Ticket, TicketCategory } from "./schemas/ticket.schema";
 import { TicketShowPage } from "./pages/app/ticket/ticket.show";
+import { TicketCategoryIndexPage } from "./pages/app/ticket-categories/ticket-categories.index";
+import { TicketCategoryShowPage } from "./pages/app/ticket-categories/ticket-categories.show";
+import { TicketCategoryCreatePage } from "./pages/app/ticket-categories/ticket-categories.create";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
@@ -91,24 +94,28 @@ async function prepare() {
       {
         id: nanoid(),
         name: "Masalah Pelayanan",
+        is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
       {
         id: nanoid(),
         name: "Masalah Menu",
+        is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
       {
         id: nanoid(),
         name: "Saran Menu",
+        is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
       {
         id: nanoid(),
         name: "Lainnya",
+        is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
@@ -277,6 +284,26 @@ prepare()
                 path: ":id",
                 loader: TicketShowPage.loader(queryClient),
                 element: <TicketShowPage />,
+              },
+            ],
+          },
+          {
+            path: "ticket-categories",
+            children: [
+              {
+                element: <TicketCategoryIndexPage />,
+                loader: TicketCategoryIndexPage.loader(queryClient),
+                index: true,
+              },
+              {
+                path: ":id",
+                loader: TicketCategoryShowPage.loader(queryClient),
+                element: <TicketCategoryShowPage />,
+              },
+              {
+                path: "create",
+                loader: TicketCategoryCreatePage.loader(),
+                element: <TicketCategoryCreatePage />,
               },
             ],
           },

@@ -8,15 +8,6 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/base/dialog";
 import { Input } from "@/components/base/input";
 import {
   TabIndicator,
@@ -24,21 +15,18 @@ import {
   TabTrigger,
   Tabs,
 } from "@/components/base/tabs";
-import { Client, ClientSchema } from "@/schemas/client.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   QueryClient,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { api } from "@/libs/api.lib";
-import { APIResponseSchema } from "@/schemas/api.schema";
 import {
-  ClientIndexRequest,
-  ClientIndexRequestSchema,
-  fetchClientIndexQuery,
-  useClientIndexQuery,
-} from "@/queries/client.query";
+  TicketCategoryIndexRequestSchema,
+  TicketCategoryIndexRequest,
+  fetchTicketCategoryIndexQuery,
+  useTicketCategoryIndexQuery,
+} from "@/queries/ticket.query";
 import {
   Link,
   LoaderFunctionArgs,
@@ -60,39 +48,46 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
 import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { APIResponseSchema } from "@/schemas/api.schema";
+import { TicketCategory, TicketCategorySchema } from "@/schemas/ticket.schema";
+import { api } from "@/libs/api.lib";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/base/dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
-    const requestData = ClientIndexRequestSchema.parse(
+    const requestData = TicketCategoryIndexRequestSchema.parse(
       Object.fromEntries(new URL(request.url).searchParams)
     );
 
-    fetchClientIndexQuery({ queryClient, request: requestData }).catch(
+    fetchTicketCategoryIndexQuery({ queryClient, request: requestData }).catch(
       (err) => {
         console.error(err);
       }
     );
 
     return loaderResponse({
-      pageTitle: "Client",
+      pageTitle: "Ticket Categories",
       data: { request: requestData },
     });
   };
 }
 
-ClientIndexPage.loader = loader;
+TicketCategoryIndexPage.loader = loader;
 
-export function ClientIndexPage() {
+export function TicketCategoryIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
 
   const currentAdminQuery = useCurrentAdminQuery();
   const currentAdmin = currentAdminQuery.data?.data;
-
-  const filtersForm = useForm<ClientIndexRequest>({
-    resolver: zodResolver(ClientIndexRequestSchema),
-    defaultValues: loaderData.data.request,
-  });
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
@@ -100,7 +95,14 @@ export function ClientIndexPage() {
     filtersForm.setValue("search", search);
   }, 500);
 
-  const clientIndexQuery = useClientIndexQuery(loaderData.data.request);
+  const ticketCategoryQuery = useTicketCategoryIndexQuery(
+    loaderData.data.request
+  );
+
+  const filtersForm = useForm<TicketCategoryIndexRequest>({
+    resolver: zodResolver(TicketCategoryIndexRequestSchema),
+    defaultValues: loaderData.data.request,
+  });
 
   filtersForm.watch((data, { name }) => {
     if (name === "is_archived") {
@@ -136,7 +138,7 @@ export function ClientIndexPage() {
     <>
       {currentAdmin?.role === "super_admin" && (
         <Link
-          to="/clients/create"
+          to="/ticket-categories/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
         >
           <Plus className="w-6 h-6 text-white" />
@@ -144,17 +146,17 @@ export function ClientIndexPage() {
       )}
       <FadeInContainer className="pb-5">
         <AppPageTitle
-          title="Client"
+          title={loaderData.pageTitle}
           actions={
             currentAdmin?.role === "super_admin" && (
               <Button
                 as={Link}
-                to="/clients/create"
+                to="/ticket-categories/create"
                 variant="primary"
                 leading={Plus}
                 className="hidden sm:inline-flex"
               >
-                New Client
+                New Category
               </Button>
             )
           }
@@ -188,7 +190,7 @@ export function ClientIndexPage() {
               onChange={(e) => setSearch(e.target.value)}
               value={search ?? ""}
               type="search"
-              placeholder="Search by full name"
+              placeholder="Search by title"
               className="flex-1 min-w-[20rem]"
             />
 
@@ -209,61 +211,59 @@ export function ClientIndexPage() {
           </div>
         </div>
         <Table
-          id="clients"
-          loading={clientIndexQuery.isLoading}
-          error={clientIndexQuery.isError}
+          id="ticket-categories"
+          loading={ticketCategoryQuery.isLoading}
+          error={ticketCategoryQuery.isError}
           errorMessage={
-            (typeof clientIndexQuery.error === "object" &&
-              clientIndexQuery.error instanceof Error &&
-              clientIndexQuery.error.message) ||
+            (typeof ticketCategoryQuery.error === "object" &&
+              ticketCategoryQuery.error instanceof Error &&
+              ticketCategoryQuery.error.message) ||
             undefined
           }
-          refetch={clientIndexQuery.refetch}
-          headings={["Full Name", "Date created"]}
-          rows={clientIndexQuery.data?.data.map((client) => [
-            client.full_name,
-            client.created_at,
+          refetch={ticketCategoryQuery.refetch}
+          headings={["Name", "Date created"]}
+          rows={ticketCategoryQuery.data?.data.map((category) => [
+            category.name,
+            category.created_at,
             <div className="flex items-center justify-end gap-x-1">
-              {currentAdmin?.id !== client.id &&
-                currentAdmin?.role === "super_admin" &&
-                (!client.is_archived ? (
-                  <>
-                    <IconButton
-                      as={Link}
-                      to={`/clients/${client.id}`}
-                      icon={PencilSimple}
-                      label="Edit"
-                    />
+              {!category.is_archived ? (
+                <>
+                  <IconButton
+                    as={Link}
+                    to={`/ticket-categories/${category.id}`}
+                    icon={PencilSimple}
+                    label="Edit"
+                  />
 
-                    <ArchiveClientDialog
-                      clientId={client.id}
-                      trigger={
-                        <IconButton
-                          icon={Archive}
-                          label="Archive"
-                          className="text-red-600"
-                        />
-                      }
-                    />
-                  </>
-                ) : (
-                  <RestoreClientDialog
-                    clientId={client.id}
+                  <ArchiveClientDialog
+                    ticketCategoryId={category.id}
                     trigger={
                       <IconButton
-                        icon={ArrowCounterClockwise}
-                        label="Restore"
-                        className="text-green-600"
+                        icon={Archive}
+                        label="Archive"
+                        className="text-red-600"
                       />
                     }
                   />
-                ))}
+                </>
+              ) : (
+                <RestoreTicketCategoryDialog
+                  ticketCategoryId={category.id}
+                  trigger={
+                    <IconButton
+                      icon={ArrowCounterClockwise}
+                      label="Restore"
+                      className="text-green-600"
+                    />
+                  }
+                />
+              )}
             </div>,
           ])}
           className="mt-5"
         />
-        {clientIndexQuery.isSuccess &&
-          clientIndexQuery.data.data.length > 0 && (
+        {ticketCategoryQuery.isSuccess &&
+          ticketCategoryQuery.data.data.length > 0 && (
             <div className="mt-5">
               <Controller
                 control={filtersForm.control}
@@ -271,9 +271,11 @@ export function ClientIndexPage() {
                 render={({ field }) => (
                   <Pagination
                     page={field.value ?? 1}
-                    count={clientIndexQuery.data.meta?.pagination?.total ?? 1}
+                    count={
+                      ticketCategoryQuery.data.meta?.pagination?.total ?? 1
+                    }
                     pageSize={
-                      clientIndexQuery.data.meta?.pagination?.per_page ?? 1
+                      ticketCategoryQuery.data.meta?.pagination?.per_page ?? 1
                     }
                     onChange={({ page }) => {
                       field.onChange(page);
@@ -317,21 +319,26 @@ export function ClientIndexPage() {
   );
 }
 
-type ArchiveClientDialogProps = {
-  clientId: Client["id"];
+type ArchiveTicketCategoryDialogProps = {
+  ticketCategoryId: TicketCategory["id"];
   trigger: React.ReactNode;
 };
 
-function ArchiveClientDialog({ clientId, trigger }: ArchiveClientDialogProps) {
+function ArchiveClientDialog({
+  ticketCategoryId,
+  trigger,
+}: ArchiveTicketCategoryDialogProps) {
   const [open, setOpen] = React.useState(false);
 
-  const archiveClientMutation = useArchiveClientMutation({ clientId });
+  const archiveTicketCategoryMutation = useArchiveTicketCategoryMutation({
+    ticketCategoryId: ticketCategoryId,
+  });
 
   React.useEffect(() => {
-    if (archiveClientMutation.isSuccess) {
+    if (archiveTicketCategoryMutation.isSuccess) {
       setOpen(false);
     }
-  }, [archiveClientMutation.isSuccess]);
+  }, [archiveTicketCategoryMutation.isSuccess]);
 
   return (
     <Dialog
@@ -342,21 +349,22 @@ function ArchiveClientDialog({ clientId, trigger }: ArchiveClientDialogProps) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="w-[36rem]">
         <DialogHeader>
-          <DialogTitle>Archive Client</DialogTitle>
+          <DialogTitle>Archive Ticket Category</DialogTitle>
           <DialogDescription>
-            Are you sure you want to archive this client? After archiving, the
-            client will not be listed in the client list
+            Are you sure you want to archive this ticket category? After
+            archiving, the ticket category will no longer be listed in the
+            ticket category list
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-5">
           <Button
             type="button"
             variant="danger"
-            loading={archiveClientMutation.isLoading}
-            success={archiveClientMutation.isSuccess}
-            onClick={() => archiveClientMutation.mutate()}
+            loading={archiveTicketCategoryMutation.isLoading}
+            success={archiveTicketCategoryMutation.isSuccess}
+            onClick={() => archiveTicketCategoryMutation.mutate()}
           >
-            Archive Client
+            Archive Category
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -364,31 +372,32 @@ function ArchiveClientDialog({ clientId, trigger }: ArchiveClientDialogProps) {
   );
 }
 
-const ArchiveClientResponseSchema = APIResponseSchema({
-  schema: ClientSchema.pick({
+const ArchiveTicketCategoryResponseSchema = APIResponseSchema({
+  schema: TicketCategorySchema.pick({
     id: true,
-    email: true,
-    full_name: true,
-    role: true,
-    is_active: true,
+    name: true,
+    description: true,
   }),
 });
 
-type UseArchiveClientMutationParams = {
-  clientId: Client["id"];
+type UseArchiveTicketCategoryMutationParams = {
+  ticketCategoryId: TicketCategory["id"];
 };
 
-function useArchiveClientMutation({
-  clientId,
-}: UseArchiveClientMutationParams) {
+function useArchiveTicketCategoryMutation({
+  ticketCategoryId,
+}: UseArchiveTicketCategoryMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
     async mutationFn() {
       try {
-        const res = await api.put(undefined, `/clients/${clientId}/archive`);
+        const res = await api.put(
+          undefined,
+          `/ticket-categories/${ticketCategoryId}/archive`
+        );
 
-        return ArchiveClientResponseSchema.parse(res);
+        return ArchiveTicketCategoryResponseSchema.parse(res);
       } catch (error) {
         throw new Error(
           "Something went wrong. Please contact the administrator"
@@ -396,26 +405,31 @@ function useArchiveClientMutation({
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["client", "index"]);
+      await queryClient.invalidateQueries(["ticket-category", "index"]);
     },
   });
 }
 
-type RestoreClientDialogProps = {
-  clientId: Client["id"];
+type RestoreTicketCategoryDialogProps = {
+  ticketCategoryId: TicketCategory["id"];
   trigger: React.ReactNode;
 };
 
-function RestoreClientDialog({ clientId, trigger }: RestoreClientDialogProps) {
+function RestoreTicketCategoryDialog({
+  ticketCategoryId,
+  trigger,
+}: RestoreTicketCategoryDialogProps) {
   const [open, setOpen] = React.useState(false);
 
-  const restoreClientMutation = useRestoreClientMutation({ clientId });
+  const restoreTicketCategoryMutation = useRestoreTicketCategoryMutation({
+    ticketCategoryId: ticketCategoryId,
+  });
 
   React.useEffect(() => {
-    if (restoreClientMutation.isSuccess) {
+    if (restoreTicketCategoryMutation.isSuccess) {
       setOpen(false);
     }
-  }, [restoreClientMutation.isSuccess]);
+  }, [restoreTicketCategoryMutation.isSuccess]);
 
   return (
     <Dialog
@@ -426,21 +440,22 @@ function RestoreClientDialog({ clientId, trigger }: RestoreClientDialogProps) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="w-[36rem]">
         <DialogHeader>
-          <DialogTitle>Restore Client</DialogTitle>
+          <DialogTitle>Restore Ticket Category</DialogTitle>
           <DialogDescription>
-            Are you sure you want to restore this client? After restoring the
-            client will be listed in the client list
+            Are you sure you want to restore this ticket category? After
+            restoring the ticket category will be listed in the ticket category
+            list
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-5">
           <Button
             type="button"
             variant="primary"
-            loading={restoreClientMutation.isLoading}
-            success={restoreClientMutation.isSuccess}
-            onClick={() => restoreClientMutation.mutate()}
+            loading={restoreTicketCategoryMutation.isLoading}
+            success={restoreTicketCategoryMutation.isSuccess}
+            onClick={() => restoreTicketCategoryMutation.mutate()}
           >
-            Restore Client
+            Restore Category
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -448,31 +463,32 @@ function RestoreClientDialog({ clientId, trigger }: RestoreClientDialogProps) {
   );
 }
 
-const RestoreClientResponseSchema = APIResponseSchema({
-  schema: ClientSchema.pick({
+const RestoreTicketCategoryResponseSchema = APIResponseSchema({
+  schema: TicketCategorySchema.pick({
     id: true,
-    email: true,
-    full_name: true,
-    role: true,
-    is_active: true,
+    name: true,
+    description: true,
   }),
 });
 
-type UseRestoreClientMutationParams = {
-  clientId: Client["id"];
+type UseRestoreTicketCategoryMutationParams = {
+  ticketCategoryId: TicketCategory["id"];
 };
 
-function useRestoreClientMutation({
-  clientId,
-}: UseRestoreClientMutationParams) {
+function useRestoreTicketCategoryMutation({
+  ticketCategoryId,
+}: UseRestoreTicketCategoryMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
     async mutationFn() {
       try {
-        const res = await api.put(undefined, `/clients/${clientId}/restore`);
+        const res = await api.put(
+          undefined,
+          `/ticket-categories/${ticketCategoryId}/restore`
+        );
 
-        return RestoreClientResponseSchema.parse(res);
+        return RestoreTicketCategoryResponseSchema.parse(res);
       } catch (error) {
         throw new Error(
           "Something went wrong. Please contact the administrator"
@@ -480,7 +496,7 @@ function useRestoreClientMutation({
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["client", "index"]);
+      await queryClient.invalidateQueries(["ticket-category", "index"]);
     },
   });
 }

@@ -40,6 +40,7 @@ export const TicketCategorySchema = z.object({
   id: z.string().nonempty(),
   name: z.string().nonempty(),
   description: z.string().optional(),
+  is_archived: z.boolean().default(false),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });
@@ -56,7 +57,6 @@ export type CreateTicketCategorySchema = z.infer<
 >;
 
 export const UpdateTicketCategorySchema = TicketCategorySchema.pick({
-  name: true,
   description: true,
 });
 
