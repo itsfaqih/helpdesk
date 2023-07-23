@@ -1,11 +1,28 @@
 import { Button } from "@/components/base/button";
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { Link } from "@/components/base/link";
+import { AppPageContainer } from "@/components/derived/app-page-container";
 import { Textbox } from "@/components/derived/textbox";
+import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
+import { useLoaderData } from "react-router-dom";
+
+function loader() {
+  return async () => {
+    return loaderResponse({
+      pageTitle: "Forgot Password",
+    });
+  };
+}
+
+ForgotPasswordPage.loader = loader;
 
 export function ForgotPasswordPage() {
+  const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
+
   return (
-    <FadeInContainer className="max-w-sm mx-auto mt-32">
+    <AppPageContainer
+      title={loaderData.pageTitle}
+      className="max-w-sm mx-auto mt-32"
+    >
       <h1 className="text-2xl font-medium text-center text-gray-800">
         Forgot Password
       </h1>
@@ -23,6 +40,6 @@ export function ForgotPasswordPage() {
         Recalled your password already?{" "}
         <Link to="/auth/login">Back to login</Link>
       </p>
-    </FadeInContainer>
+    </AppPageContainer>
   );
 }

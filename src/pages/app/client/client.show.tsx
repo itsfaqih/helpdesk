@@ -1,5 +1,4 @@
 import React from "react";
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { AppPageTitle } from "../_components/page-title.app";
 import {
   Client,
@@ -29,6 +28,7 @@ import { Card } from "@/components/base/card";
 import { Link } from "@/components/base/link";
 import { CaretLeft } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
+import { AppPageContainer } from "@/components/derived/app-page-container";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -41,7 +41,7 @@ function loader(queryClient: QueryClient) {
     );
 
     return loaderResponse({
-      pageTitle: "Edit Clientistrator",
+      pageTitle: "Edit Client",
       data: { request: requestData },
     });
   };
@@ -75,7 +75,7 @@ export function ClientShowPage() {
   }, [client, updateClientForm]);
 
   return (
-    <FadeInContainer className="pb-5">
+    <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <Link
         variant="plain"
         to="/clients"
@@ -84,7 +84,7 @@ export function ClientShowPage() {
         <CaretLeft className="w-4 h-4" />
         <span>Back</span>
       </Link>
-      <AppPageTitle title="Update Client" className="mt-4" />
+      <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="update-client-form"
@@ -124,7 +124,7 @@ export function ClientShowPage() {
           </div>
         </form>
       </Card>
-    </FadeInContainer>
+    </AppPageContainer>
   );
 }
 

@@ -1,4 +1,3 @@
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { AppPageTitle } from "../_components/page-title.app";
 import { QueryClient } from "@tanstack/react-query";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
@@ -18,6 +17,7 @@ import {
 } from "@/utils/ticket.util";
 import { Badge } from "@/components/base/badge";
 import { formatDateTime } from "@/utils/date";
+import { AppPageContainer } from "@/components/derived/app-page-container";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -47,7 +47,7 @@ export function TicketShowPage() {
   const ticket = ticketShowQuery.data?.data;
 
   return (
-    <FadeInContainer className="pb-5">
+    <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <Link
         variant="plain"
         to="/tickets"
@@ -171,6 +171,6 @@ export function TicketShowPage() {
           </table>
         </Card>
       </div>
-    </FadeInContainer>
+    </AppPageContainer>
   );
 }

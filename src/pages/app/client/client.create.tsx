@@ -1,4 +1,3 @@
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { AppPageTitle } from "../_components/page-title.app";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { ClientSchema, CreateClientSchema } from "@/schemas/client.schema";
@@ -13,9 +12,23 @@ import { Card } from "@/components/base/card";
 import { Button } from "@/components/base/button";
 import { Link } from "@/components/base/link";
 import { CaretLeft } from "@phosphor-icons/react";
-import { useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
+import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
+import { AppPageContainer } from "@/components/derived/app-page-container";
+
+function loader() {
+  return async () => {
+    return loaderResponse({
+      pageTitle: "Create Client",
+    });
+  };
+}
+
+ClientCreatePage.loader = loader;
 
 export function ClientCreatePage() {
+  const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
+
   const navigate = useNavigate();
   const createClientForm = useForm<CreateClientSchema>({
     resolver: zodResolver(CreateClientSchema),
@@ -32,7 +45,7 @@ export function ClientCreatePage() {
   });
 
   return (
-    <FadeInContainer className="pb-5">
+    <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <Link
         variant="plain"
         to="/clients"
@@ -41,7 +54,7 @@ export function ClientCreatePage() {
         <CaretLeft className="w-4 h-4" />
         <span>Back</span>
       </Link>
-      <AppPageTitle title="Create Client" className="mt-4" />
+      <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="create-client-form"
@@ -74,7 +87,7 @@ export function ClientCreatePage() {
           </div>
         </form>
       </Card>
-    </FadeInContainer>
+    </AppPageContainer>
   );
 }
 

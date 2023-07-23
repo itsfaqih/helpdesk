@@ -204,14 +204,17 @@ prepare()
           {
             path: "login",
             element: <LoginPage />,
+            loader: LoginPage.loader(),
           },
           {
             path: "register",
             element: <RegisterPage />,
+            loader: RegisterPage.loader(),
           },
           {
             path: "forgot-password",
             element: <ForgotPasswordPage />,
+            loader: ForgotPasswordPage.loader(),
           },
         ],
       },
@@ -232,6 +235,7 @@ prepare()
         children: [
           {
             element: <DashboardPage />,
+            loader: DashboardPage.loader(),
             index: true,
           },
           {
@@ -249,6 +253,7 @@ prepare()
               },
               {
                 path: "create",
+                loader: AdminCreatePage.loader(),
                 element: <AdminCreatePage />,
               },
             ],
@@ -268,6 +273,7 @@ prepare()
               },
               {
                 path: "create",
+                loader: ClientCreatePage.loader(),
                 element: <ClientCreatePage />,
               },
             ],

@@ -1,5 +1,4 @@
 import React from "react";
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Admin, AdminSchema, UpdateAdminSchema } from "@/schemas/admin.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
@@ -33,6 +32,7 @@ import { Card } from "@/components/base/card";
 import { Link } from "@/components/base/link";
 import { CaretLeft } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
+import { AppPageContainer } from "@/components/derived/app-page-container";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -77,7 +77,7 @@ export function AdminShowPage() {
   }, [admin, updateAdminForm]);
 
   return (
-    <FadeInContainer className="pb-5">
+    <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <Link
         variant="plain"
         to="/admins"
@@ -86,7 +86,7 @@ export function AdminShowPage() {
         <CaretLeft className="w-4 h-4" />
         <span>Back</span>
       </Link>
-      <AppPageTitle title="Update Administrator" className="mt-4" />
+      <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="update-admin-form"
@@ -199,7 +199,7 @@ export function AdminShowPage() {
           </div>
         </form>
       </Card>
-    </FadeInContainer>
+    </AppPageContainer>
   );
 }
 

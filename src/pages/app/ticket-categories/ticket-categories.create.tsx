@@ -1,4 +1,3 @@
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { AppPageTitle } from "../_components/page-title.app";
 import {
   CreateTicketCategorySchema,
@@ -19,12 +18,12 @@ import { Link } from "@/components/base/link";
 import { CaretLeft } from "@phosphor-icons/react";
 import { TextAreabox } from "@/components/derived/textareabox";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
+import { AppPageContainer } from "@/components/derived/app-page-container";
 
 function loader() {
   return async () => {
     return loaderResponse({
       pageTitle: "Create Ticket Category",
-      data: null,
     });
   };
 }
@@ -50,7 +49,7 @@ export function TicketCategoryCreatePage() {
   });
 
   return (
-    <FadeInContainer className="pb-5">
+    <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <Link
         variant="plain"
         to="/ticket-categories"
@@ -112,7 +111,7 @@ export function TicketCategoryCreatePage() {
           </div>
         </form>
       </Card>
-    </FadeInContainer>
+    </AppPageContainer>
   );
 }
 

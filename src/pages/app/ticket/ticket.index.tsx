@@ -35,7 +35,6 @@ import {
   PaginationPageTrigger,
   PaginationPrevPageTrigger,
 } from "@/components/base/pagination";
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
@@ -53,6 +52,7 @@ import {
 } from "@/components/base/select";
 import { TicketStatusEnum } from "@/schemas/ticket.schema";
 import { formatDateTime } from "@/utils/date";
+import { AppPageContainer } from "@/components/derived/app-page-container";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -131,7 +131,7 @@ export function TicketIndexPage() {
 
   return (
     <>
-      <FadeInContainer className="pb-5">
+      <AppPageContainer title={loaderData.pageTitle} className="pb-5">
         <AppPageTitle title={loaderData.pageTitle} />
 
         <Controller
@@ -358,7 +358,7 @@ export function TicketIndexPage() {
               />
             </div>
           )}
-      </FadeInContainer>
+      </AppPageContainer>
     </>
   );
 }

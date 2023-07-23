@@ -18,6 +18,7 @@
     "clsx": "^1.2.1",
     "date-fns": "^2.30.0",
     "framer-motion": "^10.12.21",
+    "hoofd": "^1.7.0",
     "localforage": "^1.10.0",
     "nanoid": "^4.0.2",
     "qs": "^6.11.2",

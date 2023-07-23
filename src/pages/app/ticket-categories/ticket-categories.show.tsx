@@ -1,5 +1,4 @@
 import React from "react";
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { AppPageTitle } from "../_components/page-title.app";
 import {
   TicketCategory,
@@ -30,6 +29,7 @@ import { Link } from "@/components/base/link";
 import { CaretLeft } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
 import { TextAreabox } from "@/components/derived/textareabox";
+import { AppPageContainer } from "@/components/derived/app-page-container";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -77,7 +77,7 @@ export function TicketCategoryShowPage() {
   }, [ticketCategory, updateTicketCategoryForm]);
 
   return (
-    <FadeInContainer className="pb-5">
+    <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <Link
         variant="plain"
         to="/ticket-categories"
@@ -150,7 +150,7 @@ export function TicketCategoryShowPage() {
           </div>
         </form>
       </Card>
-    </FadeInContainer>
+    </AppPageContainer>
   );
 }
 

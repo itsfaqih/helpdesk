@@ -59,11 +59,11 @@ import {
   PaginationPageTrigger,
   PaginationPrevPageTrigger,
 } from "@/components/base/pagination";
-import { FadeInContainer } from "@/components/base/fade-in-container";
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
 import { formatDateTime } from "@/utils/date";
+import { AppPageContainer } from "@/components/derived/app-page-container";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -147,9 +147,9 @@ export function AdminIndexPage() {
           <Plus className="w-6 h-6 text-white" />
         </Link>
       )}
-      <FadeInContainer className="pb-5">
+      <AppPageContainer title={loaderData.pageTitle} className="pb-5">
         <AppPageTitle
-          title="Administrators"
+          title={loaderData.pageTitle}
           actions={
             currentAdmin?.role === "super_admin" && (
               <Button
@@ -367,7 +367,7 @@ export function AdminIndexPage() {
             />
           </div>
         )}
-      </FadeInContainer>
+      </AppPageContainer>
     </>
   );
 }
