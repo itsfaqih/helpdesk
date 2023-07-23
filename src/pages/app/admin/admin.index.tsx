@@ -63,6 +63,7 @@ import { FadeInContainer } from "@/components/base/fade-in-container";
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
+import { formatDateTime } from "@/utils/date";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -269,7 +270,7 @@ export function AdminIndexPage() {
             admin.full_name,
             admin.email,
             adminRoleValueToLabel(admin.role),
-            admin.created_at,
+            formatDateTime(admin.created_at),
             <div className="flex items-center justify-end gap-x-1">
               {currentAdmin?.id === admin.id && (
                 <IconButton

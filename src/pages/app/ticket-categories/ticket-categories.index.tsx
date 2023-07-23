@@ -60,6 +60,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/base/dialog";
+import { formatDateTime } from "@/utils/date";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -224,7 +225,7 @@ export function TicketCategoryIndexPage() {
           headings={["Name", "Date created"]}
           rows={ticketCategoryQuery.data?.data.map((category) => [
             category.name,
-            category.created_at,
+            formatDateTime(category.created_at),
             <div className="flex items-center justify-end gap-x-1">
               {!category.is_archived ? (
                 <>

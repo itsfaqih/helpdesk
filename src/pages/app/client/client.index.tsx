@@ -60,6 +60,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
 import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { formatDateTime } from "@/utils/date";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -222,7 +223,7 @@ export function ClientIndexPage() {
           headings={["Full Name", "Date created"]}
           rows={clientIndexQuery.data?.data.map((client) => [
             client.full_name,
-            client.created_at,
+            formatDateTime(client.created_at),
             <div className="flex items-center justify-end gap-x-1">
               {currentAdmin?.id !== client.id &&
                 currentAdmin?.role === "super_admin" &&

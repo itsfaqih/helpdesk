@@ -17,6 +17,7 @@ import {
   ticketStatusToLabel,
 } from "@/utils/ticket.util";
 import { Badge } from "@/components/base/badge";
+import { formatDateTime } from "@/utils/date";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -91,12 +92,12 @@ export function TicketShowPage() {
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Created At</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-              {ticket && <span>{ticket.created_at}</span>}
+              {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Updated At</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-              {ticket && <span>{ticket.updated_at}</span>}
+              {ticket && <span>{formatDateTime(ticket.updated_at)}</span>}
             </div>
           </div>
         </Card>
@@ -156,14 +157,14 @@ export function TicketShowPage() {
                 <td className="py-2 font-medium text-gray-600">Created At</td>
                 <td className="py-2 text-right text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && <span>{ticket.created_at}</span>}
+                  {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
                 </td>
               </tr>
               <tr>
                 <td className="py-2 font-medium text-gray-600">Updated At</td>
                 <td className="py-2 text-right text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && <span>{ticket.updated_at}</span>}
+                  {ticket && <span>{formatDateTime(ticket.updated_at)}</span>}
                 </td>
               </tr>
             </tbody>

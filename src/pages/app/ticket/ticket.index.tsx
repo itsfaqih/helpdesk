@@ -52,6 +52,7 @@ import {
   SelectTrigger,
 } from "@/components/base/select";
 import { TicketStatusEnum } from "@/schemas/ticket.schema";
+import { formatDateTime } from "@/utils/date";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -294,8 +295,8 @@ export function TicketIndexPage() {
               {ticketStatusToLabel(ticket.status)}
             </Badge>,
             ticket.category_id,
-            ticket.created_at,
-            ticket.updated_at,
+            formatDateTime(ticket.created_at),
+            formatDateTime(ticket.updated_at),
             <div className="flex items-center justify-end gap-x-1">
               <IconButton
                 as={Link}
