@@ -36,7 +36,7 @@ import {
 import { api } from "@/libs/api.lib";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { useCurrentAdminQuery } from "@/queries/current-admin.query";
-import { adminRoleValueToLabel } from "@/utils/admin";
+import { adminRoleValueToLabel } from "@/utils/admin.util";
 import {
   AdminIndexRequest,
   AdminIndexRequestSchema,

@@ -70,16 +70,23 @@ export function TicketShowPage() {
               )}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
+              <span className="font-medium text-gray-600">Category</span>
+              {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+              {ticket && <span>{ticket.category.name}</span>}
+            </div>
+            <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Client</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
               {ticket && (
                 <Link
                   to={`/clients/${ticket.client_id}`}
                   target="_blank"
-                  title={ticket.client_id}
+                  title={ticket.client.full_name}
                   className="inline-flex items-center gap-1"
                 >
-                  <span className="w-40 truncate">{ticket.client_id}</span>{" "}
+                  <span className="w-40 text-right truncate">
+                    {ticket.client.full_name}
+                  </span>{" "}
                   <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
                 </Link>
               )}
@@ -130,6 +137,13 @@ export function TicketShowPage() {
                 </td>
               </tr>
               <tr>
+                <td className="py-2 font-medium text-gray-600">Category</td>
+                <td className="py-2 text-right text-gray-800">
+                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+                  {ticket && <span>{ticket.category.name}</span>}
+                </td>
+              </tr>
+              <tr>
                 <td className="py-2 font-medium text-gray-600">Client</td>
                 <td className="py-2 text-right text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
@@ -137,10 +151,12 @@ export function TicketShowPage() {
                     <Link
                       to={`/clients/${ticket.client_id}`}
                       target="_blank"
-                      title={ticket.client_id}
+                      title={ticket.client.full_name}
                       className="inline-flex items-center gap-1"
                     >
-                      <span className="w-40 truncate">{ticket.client_id}</span>{" "}
+                      <span className="w-40 text-right truncate">
+                        {ticket.client.full_name}
+                      </span>{" "}
                       <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
                     </Link>
                   )}

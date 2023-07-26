@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ClientSchema } from "./client.schema";
 
 export const TicketStatusEnum = z.enum([
   "open",
@@ -23,6 +24,15 @@ export const TicketSchema = z.object({
 });
 
 export type Ticket = z.infer<typeof TicketSchema>;
+
+export const TicketWithRelationsSchema = TicketSchema.extend({
+  client: z.lazy(() => ClientSchema),
+  category: z.lazy(() => TicketCategorySchema),
+});
+
+export type TicketWithRelationsSchema = z.infer<
+  typeof TicketWithRelationsSchema
+>;
 
 export const CreateTicketSchema = TicketSchema.pick({
   title: true,

@@ -3,6 +3,7 @@ import {
   TicketCategorySchema,
   TicketSchema,
   TicketStatusEnum,
+  TicketWithRelationsSchema,
 } from "@/schemas/ticket.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { UserError } from "@/utils/error.util";
@@ -24,7 +25,7 @@ export const TicketIndexRequestSchema = z.object({
 export type TicketIndexRequest = z.infer<typeof TicketIndexRequestSchema>;
 
 const TicketIndexResponseSchema = APIResponseSchema({
-  schema: TicketSchema.array(),
+  schema: TicketWithRelationsSchema.array(),
 });
 
 export function ticketIndexQuery(request: TicketIndexRequest = {}) {
@@ -69,7 +70,7 @@ export const TicketShowRequestSchema = z.object({
 export type TicketShowRequest = z.infer<typeof TicketShowRequestSchema>;
 
 const TicketShowResponseSchema = APIResponseSchema({
-  schema: TicketSchema,
+  schema: TicketWithRelationsSchema,
 });
 
 export function ticketShowQuery(request: TicketShowRequest) {

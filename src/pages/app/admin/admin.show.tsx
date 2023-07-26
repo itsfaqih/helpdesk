@@ -18,7 +18,7 @@ import {
 } from "@/components/base/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
-import { adminRoleOptions } from "@/utils/admin";
+import { adminRoleOptions } from "@/utils/admin.util";
 import {
   AdminShowRequestSchema,
   fetchAdminShowQuery,

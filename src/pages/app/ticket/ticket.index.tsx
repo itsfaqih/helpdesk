@@ -290,11 +290,11 @@ export function TicketIndexPage() {
           ]}
           rows={ticketIndexQuery.data?.data.map((ticket) => [
             ticket.title,
-            ticket.client_id,
+            ticket.client.full_name,
             <Badge color={ticketStatusToBadgeColor(ticket.status)}>
               {ticketStatusToLabel(ticket.status)}
             </Badge>,
-            ticket.category_id,
+            ticket.category.name,
             formatDateTime(ticket.created_at),
             formatDateTime(ticket.updated_at),
             <div className="flex items-center justify-end gap-x-1">
