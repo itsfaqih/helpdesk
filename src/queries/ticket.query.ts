@@ -1,7 +1,6 @@
 import { api } from "@/libs/api.lib";
 import {
   TicketCategorySchema,
-  TicketSchema,
   TicketStatusEnum,
   TicketWithRelationsSchema,
 } from "@/schemas/ticket.schema";

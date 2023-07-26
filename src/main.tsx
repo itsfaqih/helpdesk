@@ -24,7 +24,6 @@ import { TicketIndexPage } from "./pages/app/ticket/ticket.index";
 import { Admin } from "./schemas/admin.schema";
 import { Client } from "./schemas/client.schema";
 import {
-  Ticket,
   TicketCategory,
   TicketWithRelationsSchema,
 } from "./schemas/ticket.schema";
