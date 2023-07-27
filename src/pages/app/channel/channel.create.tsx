@@ -1,6 +1,6 @@
 import { AppPageTitle } from "../_components/page-title.app";
 import { APIResponseSchema } from "@/schemas/api.schema";
-import { ClientSchema, CreateClientSchema } from "@/schemas/client.schema";
+import { ChannelSchema, CreateChannelSchema } from "@/schemas/channel.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { ConflictError } from "@/utils/error.util";
@@ -19,27 +19,27 @@ import { AppPageContainer } from "@/components/derived/app-page-container";
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: "Create Client",
+      pageTitle: "Create Channel",
     });
   };
 }
 
-ClientCreatePage.loader = loader;
+ChannelCreatePage.loader = loader;
 
-export function ClientCreatePage() {
+export function ChannelCreatePage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
 
   const navigate = useNavigate();
-  const createClientForm = useForm<CreateClientSchema>({
-    resolver: zodResolver(CreateClientSchema),
+  const createChannelForm = useForm<CreateChannelSchema>({
+    resolver: zodResolver(CreateChannelSchema),
   });
 
-  const createClientMutation = useCreateClientMutation();
+  const createChannelMutation = useCreateChannelMutation();
 
-  const onSubmit = createClientForm.handleSubmit((data) => {
-    createClientMutation.mutate(data, {
+  const onSubmit = createChannelForm.handleSubmit((data) => {
+    createChannelMutation.mutate(data, {
       onSuccess(res) {
-        navigate(`/clients/${res.data.id}`);
+        navigate(`/channels/${res.data.id}`);
       },
     });
   });
@@ -48,7 +48,7 @@ export function ClientCreatePage() {
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <Link
         variant="plain"
-        to="/clients"
+        to="/channels"
         className="inline-flex items-center gap-x-1.5"
       >
         <CaretLeft className="w-4 h-4" />
@@ -57,19 +57,19 @@ export function ClientCreatePage() {
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
-          id="create-client-form"
+          id="create-channel-form"
           onSubmit={onSubmit}
           className="flex flex-col gap-y-4"
         >
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
-            <Label htmlFor="full_name">Full Name</Label>
+            <Label htmlFor="name">Name</Label>
             <div className="col-span-3">
               <Textbox
-                {...createClientForm.register("full_name")}
-                label="Full Name"
-                placeholder="Enter Full Name"
-                disabled={createClientMutation.isLoading}
-                error={createClientForm.formState.errors.full_name?.message}
+                {...createChannelForm.register("name")}
+                label="Name"
+                placeholder="Enter Name"
+                disabled={createChannelMutation.isLoading}
+                error={createChannelForm.formState.errors.name?.message}
                 srOnlyLabel
                 errorPlaceholder
               />
@@ -79,10 +79,10 @@ export function ClientCreatePage() {
             <Button
               variant="primary"
               type="submit"
-              loading={createClientMutation.isLoading}
-              success={createClientMutation.isSuccess}
+              loading={createChannelMutation.isLoading}
+              success={createChannelMutation.isSuccess}
             >
-              Create Client
+              Create Channel
             </Button>
           </div>
         </form>
@@ -91,28 +91,25 @@ export function ClientCreatePage() {
   );
 }
 
-const CreateClientResponseSchema = APIResponseSchema({
-  schema: ClientSchema.pick({
+const CreateChannelResponseSchema = APIResponseSchema({
+  schema: ChannelSchema.pick({
     id: true,
-    email: true,
-    full_name: true,
-    role: true,
-    is_active: true,
+    name: true,
   }),
 });
 
-function useCreateClientMutation() {
+function useCreateChannelMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    async mutationFn(data: CreateClientSchema) {
+    async mutationFn(data: CreateChannelSchema) {
       try {
-        const res = await api.post(data, "/clients");
+        const res = await api.post(data, "/channels");
 
-        return CreateClientResponseSchema.parse(res);
+        return CreateChannelResponseSchema.parse(res);
       } catch (error) {
         if (error instanceof ConflictError) {
-          throw new Error("Email is already registered");
+          throw new Error("Channel with this name already exists");
         }
 
         throw new Error(
@@ -121,7 +118,7 @@ function useCreateClientMutation() {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["client", "index"]);
+      await queryClient.invalidateQueries(["channel", "index"]);
     },
   });
 }

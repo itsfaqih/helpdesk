@@ -1,5 +1,10 @@
 import React from "react";
-import { CaretRight } from "@phosphor-icons/react";
+import {
+  Archive,
+  ArrowCounterClockwise,
+  CaretRight,
+  Plus,
+} from "@phosphor-icons/react";
 import { Controller, useForm } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
@@ -13,12 +18,11 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QueryClient } from "@tanstack/react-query";
 import {
-  TicketIndexRequest,
-  TicketIndexRequestSchema,
-  fetchTicketIndexQuery,
-  useTicketCategoryIndexQuery,
-  useTicketIndexQuery,
-} from "@/queries/ticket.query";
+  ChannelIndexRequest,
+  ChannelIndexRequestSchema,
+  fetchChannelIndexQuery,
+  useChannelIndexQuery,
+} from "@/queries/channel.query";
 import {
   Link,
   LoaderFunctionArgs,
@@ -38,46 +42,44 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
-import { Badge } from "@/components/base/badge";
-import {
-  ticketStatusToBadgeColor,
-  ticketStatusToLabel,
-} from "@/utils/ticket.util";
-import {
-  Select,
-  SelectContent,
-  SelectLabel,
-  SelectOption,
-  SelectTrigger,
-} from "@/components/base/select";
-import { TicketStatusEnum } from "@/schemas/ticket.schema";
+import { useCurrentAdminQuery } from "@/queries/current-admin.query";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
+import { ArchiveChannelDialog } from "./_components/archive-channel-dialog";
+import { RestoreChannelDialog } from "./_components/restore-channel-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
-    const requestData = TicketIndexRequestSchema.parse(
+    const requestData = ChannelIndexRequestSchema.parse(
       Object.fromEntries(new URL(request.url).searchParams)
     );
 
-    fetchTicketIndexQuery({ queryClient, request: requestData }).catch(
+    fetchChannelIndexQuery({ queryClient, request: requestData }).catch(
       (err) => {
         console.error(err);
       }
     );
 
     return loaderResponse({
-      pageTitle: "Tickets",
+      pageTitle: "Channel",
       data: { request: requestData },
     });
   };
 }
 
-TicketIndexPage.loader = loader;
+ChannelIndexPage.loader = loader;
 
-export function TicketIndexPage() {
+export function ChannelIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
+
+  const currentAdminQuery = useCurrentAdminQuery();
+  const currentAdmin = currentAdminQuery.data?.data;
+
+  const filtersForm = useForm<ChannelIndexRequest>({
+    resolver: zodResolver(ChannelIndexRequestSchema),
+    defaultValues: loaderData.data.request,
+  });
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
@@ -85,12 +87,7 @@ export function TicketIndexPage() {
     filtersForm.setValue("search", search);
   }, 500);
 
-  const ticketIndexQuery = useTicketIndexQuery(loaderData.data.request);
-
-  const filtersForm = useForm<TicketIndexRequest>({
-    resolver: zodResolver(TicketIndexRequestSchema),
-    defaultValues: loaderData.data.request,
-  });
+  const channelIndexQuery = useChannelIndexQuery(loaderData.data.request);
 
   filtersForm.watch((data, { name }) => {
     if (name === "is_archived") {
@@ -122,17 +119,33 @@ export function TicketIndexPage() {
     }
   }, [filtersForm, loaderData.data.request]);
 
-  const ticketCategoryIndexQuery = useTicketCategoryIndexQuery({});
-  const ticketCategoryOptions =
-    ticketCategoryIndexQuery.data?.data.map((category) => ({
-      label: category.name,
-      value: category.id,
-    })) ?? [];
-
   return (
     <>
+      {currentAdmin?.role === "super_admin" && (
+        <Link
+          to="/channels/create"
+          className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </Link>
+      )}
       <AppPageContainer title={loaderData.pageTitle} className="pb-5">
-        <AppPageTitle title={loaderData.pageTitle} />
+        <AppPageTitle
+          title={loaderData.pageTitle}
+          actions={
+            currentAdmin?.role === "super_admin" && (
+              <Button
+                as={Link}
+                to="/channels/create"
+                variant="primary"
+                leading={Plus}
+                className="hidden sm:inline-flex"
+              >
+                New Channel
+              </Button>
+            )
+          }
+        />
 
         <Controller
           control={filtersForm.control}
@@ -162,95 +175,8 @@ export function TicketIndexPage() {
               onChange={(e) => setSearch(e.target.value)}
               value={search ?? ""}
               type="search"
-              placeholder="Search by title"
+              placeholder="Search by name"
               className="flex-1 min-w-[20rem]"
-            />
-
-            <Controller
-              control={filtersForm.control}
-              name="status"
-              render={({ field }) => (
-                <Select
-                  name={field.name}
-                  selectedOption={{
-                    label: ticketStatusToLabel(field.value ?? ""),
-                    value: field.value ?? "",
-                  }}
-                  onChange={(selectedOption) => {
-                    const value = selectedOption?.value;
-
-                    if (
-                      value === "" ||
-                      value === "open" ||
-                      value === "in_progress" ||
-                      value === "resolved" ||
-                      value === "unresolved"
-                    ) {
-                      field.onChange(value);
-                    }
-                  }}
-                >
-                  {({ selectedOption }) => (
-                    <>
-                      <SelectLabel className="sr-only">Status</SelectLabel>
-                      <SelectTrigger className="w-48">
-                        {(selectedOption as { label?: string })?.label ??
-                          "Select status"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectOption value="" label="All status" />
-                        {TicketStatusEnum.options.map((status) => (
-                          <SelectOption
-                            key={status}
-                            value={status}
-                            label={ticketStatusToLabel(status)}
-                          />
-                        ))}
-                      </SelectContent>
-                    </>
-                  )}
-                </Select>
-              )}
-            />
-
-            <Controller
-              control={filtersForm.control}
-              name="category_id"
-              render={({ field }) => (
-                <Select
-                  name={field.name}
-                  selectedOption={
-                    ticketCategoryOptions.find(
-                      (option) => option.value === field.value
-                    ) ?? { label: "All category", value: "" }
-                  }
-                  onChange={(selectedOption) => {
-                    const value = selectedOption?.value;
-
-                    field.onChange(value);
-                  }}
-                >
-                  {({ selectedOption }) => (
-                    <>
-                      <SelectLabel className="sr-only">Category</SelectLabel>
-                      <SelectTrigger className="w-48">
-                        {(selectedOption as { label?: string })?.label ??
-                          "Select category"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectOption value="" label="All category" />
-                        {ticketCategoryOptions.map((option) => (
-                          <SelectOption
-                            key={option.value}
-                            value={option.value}
-                            label={option.label}
-                          />
-                        ))}
-                      </SelectContent>
-                    </>
-                  )}
-                </Select>
-              )}
             />
 
             <Button
@@ -270,46 +196,57 @@ export function TicketIndexPage() {
           </div>
         </div>
         <Table
-          id="tickets"
-          loading={ticketIndexQuery.isLoading}
-          error={ticketIndexQuery.isError}
+          id="channels"
+          loading={channelIndexQuery.isLoading}
+          error={channelIndexQuery.isError}
           errorMessage={
-            (typeof ticketIndexQuery.error === "object" &&
-              ticketIndexQuery.error instanceof Error &&
-              ticketIndexQuery.error.message) ||
+            (typeof channelIndexQuery.error === "object" &&
+              channelIndexQuery.error instanceof Error &&
+              channelIndexQuery.error.message) ||
             undefined
           }
-          refetch={ticketIndexQuery.refetch}
-          headings={[
-            "Title",
-            "Client's name",
-            "Status",
-            "Category",
-            "Last updated",
-            "Date created",
-          ]}
-          rows={ticketIndexQuery.data?.data.map((ticket) => [
-            ticket.title,
-            ticket.client.full_name,
-            <Badge color={ticketStatusToBadgeColor(ticket.status)}>
-              {ticketStatusToLabel(ticket.status)}
-            </Badge>,
-            ticket.category.name,
-            formatDateTime(ticket.created_at),
-            formatDateTime(ticket.updated_at),
+          refetch={channelIndexQuery.refetch}
+          headings={["Name", "Date created"]}
+          rows={channelIndexQuery.data?.data.map((channel) => [
+            channel.name,
+            formatDateTime(channel.created_at),
             <div className="flex items-center justify-end gap-x-1">
               <IconButton
                 as={Link}
-                to={`/tickets/${ticket.id}`}
+                to={`/channels/${channel.id}`}
                 icon={CaretRight}
                 label="View"
               />
+              {currentAdmin?.role === "super_admin" &&
+                (!channel.is_archived ? (
+                  <ArchiveChannelDialog
+                    channelId={channel.id}
+                    trigger={
+                      <IconButton
+                        icon={Archive}
+                        label="Archive"
+                        className="text-red-600"
+                      />
+                    }
+                  />
+                ) : (
+                  <RestoreChannelDialog
+                    channelId={channel.id}
+                    trigger={
+                      <IconButton
+                        icon={ArrowCounterClockwise}
+                        label="Restore"
+                        className="text-green-600"
+                      />
+                    }
+                  />
+                ))}
             </div>,
           ])}
           className="mt-5"
         />
-        {ticketIndexQuery.isSuccess &&
-          ticketIndexQuery.data.data.length > 0 && (
+        {channelIndexQuery.isSuccess &&
+          channelIndexQuery.data.data.length > 0 && (
             <div className="mt-5">
               <Controller
                 control={filtersForm.control}
@@ -317,9 +254,9 @@ export function TicketIndexPage() {
                 render={({ field }) => (
                   <Pagination
                     page={field.value ?? 1}
-                    count={ticketIndexQuery.data.meta?.pagination?.total ?? 1}
+                    count={channelIndexQuery.data.meta?.pagination?.total ?? 1}
                     pageSize={
-                      ticketIndexQuery.data.meta?.pagination?.per_page ?? 1
+                      channelIndexQuery.data.meta?.pagination?.per_page ?? 1
                     }
                     onChange={({ page }) => {
                       field.onChange(page);

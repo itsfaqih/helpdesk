@@ -153,7 +153,7 @@ function useUpdateClientMutation({ clientId }: UseUpdateClientMutationParams) {
         return UpdateClientResponseSchema.parse(res);
       } catch (error) {
         throw new Error(
-          "Something went wrong. Please contact the clientistrator"
+          "Something went wrong. Please contact the administrator"
         );
       }
     },

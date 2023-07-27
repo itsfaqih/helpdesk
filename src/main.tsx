@@ -35,6 +35,11 @@ import { mockAdminRecords } from "./mocks/records/admin.record";
 import { mockClientRecords } from "./mocks/records/client.record";
 import { mockTicketCategoryRecords } from "./mocks/records/ticket-category.record";
 import { mockTicketRecords } from "./mocks/records/ticket.record";
+import { ChannelIndexPage } from "./pages/app/channel/channel.index";
+import { Channel } from "./schemas/channel.schema";
+import { mockChannelRecords } from "./mocks/records/channel.record";
+import { ChannelCreatePage } from "./pages/app/channel/channel.create";
+import { ChannelShowPage } from "./pages/app/channel/channel.show";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
@@ -77,6 +82,14 @@ async function prepare() {
     await localforage.setItem("tickets", existingTickets);
   } else {
     existingTickets = existingTicketsParsing.data;
+  }
+
+  let existingChannels = await localforage.getItem<Channel[]>("channels");
+
+  if (!existingChannels) {
+    existingChannels = mockChannelRecords;
+
+    await localforage.setItem("channels", existingChannels);
   }
 }
 
@@ -173,6 +186,26 @@ prepare()
                 path: "create",
                 loader: ClientCreatePage.loader(),
                 element: <ClientCreatePage />,
+              },
+            ],
+          },
+          {
+            path: "channels",
+            children: [
+              {
+                element: <ChannelIndexPage />,
+                loader: ChannelIndexPage.loader(queryClient),
+                index: true,
+              },
+              {
+                path: ":id",
+                loader: ChannelShowPage.loader(queryClient),
+                element: <ChannelShowPage />,
+              },
+              {
+                path: "create",
+                loader: ChannelCreatePage.loader(),
+                element: <ChannelCreatePage />,
               },
             ],
           },

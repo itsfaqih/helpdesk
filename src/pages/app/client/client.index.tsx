@@ -225,8 +225,7 @@ export function ClientIndexPage() {
             client.full_name,
             formatDateTime(client.created_at),
             <div className="flex items-center justify-end gap-x-1">
-              {currentAdmin?.id !== client.id &&
-                currentAdmin?.role === "super_admin" &&
+              {currentAdmin?.role === "super_admin" &&
                 (!client.is_archived ? (
                   <>
                     <IconButton

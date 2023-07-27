@@ -11,6 +11,7 @@ import { getInitials } from "@/utils/text.util";
 import { cn } from "@/libs/cn.lib";
 import {
   AddressBook,
+  AppWindow,
   House,
   List,
   Tag,
@@ -63,6 +64,13 @@ export function AppRoot() {
             </li>
             <li>
               <MainMenuItem to="/clients" icon={AddressBook} label="Clients" />
+            </li>
+            <li>
+              <MainMenuItem
+                to="/channels"
+                icon={AppWindow}
+                label="Channels"
+              />
             </li>
             <li>
               <MainMenuItem to="/admins" icon={Users} label="Administrators" />

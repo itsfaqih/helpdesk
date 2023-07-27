@@ -14,7 +14,7 @@ export const TicketSchema = z.object({
   id: z.string().nonempty(),
   title: z.string().nonempty("Title is required"),
   description: z.string().optional(),
-  platform: z.string().nonempty("Platform is required"),
+  channel: z.string().nonempty("Channel is required"),
   status: TicketStatusEnum.default("open"),
   is_archived: z.boolean().default(false),
   client_id: z.string().nonempty(),
@@ -37,7 +37,7 @@ export type TicketWithRelationsSchema = z.infer<
 export const CreateTicketSchema = TicketSchema.pick({
   title: true,
   description: true,
-  platform: true,
+  channel: true,
   client_id: true,
   category_id: true,
 }).extend({

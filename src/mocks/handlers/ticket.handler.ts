@@ -30,7 +30,7 @@ export const ticketHandlers = [
       const newTicket: Ticket = {
         id: nanoid(),
         title: data.title,
-        platform: "System",
+        channel: "System",
         status: "open",
         is_archived: false,
         created_at: new Date().toISOString(),

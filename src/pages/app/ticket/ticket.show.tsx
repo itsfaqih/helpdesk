@@ -92,9 +92,9 @@ export function TicketShowPage() {
               )}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
-              <span className="font-medium text-gray-600">Platform</span>
+              <span className="font-medium text-gray-600">Channel</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-              {ticket && <span>{ticket.platform}</span>}
+              {ticket && <span>{ticket.channel}</span>}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Created At</span>
@@ -163,10 +163,10 @@ export function TicketShowPage() {
                 </td>
               </tr>
               <tr>
-                <td className="py-2 font-medium text-gray-600">Platform</td>
+                <td className="py-2 font-medium text-gray-600">Channel</td>
                 <td className="py-2 text-right text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && <span>{ticket.platform}</span>}
+                  {ticket && <span>{ticket.channel}</span>}
                 </td>
               </tr>
               <tr>
