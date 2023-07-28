@@ -24,6 +24,39 @@ import { FadeInContainer } from "@/components/base/fade-in-container";
 import { IconButton } from "@/components/base/button";
 import * as Ark from "@ark-ui/react";
 
+const mainMenus = [
+  {
+    to: "/",
+    icon: House,
+    label: "Dashboard",
+  },
+  {
+    to: "/tickets",
+    icon: Ticket,
+    label: "Tickets",
+  },
+  {
+    to: "/ticket-categories",
+    icon: Tag,
+    label: "Ticket Categories",
+  },
+  {
+    to: "/clients",
+    icon: AddressBook,
+    label: "Clients",
+  },
+  {
+    to: "/channels",
+    icon: AppWindow,
+    label: "Channels",
+  },
+  {
+    to: "/admins",
+    icon: Users,
+    label: "Administrators",
+  },
+];
+
 export function AppRoot() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -49,32 +82,15 @@ export function AppRoot() {
             Helpdesk Management
           </span>
           <ul className="flex flex-col gap-y-2.5 mt-4">
-            <li>
-              <MainMenuItem to="/" icon={House} label="Dashboard" />
-            </li>
-            <li>
-              <MainMenuItem to="/tickets" icon={Ticket} label="Tickets" />
-            </li>
-            <li>
-              <MainMenuItem
-                to="/ticket-categories"
-                icon={Tag}
-                label="Ticket Categories"
-              />
-            </li>
-            <li>
-              <MainMenuItem to="/clients" icon={AddressBook} label="Clients" />
-            </li>
-            <li>
-              <MainMenuItem
-                to="/channels"
-                icon={AppWindow}
-                label="Channels"
-              />
-            </li>
-            <li>
-              <MainMenuItem to="/admins" icon={Users} label="Administrators" />
-            </li>
+            {mainMenus.map((menu) => (
+              <li key={menu.to}>
+                <MainMenuItem
+                  to={menu.to}
+                  icon={menu.icon}
+                  label={menu.label}
+                />
+              </li>
+            ))}
           </ul>
         </nav>
         <Ark.Dialog
@@ -83,46 +99,24 @@ export function AppRoot() {
           onClose={() => setIsSidebarOpen(false)}
         >
           <Ark.Portal>
-            <Ark.DialogBackdrop className="fixed inset-0 bg-gray-900/70 lg:hidden" />
+            <Ark.DialogBackdrop className="fixed inset-0 bg-gray-900/70 lg:hidden data-[state=open]:animate-backdrop-in data-[state=closed]:animate-backdrop-out" />
             <Ark.DialogContainer>
               <Ark.DialogContent asChild>
-                <nav className="fixed top-0 left-0 z-10 w-64 h-full px-4 bg-white border-r border-gray-300 lg:hidden">
+                <nav className="fixed top-0 left-0 z-10 w-64 h-full px-4 bg-white border-r border-gray-300 lg:hidden data-[state=open]:animate-slide-in-from-left data-[state=closed]:animate-slide-out-to-left">
                   <span className="block py-6 font-medium text-center">
                     Helpdesk Management
                   </span>
                   <ul className="flex flex-col gap-y-2.5 mt-4">
-                    <li>
-                      <MainMenuItem
-                        to="/"
-                        icon={House}
-                        label="Dashboard"
-                        onClick={() => setIsSidebarOpen(false)}
-                      />
-                    </li>
-                    <li>
-                      <MainMenuItem
-                        to="/tickets"
-                        icon={Ticket}
-                        label="Tickets"
-                        onClick={() => setIsSidebarOpen(false)}
-                      />
-                    </li>
-                    <li>
-                      <MainMenuItem
-                        to="/clients"
-                        icon={AddressBook}
-                        label="Clients"
-                        onClick={() => setIsSidebarOpen(false)}
-                      />
-                    </li>
-                    <li>
-                      <MainMenuItem
-                        to="/admins"
-                        icon={Users}
-                        label="Administrators"
-                        onClick={() => setIsSidebarOpen(false)}
-                      />
-                    </li>
+                    {mainMenus.map((menu) => (
+                      <li key={menu.to}>
+                        <MainMenuItem
+                          to={menu.to}
+                          icon={menu.icon}
+                          label={menu.label}
+                          onClick={() => setIsSidebarOpen(false)}
+                        />
+                      </li>
+                    ))}
                   </ul>
                 </nav>
               </Ark.DialogContent>
