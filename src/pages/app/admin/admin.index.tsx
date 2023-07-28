@@ -35,7 +35,7 @@ import {
 } from "@tanstack/react-query";
 import { api } from "@/libs/api.lib";
 import { APIResponseSchema } from "@/schemas/api.schema";
-import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { adminRoleValueToLabel } from "@/utils/admin.util";
 import {
   AdminIndexRequest,
@@ -88,7 +88,7 @@ export function AdminIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
 
-  const currentAdminQuery = useCurrentAdminQuery();
+  const currentAdminQuery = useLoggedInAdminQuery();
   const currentAdmin = currentAdminQuery.data?.data;
 
   const filtersForm = useForm<AdminIndexRequest>({

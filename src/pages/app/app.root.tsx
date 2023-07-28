@@ -18,7 +18,7 @@ import {
   Ticket,
   Users,
 } from "@phosphor-icons/react";
-import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { useLogOutMutation } from "@/mutations/log-out.mutation";
 import { FadeInContainer } from "@/components/base/fade-in-container";
 import { IconButton } from "@/components/base/button";
@@ -28,7 +28,7 @@ export function AppRoot() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
-  const currentAdminQuery = useCurrentAdminQuery();
+  const currentAdminQuery = useLoggedInAdminQuery();
   const currentAdmin = currentAdminQuery.data?.data;
 
   const logOutMutation = useLogOutMutation();

@@ -46,7 +46,7 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
-import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { TicketCategory, TicketCategorySchema } from "@/schemas/ticket.schema";
 import { api } from "@/libs/api.lib";
@@ -87,7 +87,7 @@ export function TicketCategoryIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
 
-  const currentAdminQuery = useCurrentAdminQuery();
+  const currentAdminQuery = useLoggedInAdminQuery();
   const currentAdmin = currentAdminQuery.data?.data;
 
   const [search, setSearch] = React.useState<string | null>(null);

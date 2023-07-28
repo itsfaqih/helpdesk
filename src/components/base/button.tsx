@@ -32,6 +32,7 @@ function ButtonComponent(
   return (
     <Component
       ref={ref}
+      aria-label={typeof children === "string" ? children : undefined}
       disabled={loading || success || disabled}
       className={cn(
         buttonClass({

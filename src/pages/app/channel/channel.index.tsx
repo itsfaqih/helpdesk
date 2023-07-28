@@ -42,7 +42,7 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
-import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { ArchiveChannelDialog } from "./_components/archive-channel-dialog";
@@ -73,7 +73,7 @@ export function ChannelIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
 
-  const currentAdminQuery = useCurrentAdminQuery();
+  const currentAdminQuery = useLoggedInAdminQuery();
   const currentAdmin = currentAdminQuery.data?.data;
 
   const filtersForm = useForm<ChannelIndexRequest>({

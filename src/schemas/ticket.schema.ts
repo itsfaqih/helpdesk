@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ClientSchema } from "./client.schema";
+import { ChannelSchema } from "./channel.schema";
 
 export const TicketStatusEnum = z.enum([
   "open",
@@ -14,11 +15,11 @@ export const TicketSchema = z.object({
   id: z.string().nonempty(),
   title: z.string().nonempty("Title is required"),
   description: z.string().optional(),
-  channel: z.string().nonempty("Channel is required"),
   status: TicketStatusEnum.default("open"),
   is_archived: z.boolean().default(false),
-  client_id: z.string().nonempty(),
   category_id: z.string().nonempty(),
+  channel_id: z.string().nonempty(),
+  client_id: z.string().nonempty(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });
@@ -26,8 +27,9 @@ export const TicketSchema = z.object({
 export type Ticket = z.infer<typeof TicketSchema>;
 
 export const TicketWithRelationsSchema = TicketSchema.extend({
-  client: z.lazy(() => ClientSchema),
   category: z.lazy(() => TicketCategorySchema),
+  channel: z.lazy(() => ChannelSchema),
+  client: z.lazy(() => ClientSchema),
 });
 
 export type TicketWithRelationsSchema = z.infer<
@@ -37,9 +39,9 @@ export type TicketWithRelationsSchema = z.infer<
 export const CreateTicketSchema = TicketSchema.pick({
   title: true,
   description: true,
-  channel: true,
-  client_id: true,
   category_id: true,
+  channel_id: true,
+  client_id: true,
 }).extend({
   initial_message: z.string().nonempty("Initial message is required"),
 });

@@ -80,6 +80,7 @@ export function ClientShowPage() {
         variant="plain"
         to="/clients"
         className="inline-flex items-center gap-x-1.5"
+        data-testid="link-back"
       >
         <CaretLeft className="w-4 h-4" />
         <span>Back</span>
@@ -104,6 +105,7 @@ export function ClientShowPage() {
                   error={updateClientForm.formState.errors.full_name?.message}
                   srOnlyLabel
                   errorPlaceholder
+                  data-testid="textbox-full-name"
                 />
               )}
             </div>
@@ -118,6 +120,7 @@ export function ClientShowPage() {
                 updateClientMutation.isSuccess &&
                 !updateClientForm.formState.isDirty
               }
+              data-testid="btn-update-client"
             >
               Update Client
             </Button>

@@ -14,13 +14,13 @@ import {
   allowSuperAdminOnly,
   handleResponseError,
   successResponse,
-} from "../utils";
+} from "../mock-utils";
 import { ConflictError, NotFoundError } from "@/utils/error.util";
 
 export const clientHandlers = [
   rest.post("/api/clients", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const data = CreateClientSchema.parse(await req.json());
 
@@ -59,7 +59,7 @@ export const clientHandlers = [
   }),
   rest.put("/api/clients/:clientId", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const data = UpdateClientSchema.parse(await req.json());
 
@@ -99,7 +99,7 @@ export const clientHandlers = [
   }),
   rest.get("/api/clients", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredClients =
         (await localforage.getItem("clients")) ?? [];
@@ -155,7 +155,7 @@ export const clientHandlers = [
   }),
   rest.get("/api/clients/:clientId", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredClients =
         (await localforage.getItem("clients")) ?? [];
@@ -179,7 +179,7 @@ export const clientHandlers = [
   }),
   rest.put("/api/clients/:clientId/archive", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredClient = (await localforage.getItem("clients")) ?? [];
       const storedClients = ClientSchema.array().parse(unparsedStoredClient);
@@ -216,7 +216,7 @@ export const clientHandlers = [
   }),
   rest.put("/api/clients/:clientId/restore", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredClients =
         (await localforage.getItem("clients")) ?? [];

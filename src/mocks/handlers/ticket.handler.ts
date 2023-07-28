@@ -14,13 +14,13 @@ import {
   allowSuperAdminOnly,
   handleResponseError,
   successResponse,
-} from "../utils";
+} from "../mock-utils";
 import { NotFoundError } from "@/utils/error.util";
 
 export const ticketHandlers = [
   rest.post("/api/tickets", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const data = CreateTicketSchema.parse(await req.json());
 
@@ -30,13 +30,13 @@ export const ticketHandlers = [
       const newTicket: Ticket = {
         id: nanoid(),
         title: data.title,
-        channel: "System",
         status: "open",
         is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        client_id: data.client_id,
         category_id: data.category_id,
+        channel_id: data.channel_id,
+        client_id: data.client_id,
       };
 
       const newTickets = [...storedAdmins, newTicket];
@@ -53,7 +53,7 @@ export const ticketHandlers = [
   }),
   rest.get("/api/tickets", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredTickets =
         (await localforage.getItem("tickets")) ?? [];
@@ -123,7 +123,7 @@ export const ticketHandlers = [
   }),
   rest.get("/api/tickets/:ticketId", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredTickets =
         (await localforage.getItem("tickets")) ?? [];
@@ -149,7 +149,7 @@ export const ticketHandlers = [
   }),
   rest.put("/api/tickets/:ticketId/archive", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredTickets =
         (await localforage.getItem("tickets")) ?? [];
@@ -187,7 +187,7 @@ export const ticketHandlers = [
   }),
   rest.put("/api/tickets/:ticketId/restore", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredTickets =
         (await localforage.getItem("tickets")) ?? [];

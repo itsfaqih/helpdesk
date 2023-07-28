@@ -1,4 +1,7 @@
-import { AdminWithoutPasswordSchema } from "@/schemas/admin.schema";
+import {
+  AdminSchema,
+  AdminWithoutPasswordSchema,
+} from "@/schemas/admin.schema";
 import {
   BaseResponseError,
   ForbiddenError,
@@ -62,18 +65,33 @@ export function errorResponse({
   );
 }
 
-export async function allowAuthenticatedOnly() {
-  const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+type AllowAuthenticatedOnlyParams = {
+  sessionId: string;
+};
 
-  if (!unparsedLoggedInAdmin) {
+export async function allowAuthenticatedOnly({
+  sessionId,
+}: AllowAuthenticatedOnlyParams) {
+  const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+  const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
+
+  const loggedInAdmin = storedAdmins.find((admin) => admin.id === sessionId);
+
+  if (!loggedInAdmin) {
     throw new UnauthorizedError();
   }
 
-  return unparsedLoggedInAdmin;
+  return loggedInAdmin;
 }
 
-export async function allowSuperAdminOnly() {
-  const unparsedLoggedInAdmin = await allowAuthenticatedOnly();
+type AllowSuperAdminOnlyParams = {
+  sessionId: string;
+};
+
+export async function allowSuperAdminOnly({
+  sessionId,
+}: AllowSuperAdminOnlyParams) {
+  const unparsedLoggedInAdmin = await allowAuthenticatedOnly({ sessionId });
 
   const loggedInAdmin = AdminWithoutPasswordSchema.parse(unparsedLoggedInAdmin);
 

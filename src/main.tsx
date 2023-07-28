@@ -8,7 +8,7 @@ import {
   redirect,
   RouterProvider,
 } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, MotionConfig } from "framer-motion";
 import { LoginPage } from "./pages/auth/login";
 import { RegisterPage } from "./pages/auth/register";
 import { ForgotPasswordPage } from "./pages/auth/forgot-password";
@@ -40,6 +40,7 @@ import { Channel } from "./schemas/channel.schema";
 import { mockChannelRecords } from "./mocks/records/channel.record";
 import { ChannelCreatePage } from "./pages/app/channel/channel.create";
 import { ChannelShowPage } from "./pages/app/channel/channel.show";
+import { loggedInAdminQuery } from "./queries/logged-in-admin.query";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
@@ -51,6 +52,14 @@ async function prepare() {
     existingAdmins = mockAdminRecords;
 
     await localforage.setItem("admins", existingAdmins);
+  }
+
+  let existingChannels = await localforage.getItem<Channel[]>("channels");
+
+  if (!existingChannels) {
+    existingChannels = mockChannelRecords;
+
+    await localforage.setItem("channels", existingChannels);
   }
 
   let existingClients = await localforage.getItem<Client[]>("clients");
@@ -83,14 +92,6 @@ async function prepare() {
   } else {
     existingTickets = existingTicketsParsing.data;
   }
-
-  let existingChannels = await localforage.getItem<Channel[]>("channels");
-
-  if (!existingChannels) {
-    existingChannels = mockChannelRecords;
-
-    await localforage.setItem("channels", existingChannels);
-  }
 }
 
 prepare()
@@ -101,15 +102,13 @@ prepare()
       {
         path: "auth",
         async loader() {
-          const unparsedCurrentAdmin = await localforage.getItem(
-            "logged_in_admin"
-          );
+          try {
+            await loggedInAdminQuery().queryFn();
 
-          if (unparsedCurrentAdmin) {
             return redirect("/");
+          } catch (error) {
+            return null;
           }
-
-          return null;
         },
         children: [
           {
@@ -132,15 +131,13 @@ prepare()
       {
         path: "/",
         async loader() {
-          const unparsedCurrentAdmin = await localforage.getItem(
-            "logged_in_admin"
-          );
+          try {
+            await loggedInAdminQuery().queryFn();
 
-          if (!unparsedCurrentAdmin) {
+            return null;
+          } catch (error) {
             return redirect("/auth/login");
           }
-
-          return null;
         },
         element: <AppRoot />,
         children: [
@@ -251,9 +248,11 @@ prepare()
     ReactDOM.createRoot(document.getElementById("root")!).render(
       <React.StrictMode>
         <QueryClientProvider client={queryClient}>
-          <AnimatePresence>
-            <RouterProvider router={router} />
-          </AnimatePresence>
+          <MotionConfig reducedMotion="user">
+            <AnimatePresence>
+              <RouterProvider router={router} />
+            </AnimatePresence>
+          </MotionConfig>
         </QueryClientProvider>
       </React.StrictMode>
     );

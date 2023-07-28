@@ -9,7 +9,12 @@ type AppPageTitleProps = {
 export function AppPageTitle({ title, actions, className }: AppPageTitleProps) {
   return (
     <div className={cn("flex items-center", className)}>
-      <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
+      <h1
+        className="text-2xl font-bold text-gray-800"
+        data-testid="heading-page-title"
+      >
+        {title}
+      </h1>
       {actions && <div className="ml-auto">{actions}</div>}
     </div>
   );

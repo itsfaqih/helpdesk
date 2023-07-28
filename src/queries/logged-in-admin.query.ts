@@ -4,20 +4,31 @@ import { AdminWithoutPasswordSchema } from "@/schemas/admin.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { useQuery } from "@tanstack/react-query";
 
-const CurrentAdminResponseSchema = APIResponseSchema({
+const LoggedInAdminResponseSchema = APIResponseSchema({
   schema: AdminWithoutPasswordSchema,
 });
 
-export function useCurrentAdminQuery() {
+export function loggedInAdminQuery() {
+  return {
+    queryKey: ["logged_in_admin"],
+    async queryFn() {
+      const res = await api.get("/me");
+
+      return LoggedInAdminResponseSchema.parse(res);
+    },
+  };
+}
+
+export function useLoggedInAdminQuery() {
   const logOutMutation = useLogOutMutation();
 
   return useQuery({
-    queryKey: ["logged_in_admin"],
+    queryKey: loggedInAdminQuery().queryKey,
     async queryFn() {
       try {
         const res = await api.get("/me");
 
-        return CurrentAdminResponseSchema.parse(res);
+        return LoggedInAdminResponseSchema.parse(res);
       } catch (error) {
         logOutMutation.mutate();
 

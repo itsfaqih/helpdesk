@@ -1,16 +1,12 @@
-import {
-  AdminSchema,
-  Admin,
-  AdminWithoutPasswordSchema,
-} from "@/schemas/admin.schema";
+import { AdminSchema, Admin } from "@/schemas/admin.schema";
 import { LoginSchema, RegisterSchema } from "@/schemas/auth.schema";
 import localforage from "localforage";
 import { rest } from "msw";
 import { nanoid } from "nanoid";
-import { successResponse, errorResponse } from "../utils";
+import { successResponse, errorResponse } from "../mock-utils";
 
 export const authHandlers = [
-  rest.post("/api/login", async (req) => {
+  rest.post("/api/login", async (req, _, ctx) => {
     const data = LoginSchema.parse(await req.json());
     const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
     const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
@@ -23,6 +19,7 @@ export const authHandlers = [
       return successResponse({
         data: admin,
         message: "Successfully authenticated",
+        transformers: [ctx.cookie("sessionId", admin.id)],
       });
     }
 
@@ -31,7 +28,7 @@ export const authHandlers = [
       status: 401,
     });
   }),
-  rest.post("/api/register", async (req) => {
+  rest.post("/api/register", async (req, _, ctx) => {
     const data = RegisterSchema.parse(await req.json());
     const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
     const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
@@ -61,7 +58,6 @@ export const authHandlers = [
     const newAdmins = [...storedAdmins, newAdmin];
 
     await localforage.setItem("admins", newAdmins);
-    await localforage.setItem("logged_in_admin", newAdmin);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...newAdminWithoutPassword } = newAdmin;
@@ -69,25 +65,34 @@ export const authHandlers = [
     return successResponse({
       data: newAdminWithoutPassword,
       message: "Successfully registered admin",
+      transformers: [ctx.cookie("sessionId", newAdmin.id)],
     });
   }),
-  rest.get("/api/me", async () => {
-    const unparsedLoggedInAdmin = await localforage.getItem("logged_in_admin");
+  rest.get("/api/me", async (req) => {
+    const { sessionId } = req.cookies;
 
-    if (!unparsedLoggedInAdmin) {
+    const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
+
+    const loggedInAdmin = storedAdmins.find((admin) => admin.id === sessionId);
+
+    if (!loggedInAdmin) {
       return errorResponse({
         message: "Unauthorized",
         status: 401,
       });
     }
 
-    const loggedInAdmin = AdminWithoutPasswordSchema.parse(
-      unparsedLoggedInAdmin
-    );
-
     return successResponse({
       data: loggedInAdmin,
       message: "Successfully retrieved current admin",
+    });
+  }),
+  rest.post("/api/logout", async (_, __, ctx) => {
+    return successResponse({
+      message: "Successfully logged out",
+      data: null,
+      transformers: [ctx.cookie("sessionId", "", { maxAge: 0 })],
     });
   }),
 ];

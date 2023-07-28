@@ -5,7 +5,7 @@ import {
   PencilSimple,
   Plus,
 } from "@phosphor-icons/react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
 import {
@@ -17,7 +17,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/base/dialog";
-import { Input } from "@/components/base/input";
 import {
   TabIndicator,
   TabList,
@@ -58,9 +57,10 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
-import { useCurrentAdminQuery } from "@/queries/current-admin.query";
+import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
+import { Textbox } from "@/components/derived/textbox";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -86,8 +86,15 @@ ClientIndexPage.loader = loader;
 export function ClientIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
+  const [actionDialogState, setActionDialogState] = React.useState<{
+    clientId: string | null;
+    action: "archive" | "restore" | null;
+  }>({
+    clientId: null,
+    action: null,
+  });
 
-  const currentAdminQuery = useCurrentAdminQuery();
+  const currentAdminQuery = useLoggedInAdminQuery();
   const currentAdmin = currentAdminQuery.data?.data;
 
   const filtersForm = useForm<ClientIndexRequest>({
@@ -95,28 +102,25 @@ export function ClientIndexPage() {
     defaultValues: loaderData.data.request,
   });
 
-  const [search, setSearch] = React.useState<string | null>(null);
+  const [search, setSearch] = React.useState<string | null>(
+    filtersForm.getValues("search") ?? null
+  );
+
   useDebounce(() => {
-    if (search === null) return;
+    if (search === null || filtersForm.getValues("search") === search) {
+      return;
+    }
     filtersForm.setValue("search", search);
   }, 500);
 
   const clientIndexQuery = useClientIndexQuery(loaderData.data.request);
 
-  filtersForm.watch((data, { name }) => {
-    if (name === "is_archived") {
-      data.search = undefined;
-    }
+  const watchedFiltersForm = useWatch({ control: filtersForm.control });
 
-    if (name !== "page") {
-      data.page = undefined;
-    }
-
-    const queryStrings = qs.stringify(data);
-    const searchParams = new URLSearchParams(queryStrings);
-
-    setSearchParams(searchParams);
-  });
+  React.useEffect(() => {
+    const queryStrings = qs.stringify(watchedFiltersForm);
+    setSearchParams(queryStrings);
+  }, [watchedFiltersForm, setSearchParams]);
 
   React.useEffect(() => {
     if (
@@ -133,12 +137,31 @@ export function ClientIndexPage() {
     }
   }, [filtersForm, loaderData.data.request]);
 
+  const archiveClient = React.useCallback((clientId: string) => {
+    return () =>
+      setActionDialogState((prev) => ({
+        ...prev,
+        clientId,
+        action: "archive",
+      }));
+  }, []);
+
+  const restoreClient = React.useCallback((clientId: string) => {
+    return () =>
+      setActionDialogState((prev) => ({
+        ...prev,
+        clientId,
+        action: "restore",
+      }));
+  }, []);
+
   return (
     <>
       {currentAdmin?.role === "super_admin" && (
         <Link
           to="/clients/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
+          data-testid="mobile:link-create-client"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -154,6 +177,7 @@ export function ClientIndexPage() {
                 variant="primary"
                 leading={Plus}
                 className="hidden sm:inline-flex"
+                data-testid="link-create-client"
               >
                 New Client
               </Button>
@@ -170,13 +194,20 @@ export function ClientIndexPage() {
               onChange={({ value }) => {
                 if (value && (value === "1" || value === "0")) {
                   field.onChange(value);
+                  filtersForm.setValue("page", undefined);
+                  filtersForm.setValue("search", undefined);
+                  setSearch(null);
                 }
               }}
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="0">Available</TabTrigger>
-                <TabTrigger value="1">Archived</TabTrigger>
+                <TabTrigger value="0" data-testid="tabs-is_archived-available">
+                  Available
+                </TabTrigger>
+                <TabTrigger value="1" data-testid="tabs-is_archived-archived">
+                  Archived
+                </TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -184,26 +215,33 @@ export function ClientIndexPage() {
         />
         <div className="mt-5">
           <div className="flex flex-wrap gap-3 sm:items-center">
-            <Input
+            <Textbox
               name="search"
-              onChange={(e) => setSearch(e.target.value)}
+              label="Search"
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
               value={search ?? ""}
               type="search"
               placeholder="Search by full name"
+              srOnlyLabel
               className="flex-1 min-w-[20rem]"
+              data-testid="textbox-search"
             />
 
             <Button
-              onClick={() =>
+              onClick={() => {
+                setSearch(null);
+
                 filtersForm.reset({
                   is_archived: loaderData.data.request.is_archived,
-                  search: "",
                   page: undefined,
-                })
-              }
+                });
+              }}
               variant="transparent"
               type="reset"
               className="ml-auto text-red-500"
+              data-testid="btn-reset"
             >
               Reset
             </Button>
@@ -221,7 +259,7 @@ export function ClientIndexPage() {
           }
           refetch={clientIndexQuery.refetch}
           headings={["Full Name", "Date created"]}
-          rows={clientIndexQuery.data?.data.map((client) => [
+          rows={clientIndexQuery.data?.data.map((client, index) => [
             client.full_name,
             formatDateTime(client.created_at),
             <div className="flex items-center justify-end gap-x-1">
@@ -233,29 +271,24 @@ export function ClientIndexPage() {
                       to={`/clients/${client.id}`}
                       icon={PencilSimple}
                       label="Edit"
+                      data-testid={`link-edit-client-${index}`}
                     />
 
-                    <ArchiveClientDialog
-                      clientId={client.id}
-                      trigger={
-                        <IconButton
-                          icon={Archive}
-                          label="Archive"
-                          className="text-red-600"
-                        />
-                      }
+                    <IconButton
+                      icon={Archive}
+                      label="Archive"
+                      onClick={archiveClient(client.id)}
+                      className="text-red-600"
+                      data-testid={`btn-archive-client-${index}`}
                     />
                   </>
                 ) : (
-                  <RestoreClientDialog
-                    clientId={client.id}
-                    trigger={
-                      <IconButton
-                        icon={ArrowCounterClockwise}
-                        label="Restore"
-                        className="text-green-600"
-                      />
-                    }
+                  <IconButton
+                    icon={ArrowCounterClockwise}
+                    label="Restore"
+                    onClick={restoreClient(client.id)}
+                    className="text-green-600"
+                    data-testid={`btn-restore-client-${index}`}
                   />
                 ))}
             </div>,
@@ -313,33 +346,79 @@ export function ClientIndexPage() {
             </div>
           )}
       </AppPageContainer>
+      <ArchiveClientDialog
+        key={`archive-${actionDialogState.clientId ?? "null"}`}
+        clientId={actionDialogState.clientId ?? ""}
+        isOpen={actionDialogState.action === "archive"}
+        setIsOpen={(open) => {
+          setActionDialogState((prev) => ({
+            clientId: open ? prev.clientId : null,
+            action: open ? "archive" : null,
+          }));
+        }}
+      />
+      <RestoreClientDialog
+        key={`restore-${actionDialogState.clientId ?? "null"}`}
+        clientId={actionDialogState.clientId ?? ""}
+        isOpen={actionDialogState.action === "restore"}
+        setIsOpen={(open) =>
+          setActionDialogState((prev) => ({
+            clientId: open ? prev.clientId : null,
+            action: open ? "restore" : null,
+          }))
+        }
+      />
     </>
   );
 }
 
 type ArchiveClientDialogProps = {
   clientId: Client["id"];
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 };
 
-function ArchiveClientDialog({ clientId, trigger }: ArchiveClientDialogProps) {
+function ArchiveClientDialog({
+  clientId,
+  trigger,
+  isOpen,
+  setIsOpen,
+}: ArchiveClientDialogProps) {
   const [open, setOpen] = React.useState(false);
 
   const archiveClientMutation = useArchiveClientMutation({ clientId });
 
   React.useEffect(() => {
     if (archiveClientMutation.isSuccess) {
-      setOpen(false);
+      if (setIsOpen) {
+        setIsOpen(false);
+      } else {
+        setOpen(false);
+      }
     }
-  }, [archiveClientMutation.isSuccess]);
+  }, [setIsOpen, archiveClientMutation.isSuccess]);
 
   return (
     <Dialog
-      open={open}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
+      open={isOpen ?? open}
+      onClose={() => {
+        if (setIsOpen) {
+          setIsOpen(false);
+        } else {
+          setOpen(false);
+        }
+      }}
+      onOpen={() => {
+        if (setIsOpen) {
+          setIsOpen(true);
+        } else {
+          setOpen(true);
+        }
+      }}
+      data-testid="dialog-archive-client"
     >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {Boolean(trigger) && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="w-[36rem]">
         <DialogHeader>
           <DialogTitle>Archive Client</DialogTitle>
@@ -355,6 +434,7 @@ function ArchiveClientDialog({ clientId, trigger }: ArchiveClientDialogProps) {
             loading={archiveClientMutation.isLoading}
             success={archiveClientMutation.isSuccess}
             onClick={() => archiveClientMutation.mutate()}
+            data-testid="btn-confirm-archive-client"
           >
             Archive Client
           </Button>
@@ -367,10 +447,7 @@ function ArchiveClientDialog({ clientId, trigger }: ArchiveClientDialogProps) {
 const ArchiveClientResponseSchema = APIResponseSchema({
   schema: ClientSchema.pick({
     id: true,
-    email: true,
     full_name: true,
-    role: true,
-    is_active: true,
   }),
 });
 
@@ -403,27 +480,51 @@ function useArchiveClientMutation({
 
 type RestoreClientDialogProps = {
   clientId: Client["id"];
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 };
 
-function RestoreClientDialog({ clientId, trigger }: RestoreClientDialogProps) {
+function RestoreClientDialog({
+  clientId,
+  trigger,
+  isOpen,
+  setIsOpen,
+}: RestoreClientDialogProps) {
   const [open, setOpen] = React.useState(false);
 
   const restoreClientMutation = useRestoreClientMutation({ clientId });
 
   React.useEffect(() => {
     if (restoreClientMutation.isSuccess) {
-      setOpen(false);
+      if (setIsOpen) {
+        setIsOpen(false);
+      } else {
+        setOpen(false);
+      }
     }
-  }, [restoreClientMutation.isSuccess]);
+  }, [setIsOpen, restoreClientMutation.isSuccess]);
 
   return (
     <Dialog
-      open={open}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
+      open={isOpen ?? open}
+      onClose={() => {
+        if (setIsOpen) {
+          setIsOpen(false);
+        } else {
+          setOpen(false);
+        }
+      }}
+      onOpen={() => {
+        if (setIsOpen) {
+          setIsOpen(true);
+        } else {
+          setOpen(true);
+        }
+      }}
+      data-testid="dialog-restore-client"
     >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {Boolean(trigger) && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="w-[36rem]">
         <DialogHeader>
           <DialogTitle>Restore Client</DialogTitle>
@@ -439,6 +540,7 @@ function RestoreClientDialog({ clientId, trigger }: RestoreClientDialogProps) {
             loading={restoreClientMutation.isLoading}
             success={restoreClientMutation.isSuccess}
             onClick={() => restoreClientMutation.mutate()}
+            data-testid="btn-confirm-restore-client"
           >
             Restore Client
           </Button>
@@ -451,10 +553,7 @@ function RestoreClientDialog({ clientId, trigger }: RestoreClientDialogProps) {
 const RestoreClientResponseSchema = APIResponseSchema({
   schema: ClientSchema.pick({
     id: true,
-    email: true,
     full_name: true,
-    role: true,
-    is_active: true,
   }),
 });
 

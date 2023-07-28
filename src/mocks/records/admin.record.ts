@@ -1,9 +1,8 @@
 import { Admin } from "@/schemas/admin.schema";
-import { nanoid } from "nanoid";
 
 export const mockAdminRecords: Admin[] = [
   {
-    id: nanoid(),
+    id: "super-admin-id",
     full_name: "Super Admin",
     email: "superadmin@example.com",
     password: "qwerty123",
@@ -13,7 +12,7 @@ export const mockAdminRecords: Admin[] = [
     updated_at: new Date().toISOString(),
   },
   {
-    id: nanoid(),
+    id: "operator-id",
     full_name: "Operator",
     email: "operator@example.com",
     password: "qwerty123",

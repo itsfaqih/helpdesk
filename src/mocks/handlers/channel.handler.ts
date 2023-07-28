@@ -13,13 +13,13 @@ import {
   allowSuperAdminOnly,
   handleResponseError,
   successResponse,
-} from "../utils";
+} from "../mock-utils";
 import { ConflictError, NotFoundError } from "@/utils/error.util";
 
 export const channelHandlers = [
   rest.post("/api/channels", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const data = CreateChannelSchema.parse(await req.json());
 
@@ -59,7 +59,7 @@ export const channelHandlers = [
   }),
   rest.get("/api/channels", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredChannels =
         (await localforage.getItem("channels")) ?? [];
@@ -117,7 +117,7 @@ export const channelHandlers = [
   }),
   rest.get("/api/channels/:channelId", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredChannels =
         (await localforage.getItem("channels")) ?? [];
@@ -145,7 +145,7 @@ export const channelHandlers = [
   }),
   rest.put("/api/channels/:channelId/archive", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredChannel =
         (await localforage.getItem("channels")) ?? [];
@@ -185,7 +185,7 @@ export const channelHandlers = [
   }),
   rest.put("/api/channels/:channelId/restore", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredChannels =
         (await localforage.getItem("channels")) ?? [];

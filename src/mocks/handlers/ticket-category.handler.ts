@@ -12,13 +12,13 @@ import {
   allowAuthenticatedOnly,
   handleResponseError,
   successResponse,
-} from "../utils";
+} from "../mock-utils";
 import { NotFoundError } from "@/utils/error.util";
 
 export const ticketCategoryHandlers = [
   rest.post("/api/ticket-categories", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const data = CreateTicketCategorySchema.parse(await req.json());
 
@@ -101,7 +101,7 @@ export const ticketCategoryHandlers = [
   }),
   rest.get("/api/ticket-categories/:ticketCategoryId", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredTicketCategories =
         (await localforage.getItem("ticket_categories")) ?? [];
@@ -129,7 +129,7 @@ export const ticketCategoryHandlers = [
   }),
   rest.put("/api/ticket-categories/:ticketCategoryId", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const data = UpdateTicketCategorySchema.parse(await req.json());
 
@@ -173,7 +173,7 @@ export const ticketCategoryHandlers = [
   }),
   rest.put("/api/ticket-categories/:ticketCategoryId/archive", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredTicketCategories =
         (await localforage.getItem("ticket_categories")) ?? [];

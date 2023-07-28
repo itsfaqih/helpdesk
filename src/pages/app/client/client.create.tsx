@@ -50,6 +50,7 @@ export function ClientCreatePage() {
         variant="plain"
         to="/clients"
         className="inline-flex items-center gap-x-1.5"
+        data-testid="link-back"
       >
         <CaretLeft className="w-4 h-4" />
         <span>Back</span>
@@ -72,6 +73,7 @@ export function ClientCreatePage() {
                 error={createClientForm.formState.errors.full_name?.message}
                 srOnlyLabel
                 errorPlaceholder
+                data-testid="textbox-full-name"
               />
             </div>
           </div>
@@ -81,6 +83,7 @@ export function ClientCreatePage() {
               type="submit"
               loading={createClientMutation.isLoading}
               success={createClientMutation.isSuccess}
+              data-testid="btn-create-client"
             >
               Create Client
             </Button>

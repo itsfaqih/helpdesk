@@ -15,13 +15,13 @@ import {
   errorResponse,
   handleResponseError,
   successResponse,
-} from "../utils";
+} from "../mock-utils";
 import { ConflictError, NotFoundError } from "@/utils/error.util";
 
 export const adminHandlers = [
   rest.post("/api/admins", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const data = CreateAdminSchema.parse(await req.json());
 
@@ -64,7 +64,7 @@ export const adminHandlers = [
   }),
   rest.put("/api/admins/:adminId", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
     } catch (error) {
       const data = UpdateAdminSchema.parse(await req.json());
 
@@ -103,7 +103,7 @@ export const adminHandlers = [
   }),
   rest.get("/api/admins", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
@@ -163,7 +163,7 @@ export const adminHandlers = [
   }),
   rest.get("/api/admins/:adminId", async (req) => {
     try {
-      await allowAuthenticatedOnly();
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
     } catch (error) {
       const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
@@ -187,7 +187,7 @@ export const adminHandlers = [
   }),
   rest.put("/api/admins/:adminId/deactivate", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
@@ -225,7 +225,7 @@ export const adminHandlers = [
   }),
   rest.put("/api/admins/:adminId/activate", async (req) => {
     try {
-      await allowSuperAdminOnly();
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);

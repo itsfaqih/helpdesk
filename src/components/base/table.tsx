@@ -26,7 +26,11 @@ export function Table({
   ...props
 }: TableProps) {
   return (
-    <div className={cn("flow-root min-h-[36.75rem]", className)} {...props}>
+    <div
+      className={cn("flow-root min-h-[36.75rem]", className)}
+      data-testid={`table-${id}`}
+      {...props}
+    >
       <div className="-mx-6 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-6">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-6">
           <div className="overflow-hidden shadow-haptic-gray-300 sm:rounded-md">
