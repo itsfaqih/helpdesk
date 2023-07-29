@@ -9,15 +9,6 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/base/dialog";
-import {
   TabIndicator,
   TabList,
   TabTrigger,
@@ -61,6 +52,7 @@ import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { Textbox } from "@/components/derived/textbox";
+import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -350,7 +342,7 @@ export function ClientIndexPage() {
         key={`archive-${actionDialogState.clientId ?? "null"}`}
         clientId={actionDialogState.clientId ?? ""}
         isOpen={actionDialogState.action === "archive"}
-        setIsOpen={(open) => {
+        onOpenChange={(open) => {
           setActionDialogState((prev) => ({
             clientId: open ? prev.clientId : null,
             action: open ? "archive" : null,
@@ -361,7 +353,7 @@ export function ClientIndexPage() {
         key={`restore-${actionDialogState.clientId ?? "null"}`}
         clientId={actionDialogState.clientId ?? ""}
         isOpen={actionDialogState.action === "restore"}
-        setIsOpen={(open) =>
+        onOpenChange={(open) =>
           setActionDialogState((prev) => ({
             clientId: open ? prev.clientId : null,
             action: open ? "restore" : null,
@@ -376,71 +368,35 @@ type ArchiveClientDialogProps = {
   clientId: Client["id"];
   trigger?: React.ReactNode;
   isOpen?: boolean;
-  setIsOpen?: (isOpen: boolean) => void;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 function ArchiveClientDialog({
   clientId,
   trigger,
   isOpen,
-  setIsOpen,
+  onOpenChange,
 }: ArchiveClientDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
   const archiveClientMutation = useArchiveClientMutation({ clientId });
 
-  React.useEffect(() => {
-    if (archiveClientMutation.isSuccess) {
-      if (setIsOpen) {
-        setIsOpen(false);
-      } else {
-        setOpen(false);
-      }
-    }
-  }, [setIsOpen, archiveClientMutation.isSuccess]);
-
   return (
-    <Dialog
-      open={isOpen ?? open}
-      onClose={() => {
-        if (setIsOpen) {
-          setIsOpen(false);
-        } else {
-          setOpen(false);
-        }
+    <ConfirmationDialog
+      id="archive-client"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title="Archive Client"
+      description="Are you sure you want to archive this client? After archiving, the
+      client will not be listed in the client list"
+      destructive
+      isLoading={archiveClientMutation.isLoading}
+      isSuccess={archiveClientMutation.isSuccess}
+      buttonLabel="Archive Client"
+      buttonOnClick={() => archiveClientMutation.mutate()}
+      trigger={trigger}
+      onSuccess={() => {
+        onOpenChange?.(false);
       }}
-      onOpen={() => {
-        if (setIsOpen) {
-          setIsOpen(true);
-        } else {
-          setOpen(true);
-        }
-      }}
-      data-testid="dialog-archive-client"
-    >
-      {Boolean(trigger) && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="w-[36rem]">
-        <DialogHeader>
-          <DialogTitle>Archive Client</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to archive this client? After archiving, the
-            client will not be listed in the client list
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-5">
-          <Button
-            type="button"
-            variant="danger"
-            loading={archiveClientMutation.isLoading}
-            success={archiveClientMutation.isSuccess}
-            onClick={() => archiveClientMutation.mutate()}
-            data-testid="btn-confirm-archive-client"
-          >
-            Archive Client
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    />
   );
 }
 
@@ -482,71 +438,34 @@ type RestoreClientDialogProps = {
   clientId: Client["id"];
   trigger?: React.ReactNode;
   isOpen?: boolean;
-  setIsOpen?: (isOpen: boolean) => void;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 function RestoreClientDialog({
   clientId,
   trigger,
   isOpen,
-  setIsOpen,
+  onOpenChange,
 }: RestoreClientDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
   const restoreClientMutation = useRestoreClientMutation({ clientId });
 
-  React.useEffect(() => {
-    if (restoreClientMutation.isSuccess) {
-      if (setIsOpen) {
-        setIsOpen(false);
-      } else {
-        setOpen(false);
-      }
-    }
-  }, [setIsOpen, restoreClientMutation.isSuccess]);
-
   return (
-    <Dialog
-      open={isOpen ?? open}
-      onClose={() => {
-        if (setIsOpen) {
-          setIsOpen(false);
-        } else {
-          setOpen(false);
-        }
+    <ConfirmationDialog
+      id="restore-client"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title="Restore Client"
+      description="Are you sure you want to restore this client? After archiving, the
+      client will be listed in the client list"
+      isLoading={restoreClientMutation.isLoading}
+      isSuccess={restoreClientMutation.isSuccess}
+      buttonLabel="Restore Client"
+      buttonOnClick={() => restoreClientMutation.mutate()}
+      trigger={trigger}
+      onSuccess={() => {
+        onOpenChange?.(false);
       }}
-      onOpen={() => {
-        if (setIsOpen) {
-          setIsOpen(true);
-        } else {
-          setOpen(true);
-        }
-      }}
-      data-testid="dialog-restore-client"
-    >
-      {Boolean(trigger) && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="w-[36rem]">
-        <DialogHeader>
-          <DialogTitle>Restore Client</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to restore this client? After restoring the
-            client will be listed in the client list
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-5">
-          <Button
-            type="button"
-            variant="primary"
-            loading={restoreClientMutation.isLoading}
-            success={restoreClientMutation.isSuccess}
-            onClick={() => restoreClientMutation.mutate()}
-            data-testid="btn-confirm-restore-client"
-          >
-            Restore Client
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    />
   );
 }
 

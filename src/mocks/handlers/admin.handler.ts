@@ -164,7 +164,7 @@ export const adminHandlers = [
   rest.get("/api/admins/:adminId", async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
-    } catch (error) {
+
       const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
@@ -183,6 +183,8 @@ export const adminHandlers = [
         data: admin,
         message: "Successfully retrieved admin",
       });
+    } catch (error) {
+      return handleResponseError(error);
     }
   }),
   rest.put("/api/admins/:adminId/deactivate", async (req) => {

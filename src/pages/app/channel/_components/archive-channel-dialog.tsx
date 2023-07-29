@@ -3,84 +3,41 @@ import { Channel, ChannelSchema } from "@/schemas/channel.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/libs/api.lib";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/base/dialog";
-import { Button } from "@/components/base/button";
+import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
 
 type ArchiveChannelDialogProps = {
   channelId: Channel["id"];
   trigger?: React.ReactNode;
   isOpen?: boolean;
-  setIsOpen?: (isOpen: boolean) => void;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 export function ArchiveChannelDialog({
   channelId,
   trigger,
   isOpen,
-  setIsOpen,
+  onOpenChange,
 }: ArchiveChannelDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
   const archiveChannelMutation = useArchiveChannelMutation({ channelId });
 
-  React.useEffect(() => {
-    if (archiveChannelMutation.isSuccess) {
-      if (setIsOpen) {
-        setIsOpen(false);
-      } else {
-        setOpen(false);
-      }
-    }
-  }, [setIsOpen, archiveChannelMutation.isSuccess]);
-
   return (
-    <Dialog
-      open={isOpen ?? open}
-      onClose={() => {
-        if (setIsOpen) {
-          setIsOpen(false);
-        } else {
-          setOpen(false);
-        }
+    <ConfirmationDialog
+      id="archive-channel"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title="Archive Channel"
+      description="Are you sure you want to archive this channel? After archiving the
+      channel will not be listed in the channel list"
+      destructive
+      isLoading={archiveChannelMutation.isLoading}
+      isSuccess={archiveChannelMutation.isSuccess}
+      buttonLabel="Archive Channel"
+      buttonOnClick={() => archiveChannelMutation.mutate()}
+      trigger={trigger}
+      onSuccess={() => {
+        onOpenChange?.(false);
       }}
-      onOpen={() => {
-        if (setIsOpen) {
-          setIsOpen(true);
-        } else {
-          setOpen(true);
-        }
-      }}
-    >
-      {Boolean(trigger) && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="w-[36rem]">
-        <DialogHeader>
-          <DialogTitle>Archive Channel</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to archive this channel? After archiving, the
-            channel will not be listed in the channel list
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-5">
-          <Button
-            type="button"
-            variant="danger"
-            loading={archiveChannelMutation.isLoading}
-            success={archiveChannelMutation.isSuccess}
-            onClick={() => archiveChannelMutation.mutate()}
-          >
-            Archive Channel
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    />
   );
 }
 

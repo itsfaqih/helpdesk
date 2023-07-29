@@ -3,15 +3,6 @@ import { PencilSimple, Plus, Power } from "@phosphor-icons/react";
 import { Controller, useForm } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/base/dialog";
 import { Input } from "@/components/base/input";
 import {
   Select,
@@ -64,6 +55,7 @@ import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
+import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -374,51 +366,37 @@ export function AdminIndexPage() {
 
 type DeactivateAdminDialogProps = {
   adminId: Admin["id"];
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 function DeactivateAdminDialog({
   adminId,
   trigger,
+  isOpen,
+  onOpenChange,
 }: DeactivateAdminDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
   const deactivateAdminMutation = useDeactivateAdminMutation({ adminId });
 
-  React.useEffect(() => {
-    if (deactivateAdminMutation.isSuccess) {
-      setOpen(false);
-    }
-  }, [deactivateAdminMutation.isSuccess]);
-
   return (
-    <Dialog
-      open={open}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
-    >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="w-[36rem]">
-        <DialogHeader>
-          <DialogTitle>Deactivate Admin</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to deactivate this admin? After deactivating,
-            the admin will not be able to login to the system
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-5">
-          <Button
-            type="button"
-            variant="danger"
-            loading={deactivateAdminMutation.isLoading}
-            success={deactivateAdminMutation.isSuccess}
-            onClick={() => deactivateAdminMutation.mutate()}
-          >
-            Deactivate Admin
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmationDialog
+      id="deactivate-admin"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title="Deactivate Admin"
+      description="Are you sure you want to deactivate this admin? After deactivating,
+      the admin will not be able to login to the system"
+      destructive
+      isLoading={deactivateAdminMutation.isLoading}
+      isSuccess={deactivateAdminMutation.isSuccess}
+      buttonLabel="Deactivate Admin"
+      buttonOnClick={() => deactivateAdminMutation.mutate()}
+      trigger={trigger}
+      onSuccess={() => {
+        onOpenChange?.(false);
+      }}
+    />
   );
 }
 
@@ -461,51 +439,36 @@ function useDeactivateAdminMutation({
 
 type ReactivateAdminDialogProps = {
   adminId: Admin["id"];
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 function ReactivateAdminDialog({
   adminId,
   trigger,
+  isOpen,
+  onOpenChange,
 }: ReactivateAdminDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
   const reactivateAdminMutation = useReactivateAdminMutation({ adminId });
 
-  React.useEffect(() => {
-    if (reactivateAdminMutation.isSuccess) {
-      setOpen(false);
-    }
-  }, [reactivateAdminMutation.isSuccess]);
-
   return (
-    <Dialog
-      open={open}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
-    >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="w-[36rem]">
-        <DialogHeader>
-          <DialogTitle>Reactivate Admin</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to reactivate this admin? After reactivating
-            the admin will be able to login to the system
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-5">
-          <Button
-            type="button"
-            variant="primary"
-            loading={reactivateAdminMutation.isLoading}
-            success={reactivateAdminMutation.isSuccess}
-            onClick={() => reactivateAdminMutation.mutate()}
-          >
-            Reactivate Admin
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmationDialog
+      id="reactivate-admin"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title="Reactivate Admin"
+      description="Are you sure you want to reactivate this admin? After reactivating
+      the admin will be able to login to the system"
+      isLoading={reactivateAdminMutation.isLoading}
+      isSuccess={reactivateAdminMutation.isSuccess}
+      buttonLabel="Reactivate Admin"
+      buttonOnClick={() => reactivateAdminMutation.mutate()}
+      trigger={trigger}
+      onSuccess={() => {
+        onOpenChange?.(false);
+      }}
+    />
   );
 }
 

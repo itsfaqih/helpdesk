@@ -317,7 +317,7 @@ export function ChannelIndexPage() {
         key={`archive-${actionDialogState.channelId ?? "null"}`}
         channelId={actionDialogState.channelId ?? ""}
         isOpen={actionDialogState.action === "archive"}
-        setIsOpen={(open) => {
+        onOpenChange={(open) => {
           setActionDialogState((prev) => ({
             channelId: open ? prev.channelId : null,
             action: open ? "archive" : null,
@@ -328,7 +328,7 @@ export function ChannelIndexPage() {
         key={`restore-${actionDialogState.channelId ?? "null"}`}
         channelId={actionDialogState.channelId ?? ""}
         isOpen={actionDialogState.action === "restore"}
-        setIsOpen={(open) => {
+        onOpenChange={(open) => {
           setActionDialogState((prev) => ({
             channelId: open ? prev.channelId : null,
             action: open ? "restore" : null,

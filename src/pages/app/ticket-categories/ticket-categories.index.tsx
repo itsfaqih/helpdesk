@@ -50,17 +50,9 @@ import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import { TicketCategory, TicketCategorySchema } from "@/schemas/ticket.schema";
 import { api } from "@/libs/api.lib";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/base/dialog";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
+import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -322,54 +314,38 @@ export function TicketCategoryIndexPage() {
 
 type ArchiveTicketCategoryDialogProps = {
   ticketCategoryId: TicketCategory["id"];
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 function ArchiveClientDialog({
   ticketCategoryId,
   trigger,
+  isOpen,
+  onOpenChange,
 }: ArchiveTicketCategoryDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
   const archiveTicketCategoryMutation = useArchiveTicketCategoryMutation({
     ticketCategoryId: ticketCategoryId,
   });
 
-  React.useEffect(() => {
-    if (archiveTicketCategoryMutation.isSuccess) {
-      setOpen(false);
-    }
-  }, [archiveTicketCategoryMutation.isSuccess]);
-
   return (
-    <Dialog
-      open={open}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
-    >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="w-[36rem]">
-        <DialogHeader>
-          <DialogTitle>Archive Ticket Category</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to archive this ticket category? After
-            archiving, the ticket category will no longer be listed in the
-            ticket category list
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-5">
-          <Button
-            type="button"
-            variant="danger"
-            loading={archiveTicketCategoryMutation.isLoading}
-            success={archiveTicketCategoryMutation.isSuccess}
-            onClick={() => archiveTicketCategoryMutation.mutate()}
-          >
-            Archive Category
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmationDialog
+      id="archive-ticket-category"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title="Archive Ticket Category"
+      description="Are you sure you want to archive this ticket category? After archiving, the
+      ticket category will no longer be listed in the ticket category list"
+      isLoading={archiveTicketCategoryMutation.isLoading}
+      isSuccess={archiveTicketCategoryMutation.isSuccess}
+      buttonLabel="Archive Category"
+      buttonOnClick={() => archiveTicketCategoryMutation.mutate()}
+      trigger={trigger}
+      onSuccess={() => {
+        onOpenChange?.(false);
+      }}
+    />
   );
 }
 
@@ -413,54 +389,38 @@ function useArchiveTicketCategoryMutation({
 
 type RestoreTicketCategoryDialogProps = {
   ticketCategoryId: TicketCategory["id"];
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 function RestoreTicketCategoryDialog({
   ticketCategoryId,
   trigger,
+  isOpen,
+  onOpenChange,
 }: RestoreTicketCategoryDialogProps) {
-  const [open, setOpen] = React.useState(false);
-
   const restoreTicketCategoryMutation = useRestoreTicketCategoryMutation({
     ticketCategoryId: ticketCategoryId,
   });
 
-  React.useEffect(() => {
-    if (restoreTicketCategoryMutation.isSuccess) {
-      setOpen(false);
-    }
-  }, [restoreTicketCategoryMutation.isSuccess]);
-
   return (
-    <Dialog
-      open={open}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
-    >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="w-[36rem]">
-        <DialogHeader>
-          <DialogTitle>Restore Ticket Category</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to restore this ticket category? After
-            restoring the ticket category will be listed in the ticket category
-            list
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-5">
-          <Button
-            type="button"
-            variant="primary"
-            loading={restoreTicketCategoryMutation.isLoading}
-            success={restoreTicketCategoryMutation.isSuccess}
-            onClick={() => restoreTicketCategoryMutation.mutate()}
-          >
-            Restore Category
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmationDialog
+      id="restore-ticket-category"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title="Restore Ticket Category"
+      description="Are you sure you want to restore this ticket category? After restoring, the
+      ticket category will be listed in the ticket category list"
+      isLoading={restoreTicketCategoryMutation.isLoading}
+      isSuccess={restoreTicketCategoryMutation.isSuccess}
+      buttonLabel="Restore Category"
+      buttonOnClick={() => restoreTicketCategoryMutation.mutate()}
+      trigger={trigger}
+      onSuccess={() => {
+        onOpenChange?.(false);
+      }}
+    />
   );
 }
 
