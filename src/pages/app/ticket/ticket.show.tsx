@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/base/badge";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
+import { AppPageBackLink } from "../_components/page-back-link";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -48,14 +49,7 @@ export function TicketShowPage() {
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
-      <Link
-        variant="plain"
-        to="/tickets"
-        className="inline-flex items-center gap-x-1.5"
-      >
-        <CaretLeft className="w-4 h-4" />
-        <span>Back</span>
-      </Link>
+      <AppPageBackLink to="/tickets" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <div className="flex flex-col gap-5 xl:flex-row mt-7">
         <Card className="p-4.5 xl:hidden sm:mx-0 -mx-6 sm:rounded-md rounded-none block">

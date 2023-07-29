@@ -56,6 +56,7 @@ import { Table } from "@/components/base/table";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
+import { AppPageResetButton } from "../_components/page-reset-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -135,6 +136,7 @@ export function AdminIndexPage() {
         <Link
           to="/admins/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
+          data-testid="mobile:link-create-admin"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -229,21 +231,17 @@ export function AdminIndexPage() {
               )}
             />
 
-            <Button
-              onClick={() =>
-                filtersForm.reset({
-                  is_active: loaderData.data.request.is_active,
-                  role: undefined,
-                  search: "",
-                  page: undefined,
-                })
-              }
-              variant="transparent"
-              type="reset"
-              className="ml-auto text-red-500"
-            >
-              Reset
-            </Button>
+            <AppPageResetButton
+              to={{
+                pathname: "/admins",
+                search:
+                  loaderData.data.request.is_active === "0"
+                    ? "?is_active=0"
+                    : undefined,
+              }}
+              onClick={() => setSearch(null)}
+              className="ml-auto"
+            />
           </div>
         </div>
         <Table

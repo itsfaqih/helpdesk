@@ -51,8 +51,9 @@ import { Table } from "@/components/base/table";
 import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
-import { Textbox } from "@/components/derived/textbox";
 import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
+import { AppPageSearchBox } from "../_components/page-search-box";
+import { AppPageResetButton } from "../_components/page-reset-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -89,6 +90,8 @@ export function ClientIndexPage() {
   const loggedInAdminQuery = useLoggedInAdminQuery();
   const loggedInAdmin = loggedInAdminQuery.data?.data;
 
+  const clientIndexQuery = useClientIndexQuery(loaderData.data.request);
+
   const filtersForm = useForm<ClientIndexRequest>({
     resolver: zodResolver(ClientIndexRequestSchema),
     defaultValues: loaderData.data.request,
@@ -104,8 +107,6 @@ export function ClientIndexPage() {
     }
     filtersForm.setValue("search", search);
   }, 500);
-
-  const clientIndexQuery = useClientIndexQuery(loaderData.data.request);
 
   const watchedFiltersForm = useWatch({ control: filtersForm.control });
 
@@ -194,10 +195,10 @@ export function ClientIndexPage() {
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="0" data-testid="tabs-is_archived-available">
+                <TabTrigger value="0" data-testid="tab-is_archived-available">
                   Available
                 </TabTrigger>
-                <TabTrigger value="1" data-testid="tabs-is_archived-archived">
+                <TabTrigger value="1" data-testid="tab-is_archived-archived">
                   Archived
                 </TabTrigger>
                 <TabIndicator />
@@ -207,36 +208,24 @@ export function ClientIndexPage() {
         />
         <div className="mt-5">
           <div className="flex flex-wrap gap-3 sm:items-center">
-            <Textbox
-              name="search"
-              label="Search"
+            <AppPageSearchBox
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
               value={search ?? ""}
-              type="search"
               placeholder="Search by full name"
-              srOnlyLabel
-              className="flex-1 min-w-[20rem]"
-              data-testid="textbox-search"
             />
 
-            <Button
-              onClick={() => {
-                setSearch(null);
-
-                filtersForm.reset({
-                  is_archived: loaderData.data.request.is_archived,
-                  page: undefined,
-                });
+            <AppPageResetButton
+              to={{
+                pathname: "/clients",
+                search: loaderData.data.request.is_archived
+                  ? "is_archived=1"
+                  : undefined,
               }}
-              variant="transparent"
-              type="reset"
-              className="ml-auto text-red-500"
-              data-testid="btn-reset"
-            >
-              Reset
-            </Button>
+              onClick={() => setSearch(null)}
+              className="ml-auto"
+            />
           </div>
         </div>
         <Table

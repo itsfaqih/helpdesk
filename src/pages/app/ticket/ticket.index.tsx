@@ -53,6 +53,7 @@ import {
 import { TicketStatusEnum } from "@/schemas/ticket.schema";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
+import { AppPageResetButton } from "../_components/page-reset-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -253,20 +254,16 @@ export function TicketIndexPage() {
               )}
             />
 
-            <Button
-              onClick={() =>
-                filtersForm.reset({
-                  is_archived: loaderData.data.request.is_archived,
-                  search: "",
-                  page: undefined,
-                })
-              }
-              variant="transparent"
-              type="reset"
-              className="ml-auto text-red-500"
-            >
-              Reset
-            </Button>
+            <AppPageResetButton
+              to={{
+                pathname: "/tickets",
+                search: loaderData.data.request.is_archived
+                  ? "is_archived=1"
+                  : undefined,
+              }}
+              onClick={() => setSearch(null)}
+              className="ml-auto"
+            />
           </div>
         </div>
         <Table

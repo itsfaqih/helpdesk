@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/base/skeleton";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { ArchiveChannelDialog } from "./_components/archive-channel-dialog";
 import { RestoreChannelDialog } from "./_components/restore-channel-dialog";
+import { AppPageBackLink } from "../_components/page-back-link";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -47,14 +48,7 @@ export function ChannelShowPage() {
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
-      <Link
-        variant="plain"
-        to="/channels"
-        className="inline-flex items-center gap-x-1.5"
-      >
-        <CaretLeft className="w-4 h-4" />
-        <span>Back</span>
-      </Link>
+      <AppPageBackLink to="/channels" />
       <div className="flex items-center mt-4">
         <AppPageTitle title={loaderData.pageTitle} />
 
@@ -64,7 +58,11 @@ export function ChannelShowPage() {
               <RestoreChannelDialog
                 channelId={channel.id}
                 trigger={
-                  <Button type="button" variant="white">
+                  <Button
+                    type="button"
+                    variant="white"
+                    data-testid="btn-restore-channel"
+                  >
                     Restore Channel
                   </Button>
                 }
@@ -73,7 +71,11 @@ export function ChannelShowPage() {
               <ArchiveChannelDialog
                 channelId={channel.id}
                 trigger={
-                  <Button type="button" variant="danger">
+                  <Button
+                    type="button"
+                    variant="danger"
+                    data-testid="btn-archive-channel"
+                  >
                     Archive Channel
                   </Button>
                 }
@@ -96,6 +98,7 @@ export function ChannelShowPage() {
                   readOnly
                   srOnlyLabel
                   errorPlaceholder
+                  data-testid="textbox-name"
                 />
               )}
             </div>

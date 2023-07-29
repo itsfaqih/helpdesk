@@ -28,9 +28,9 @@ import {
   TicketWithRelationsSchema,
 } from "./schemas/ticket.schema";
 import { TicketShowPage } from "./pages/app/ticket/ticket.show";
-import { TicketCategoryIndexPage } from "./pages/app/ticket-categories/ticket-categories.index";
-import { TicketCategoryShowPage } from "./pages/app/ticket-categories/ticket-categories.show";
-import { TicketCategoryCreatePage } from "./pages/app/ticket-categories/ticket-categories.create";
+import { TicketCategoryIndexPage } from "./pages/app/ticket-category/ticket-category.index";
+import { TicketCategoryShowPage } from "./pages/app/ticket-category/ticket-category.show";
+import { TicketCategoryCreatePage } from "./pages/app/ticket-category/ticket-category.create";
 import { mockAdminRecords } from "./mocks/records/admin.record";
 import { mockClientRecords } from "./mocks/records/client.record";
 import { mockTicketCategoryRecords } from "./mocks/records/ticket-category.record";

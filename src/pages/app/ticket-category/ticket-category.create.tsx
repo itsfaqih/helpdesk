@@ -19,6 +19,7 @@ import { CaretLeft } from "@phosphor-icons/react";
 import { TextAreabox } from "@/components/derived/textareabox";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { AppPageContainer } from "@/components/derived/app-page-container";
+import { AppPageBackLink } from "../_components/page-back-link";
 
 function loader() {
   return async () => {
@@ -50,14 +51,7 @@ export function TicketCategoryCreatePage() {
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
-      <Link
-        variant="plain"
-        to="/ticket-categories"
-        className="inline-flex items-center gap-x-1.5"
-      >
-        <CaretLeft className="w-4 h-4" />
-        <span>Back</span>
-      </Link>
+      <AppPageBackLink to="/ticket-categories" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
@@ -76,6 +70,7 @@ export function TicketCategoryCreatePage() {
                 error={createTicketCategoryForm.formState.errors.name?.message}
                 srOnlyLabel
                 errorPlaceholder
+                data-testid="textbox-name"
               />
             </div>
           </div>
@@ -92,6 +87,7 @@ export function TicketCategoryCreatePage() {
                 }
                 srOnlyLabel
                 errorPlaceholder
+                data-testid="textbox-description"
               />
             </div>
           </div>
@@ -105,6 +101,7 @@ export function TicketCategoryCreatePage() {
                 createTicketCategoryMutation.isSuccess &&
                 !createTicketCategoryForm.formState.isDirty
               }
+              data-testid="btn-create-ticket-category"
             >
               Create Category
             </Button>

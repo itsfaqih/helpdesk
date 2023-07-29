@@ -70,7 +70,7 @@ function useRestoreChannelMutation({
     },
     async onSuccess() {
       await queryClient.invalidateQueries(["channel", "index"]);
-      await queryClient.invalidateQueries(["channel", "show", channelId, {}]);
+      await queryClient.invalidateQueries(["channel", "show", channelId]);
     },
   });
 }

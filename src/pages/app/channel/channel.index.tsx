@@ -5,10 +5,9 @@ import {
   CaretRight,
   Plus,
 } from "@phosphor-icons/react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
-import { Input } from "@/components/base/input";
 import {
   TabIndicator,
   TabList,
@@ -47,6 +46,8 @@ import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { ArchiveChannelDialog } from "./_components/archive-channel-dialog";
 import { RestoreChannelDialog } from "./_components/restore-channel-dialog";
+import { AppPageSearchBox } from "../_components/page-search-box";
+import { AppPageResetButton } from "../_components/page-reset-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -83,33 +84,29 @@ export function ChannelIndexPage() {
   const loggedInAdminQuery = useLoggedInAdminQuery();
   const loggedInAdmin = loggedInAdminQuery.data?.data;
 
+  const channelIndexQuery = useChannelIndexQuery(loaderData.data.request);
+
   const filtersForm = useForm<ChannelIndexRequest>({
     resolver: zodResolver(ChannelIndexRequestSchema),
     defaultValues: loaderData.data.request,
   });
 
-  const [search, setSearch] = React.useState<string | null>(null);
+  const [search, setSearch] = React.useState<string | null>(
+    filtersForm.getValues("search") ?? null
+  );
   useDebounce(() => {
-    if (search === null) return;
+    if (search === null || filtersForm.getValues("search") === search) {
+      return;
+    }
     filtersForm.setValue("search", search);
   }, 500);
 
-  const channelIndexQuery = useChannelIndexQuery(loaderData.data.request);
+  const watchedFiltersForm = useWatch({ control: filtersForm.control });
 
-  filtersForm.watch((data, { name }) => {
-    if (name === "is_archived") {
-      data.search = undefined;
-    }
-
-    if (name !== "page") {
-      data.page = undefined;
-    }
-
-    const queryStrings = qs.stringify(data);
-    const searchParams = new URLSearchParams(queryStrings);
-
-    setSearchParams(searchParams);
-  });
+  React.useEffect(() => {
+    const queryStrings = qs.stringify(watchedFiltersForm);
+    setSearchParams(queryStrings);
+  }, [watchedFiltersForm, setSearchParams]);
 
   React.useEffect(() => {
     if (
@@ -150,6 +147,7 @@ export function ChannelIndexPage() {
         <Link
           to="/channels/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
+          data-testid="mobile:link-create-channel"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -165,6 +163,7 @@ export function ChannelIndexPage() {
                 variant="primary"
                 leading={Plus}
                 className="hidden sm:inline-flex"
+                data-testid="link-create-channel"
               >
                 New Channel
               </Button>
@@ -181,13 +180,20 @@ export function ChannelIndexPage() {
               onChange={({ value }) => {
                 if (value && (value === "1" || value === "0")) {
                   field.onChange(value);
+                  filtersForm.setValue("page", undefined);
+                  filtersForm.setValue("search", undefined);
+                  setSearch(null);
                 }
               }}
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="0">Available</TabTrigger>
-                <TabTrigger value="1">Archived</TabTrigger>
+                <TabTrigger value="0" data-testid="tab-is_archived-available">
+                  Available
+                </TabTrigger>
+                <TabTrigger value="1" data-testid="tab-is_archived-archived">
+                  Archived
+                </TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -195,29 +201,24 @@ export function ChannelIndexPage() {
         />
         <div className="mt-5">
           <div className="flex flex-wrap gap-3 sm:items-center">
-            <Input
-              name="search"
-              onChange={(e) => setSearch(e.target.value)}
+            <AppPageSearchBox
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
               value={search ?? ""}
-              type="search"
               placeholder="Search by name"
-              className="flex-1 min-w-[20rem]"
             />
 
-            <Button
-              onClick={() =>
-                filtersForm.reset({
-                  is_archived: loaderData.data.request.is_archived,
-                  search: "",
-                  page: undefined,
-                })
-              }
-              variant="transparent"
-              type="reset"
-              className="ml-auto text-red-500"
-            >
-              Reset
-            </Button>
+            <AppPageResetButton
+              to={{
+                pathname: "/channels",
+                search: loaderData.data.request.is_archived
+                  ? "is_archived=1"
+                  : undefined,
+              }}
+              onClick={() => setSearch(null)}
+              className="ml-auto"
+            />
           </div>
         </div>
         <Table
@@ -232,7 +233,7 @@ export function ChannelIndexPage() {
           }
           refetch={channelIndexQuery.refetch}
           headings={["Name", "Date created"]}
-          rows={channelIndexQuery.data?.data.map((channel) => [
+          rows={channelIndexQuery.data?.data.map((channel, index) => [
             channel.name,
             formatDateTime(channel.created_at),
             <div className="flex items-center justify-end gap-x-1">
@@ -241,6 +242,7 @@ export function ChannelIndexPage() {
                 to={`/channels/${channel.id}`}
                 icon={CaretRight}
                 label="View"
+                data-testid={`link-view-channel-${index}`}
               />
               {loggedInAdmin?.role === "super_admin" &&
                 (!channel.is_archived ? (
@@ -249,6 +251,7 @@ export function ChannelIndexPage() {
                     label="Archive"
                     onClick={archiveChannel(channel.id)}
                     className="text-red-600"
+                    data-testid={`btn-archive-channel-${index}`}
                   />
                 ) : (
                   <IconButton
@@ -256,6 +259,7 @@ export function ChannelIndexPage() {
                     label="Restore"
                     onClick={restoreChannel(channel.id)}
                     className="text-green-600"
+                    data-testid={`btn-restore-channel-${index}`}
                   />
                 ))}
             </div>,
