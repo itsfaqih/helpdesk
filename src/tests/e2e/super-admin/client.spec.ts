@@ -17,6 +17,7 @@ test("client management", async ({ page }) => {
   await page.getByTestId("textbox-full-name").fill("Test Client");
   await page.getByTestId("btn-create-client").click();
 
+  // redirect to edit client
   await page.waitForURL(/\/clients\/(?!.*\bcreate\b)[\w]+/);
 
   await expect(page.getByTestId("heading-page-title")).toHaveText(
@@ -26,22 +27,26 @@ test("client management", async ({ page }) => {
     "Test Client"
   );
 
+  // check if the client is in table
   await page.getByTestId("link-back").click();
 
   await page.waitForURL("/clients");
 
   await expect(page.getByTestId("table-clients")).toContainText("Test Client");
 
+  // search non-existent client
   await page.getByTestId("textbox-search").fill("Non-existent Client");
 
   await page.waitForURL("/clients?search=Non-existent+Client");
 
   await expect(page.getByTestId("table-clients-empty")).toBeVisible();
 
+  // reset search
   await page.getByTestId("btn-reset").click();
 
   await page.waitForURL("/clients");
 
+  // update the client
   await page.getByTestId("link-edit-client-0").click();
 
   await page.waitForURL(/\/clients\/(?!.*\bcreate\b)[\w]+/);
@@ -49,6 +54,7 @@ test("client management", async ({ page }) => {
   await page.getByTestId("textbox-full-name").fill("Test Client Updated");
   await page.getByTestId("btn-update-client").click();
 
+  // check if the updated client is in table
   await page.getByTestId("link-back").click();
 
   await page.waitForURL("/clients");
@@ -57,8 +63,7 @@ test("client management", async ({ page }) => {
     "Test Client Updated"
   );
 
-  await page.waitForURL("/clients");
-
+  // archive client from table
   await page.getByTestId("btn-archive-client-0").click();
 
   await page.getByTestId("btn-confirm-archive-client").click();
@@ -67,7 +72,8 @@ test("client management", async ({ page }) => {
     "Test Client Updated"
   );
 
-  await page.getByTestId("tabs-is_archived-archived").click();
+  // check if client is in archived table
+  await page.getByTestId("tab-is_archived-archived").click();
 
   await page.waitForURL("/clients?is_archived=1");
 
@@ -75,6 +81,7 @@ test("client management", async ({ page }) => {
     "Test Client Updated"
   );
 
+  // restore client from table
   await page.getByTestId("btn-restore-client-0").click();
 
   await page.getByTestId("btn-confirm-restore-client").click();
@@ -83,7 +90,8 @@ test("client management", async ({ page }) => {
     "Test Client Updated"
   );
 
-  await page.getByTestId("tabs-is_archived-available").click();
+  // check if client is in table
+  await page.getByTestId("tab-is_archived-available").click();
 
   await page.waitForURL("/clients?is_archived=0");
 
