@@ -9,7 +9,7 @@ import {
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { Card } from "@/components/base/card";
 import { Link } from "@/components/base/link";
-import { ArrowSquareOut, CaretLeft } from "@phosphor-icons/react";
+import { ArrowSquareOut } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
 import {
   ticketStatusToBadgeColor,

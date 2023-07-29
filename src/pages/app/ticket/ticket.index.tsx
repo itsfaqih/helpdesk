@@ -2,7 +2,7 @@ import React from "react";
 import { CaretRight } from "@phosphor-icons/react";
 import { Controller, useForm } from "react-hook-form";
 import qs from "qs";
-import { Button, IconButton } from "@/components/base/button";
+import { IconButton } from "@/components/base/button";
 import { Input } from "@/components/base/input";
 import {
   TabIndicator,

@@ -11,8 +11,6 @@ import { Textbox } from "@/components/derived/textbox";
 import { Button } from "@/components/base/button";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";
-import { Link } from "@/components/base/link";
-import { CaretLeft } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { ArchiveChannelDialog } from "./_components/archive-channel-dialog";
