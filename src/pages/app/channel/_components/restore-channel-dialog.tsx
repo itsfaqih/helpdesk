@@ -15,12 +15,16 @@ import React from "react";
 
 type RestoreChannelDialogProps = {
   channelId: Channel["id"];
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 };
 
 export function RestoreChannelDialog({
   channelId,
   trigger,
+  isOpen,
+  setIsOpen,
 }: RestoreChannelDialogProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -28,17 +32,33 @@ export function RestoreChannelDialog({
 
   React.useEffect(() => {
     if (restoreChannelMutation.isSuccess) {
-      setOpen(false);
+      if (setIsOpen) {
+        setIsOpen(false);
+      } else {
+        setOpen(false);
+      }
     }
-  }, [restoreChannelMutation.isSuccess]);
+  }, [setIsOpen, restoreChannelMutation.isSuccess]);
 
   return (
     <Dialog
-      open={open}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
+      open={isOpen ?? open}
+      onClose={() => {
+        if (setIsOpen) {
+          setIsOpen(false);
+        } else {
+          setOpen(false);
+        }
+      }}
+      onOpen={() => {
+        if (setIsOpen) {
+          setIsOpen(true);
+        } else {
+          setOpen(true);
+        }
+      }}
     >
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {Boolean(trigger) && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="w-[36rem]">
         <DialogHeader>
           <DialogTitle>Restore Channel</DialogTitle>

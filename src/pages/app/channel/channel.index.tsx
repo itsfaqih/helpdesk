@@ -72,9 +72,16 @@ ChannelIndexPage.loader = loader;
 export function ChannelIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
+  const [actionDialogState, setActionDialogState] = React.useState<{
+    channelId: string | null;
+    action: "archive" | "restore" | null;
+  }>({
+    channelId: null,
+    action: null,
+  });
 
-  const currentAdminQuery = useLoggedInAdminQuery();
-  const currentAdmin = currentAdminQuery.data?.data;
+  const loggedInAdminQuery = useLoggedInAdminQuery();
+  const loggedInAdmin = loggedInAdminQuery.data?.data;
 
   const filtersForm = useForm<ChannelIndexRequest>({
     resolver: zodResolver(ChannelIndexRequestSchema),
@@ -119,9 +126,27 @@ export function ChannelIndexPage() {
     }
   }, [filtersForm, loaderData.data.request]);
 
+  const archiveChannel = React.useCallback((channelId: string) => {
+    return () =>
+      setActionDialogState((prev) => ({
+        ...prev,
+        channelId,
+        action: "archive",
+      }));
+  }, []);
+
+  const restoreChannel = React.useCallback((channelId: string) => {
+    return () =>
+      setActionDialogState((prev) => ({
+        ...prev,
+        channelId,
+        action: "restore",
+      }));
+  }, []);
+
   return (
     <>
-      {currentAdmin?.role === "super_admin" && (
+      {loggedInAdmin?.role === "super_admin" && (
         <Link
           to="/channels/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
@@ -133,7 +158,7 @@ export function ChannelIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            currentAdmin?.role === "super_admin" && (
+            loggedInAdmin?.role === "super_admin" && (
               <Button
                 as={Link}
                 to="/channels/create"
@@ -217,28 +242,20 @@ export function ChannelIndexPage() {
                 icon={CaretRight}
                 label="View"
               />
-              {currentAdmin?.role === "super_admin" &&
+              {loggedInAdmin?.role === "super_admin" &&
                 (!channel.is_archived ? (
-                  <ArchiveChannelDialog
-                    channelId={channel.id}
-                    trigger={
-                      <IconButton
-                        icon={Archive}
-                        label="Archive"
-                        className="text-red-600"
-                      />
-                    }
+                  <IconButton
+                    icon={Archive}
+                    label="Archive"
+                    onClick={archiveChannel(channel.id)}
+                    className="text-red-600"
                   />
                 ) : (
-                  <RestoreChannelDialog
-                    channelId={channel.id}
-                    trigger={
-                      <IconButton
-                        icon={ArrowCounterClockwise}
-                        label="Restore"
-                        className="text-green-600"
-                      />
-                    }
+                  <IconButton
+                    icon={ArrowCounterClockwise}
+                    label="Restore"
+                    onClick={restoreChannel(channel.id)}
+                    className="text-green-600"
                   />
                 ))}
             </div>,
@@ -296,6 +313,28 @@ export function ChannelIndexPage() {
             </div>
           )}
       </AppPageContainer>
+      <ArchiveChannelDialog
+        key={`archive-${actionDialogState.channelId ?? "null"}`}
+        channelId={actionDialogState.channelId ?? ""}
+        isOpen={actionDialogState.action === "archive"}
+        setIsOpen={(open) => {
+          setActionDialogState((prev) => ({
+            channelId: open ? prev.channelId : null,
+            action: open ? "archive" : null,
+          }));
+        }}
+      />
+      <RestoreChannelDialog
+        key={`restore-${actionDialogState.channelId ?? "null"}`}
+        channelId={actionDialogState.channelId ?? ""}
+        isOpen={actionDialogState.action === "restore"}
+        setIsOpen={(open) => {
+          setActionDialogState((prev) => ({
+            channelId: open ? prev.channelId : null,
+            action: open ? "restore" : null,
+          }));
+        }}
+      />
     </>
   );
 }

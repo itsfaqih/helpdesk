@@ -94,8 +94,8 @@ export function ClientIndexPage() {
     action: null,
   });
 
-  const currentAdminQuery = useLoggedInAdminQuery();
-  const currentAdmin = currentAdminQuery.data?.data;
+  const loggedInAdminQuery = useLoggedInAdminQuery();
+  const loggedInAdmin = loggedInAdminQuery.data?.data;
 
   const filtersForm = useForm<ClientIndexRequest>({
     resolver: zodResolver(ClientIndexRequestSchema),
@@ -157,7 +157,7 @@ export function ClientIndexPage() {
 
   return (
     <>
-      {currentAdmin?.role === "super_admin" && (
+      {loggedInAdmin?.role === "super_admin" && (
         <Link
           to="/clients/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
@@ -170,7 +170,7 @@ export function ClientIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            currentAdmin?.role === "super_admin" && (
+            loggedInAdmin?.role === "super_admin" && (
               <Button
                 as={Link}
                 to="/clients/create"
@@ -263,7 +263,7 @@ export function ClientIndexPage() {
             client.full_name,
             formatDateTime(client.created_at),
             <div className="flex items-center justify-end gap-x-1">
-              {currentAdmin?.role === "super_admin" &&
+              {loggedInAdmin?.role === "super_admin" &&
                 (!client.is_archived ? (
                   <>
                     <IconButton

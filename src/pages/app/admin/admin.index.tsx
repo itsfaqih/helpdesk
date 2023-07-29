@@ -88,8 +88,8 @@ export function AdminIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
 
-  const currentAdminQuery = useLoggedInAdminQuery();
-  const currentAdmin = currentAdminQuery.data?.data;
+  const loggedInAdminQuery = useLoggedInAdminQuery();
+  const loggedInAdmin = loggedInAdminQuery.data?.data;
 
   const filtersForm = useForm<AdminIndexRequest>({
     resolver: zodResolver(AdminIndexRequestSchema),
@@ -139,7 +139,7 @@ export function AdminIndexPage() {
 
   return (
     <>
-      {currentAdmin?.role === "super_admin" && (
+      {loggedInAdmin?.role === "super_admin" && (
         <Link
           to="/admins/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
@@ -151,7 +151,7 @@ export function AdminIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            currentAdmin?.role === "super_admin" && (
+            loggedInAdmin?.role === "super_admin" && (
               <Button
                 as={Link}
                 to="/admins/create"
@@ -272,7 +272,7 @@ export function AdminIndexPage() {
             adminRoleValueToLabel(admin.role),
             formatDateTime(admin.created_at),
             <div className="flex items-center justify-end gap-x-1">
-              {currentAdmin?.id === admin.id && (
+              {loggedInAdmin?.id === admin.id && (
                 <IconButton
                   as={Link}
                   to={`/profile`}
@@ -280,8 +280,8 @@ export function AdminIndexPage() {
                   label="Edit"
                 />
               )}
-              {currentAdmin?.id !== admin.id &&
-                currentAdmin?.role === "super_admin" &&
+              {loggedInAdmin?.id !== admin.id &&
+                loggedInAdmin?.role === "super_admin" &&
                 (admin.is_active ? (
                   <>
                     <IconButton

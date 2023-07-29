@@ -61,8 +61,8 @@ export function AppRoot() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
-  const currentAdminQuery = useLoggedInAdminQuery();
-  const currentAdmin = currentAdminQuery.data?.data;
+  const loggedInAdminQuery = useLoggedInAdminQuery();
+  const loggedInAdmin = loggedInAdminQuery.data?.data;
 
   const logOutMutation = useLogOutMutation();
 
@@ -147,17 +147,17 @@ export function AppRoot() {
                     <Avatar>
                       <AvatarImage src={undefined} />
                       <AvatarFallback>
-                        {currentAdmin?.full_name
-                          ? getInitials(currentAdmin.full_name)
+                        {loggedInAdmin?.full_name
+                          ? getInitials(loggedInAdmin.full_name)
                           : ""}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-col hidden text-left w-36 sm:flex">
                       <span className="text-sm font-medium text-gray-800 truncate">
-                        {currentAdmin?.full_name}
+                        {loggedInAdmin?.full_name}
                       </span>
                       <span className="text-sm text-gray-600 truncate">
-                        {currentAdmin?.email}
+                        {loggedInAdmin?.email}
                       </span>
                     </div>
                   </button>

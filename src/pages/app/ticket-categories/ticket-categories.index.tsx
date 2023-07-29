@@ -87,8 +87,8 @@ export function TicketCategoryIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
 
-  const currentAdminQuery = useLoggedInAdminQuery();
-  const currentAdmin = currentAdminQuery.data?.data;
+  const loggedInAdminQuery = useLoggedInAdminQuery();
+  const loggedInAdmin = loggedInAdminQuery.data?.data;
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
@@ -137,7 +137,7 @@ export function TicketCategoryIndexPage() {
 
   return (
     <>
-      {currentAdmin?.role === "super_admin" && (
+      {loggedInAdmin?.role === "super_admin" && (
         <Link
           to="/ticket-categories/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
@@ -149,7 +149,7 @@ export function TicketCategoryIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            currentAdmin?.role === "super_admin" && (
+            loggedInAdmin?.role === "super_admin" && (
               <Button
                 as={Link}
                 to="/ticket-categories/create"
