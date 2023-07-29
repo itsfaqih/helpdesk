@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { cn } from "@/libs/cn.lib";
 
 type FadeInContainerProps = React.ComponentPropsWithoutRef<
   typeof motion.div
@@ -20,7 +21,7 @@ export function FadeInContainer({
       initial={{ opacity: 0, y: yFrom, x: xFrom }}
       animate={{ opacity: 1, y: 0, x: 0 }}
       exit={{ opacity: 0, y: yFrom, x: xFrom }}
-      className={className}
+      className={cn(className)}
       {...props}
     />
   );

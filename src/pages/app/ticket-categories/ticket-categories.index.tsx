@@ -132,7 +132,7 @@ export function TicketCategoryIndexPage() {
       {loggedInAdmin?.role === "super_admin" && (
         <Link
           to="/ticket-categories/create"
-          className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
+          className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -337,6 +337,7 @@ function ArchiveClientDialog({
       title="Archive Ticket Category"
       description="Are you sure you want to archive this ticket category? After archiving, the
       ticket category will no longer be listed in the ticket category list"
+      destructive
       isLoading={archiveTicketCategoryMutation.isLoading}
       isSuccess={archiveTicketCategoryMutation.isSuccess}
       buttonLabel="Archive Category"

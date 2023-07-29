@@ -1,6 +1,7 @@
 import colors from "tailwindcss/colors";
 import plugin from "tailwindcss/plugin";
 import defaultTheme from "tailwindcss/defaultTheme";
+import tailwindCssAnimate from "tailwindcss-animate";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -9,12 +10,6 @@ export default {
     extend: {
       animation: {
         blink: "blink 1.4s infinite both",
-        "fade-in": "fade-in 0.3s ease-out",
-        "fade-out": "fade-out 0.3s ease-in",
-        "backdrop-in": "fade-in 0.2s ease-out",
-        "backdrop-out": "fade-out 0.2s ease-in",
-        "slide-in-from-left": "slide-in-from-left 0.2s ease-out",
-        "slide-out-to-left": "slide-out-to-left 0.2s ease-in",
       },
       boxShadow: {
         menu: "0px 1px 9px 1px rgba(0, 0, 0, 0.06), 0px 0px 0px 1px rgba(18, 24, 38, 0.08), 0px 1px 2px rgba(18, 24, 38, 0.12)",
@@ -37,38 +32,6 @@ export default {
             opacity: " 0.2",
           },
         },
-        "fade-in": {
-          "0%": {
-            opacity: "0",
-          },
-          "100%": {
-            opacity: "1",
-          },
-        },
-        "fade-out": {
-          "0%": {
-            opacity: "1",
-          },
-          "100%": {
-            opacity: "0",
-          },
-        },
-        "slide-in-from-left": {
-          "0%": {
-            transform: "translateX(-100%)",
-          },
-          "100%": {
-            transform: "translateX(0)",
-          },
-        },
-        "slide-out-to-left": {
-          "0%": {
-            transform: "translateX(0)",
-          },
-          "100%": {
-            transform: "translateX(-100%)",
-          },
-        },
       },
       spacing: {
         4.5: "1.125rem",
@@ -76,6 +39,7 @@ export default {
     },
   },
   plugins: [
+    tailwindCssAnimate,
     plugin(function ({ matchUtilities, theme }) {
       const themeColors = theme("colors");
 

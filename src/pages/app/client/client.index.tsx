@@ -152,7 +152,7 @@ export function ClientIndexPage() {
       {loggedInAdmin?.role === "super_admin" && (
         <Link
           to="/clients/create"
-          className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-fade-in sm:hidden"
+          className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
           data-testid="mobile:link-create-client"
         >
           <Plus className="w-6 h-6 text-white" />
