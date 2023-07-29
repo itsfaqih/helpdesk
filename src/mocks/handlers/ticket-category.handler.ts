@@ -14,6 +14,7 @@ import {
   successResponse,
 } from "../mock-utils";
 import { NotFoundError } from "@/utils/error.util";
+import { generatePaginationMeta } from "@/utils/api.util";
 
 export const ticketCategoryHandlers = [
   rest.post("/api/ticket-categories", async (req) => {
@@ -31,6 +32,7 @@ export const ticketCategoryHandlers = [
       const newTicketCategory: TicketCategory = {
         id: nanoid(),
         name: data.name,
+        description: data.description,
         is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -85,15 +87,40 @@ export const ticketCategoryHandlers = [
             ) {
               return false;
             }
+          } else {
+            return ticketCategory.is_archived === false;
           }
 
           return true;
         }
       );
 
+      const sortedTicketCategories = filteredTicketCategories.sort((a, b) => {
+        if (a.updated_at > b.updated_at) {
+          return -1;
+        } else if (a.updated_at < b.updated_at) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      const page = filters.page ?? 1;
+
+      const paginatedTicketCategories = sortedTicketCategories.slice(
+        (page - 1) * 10,
+        page * 10
+      );
+
       return successResponse({
-        data: filteredTicketCategories,
+        data: paginatedTicketCategories,
         message: "Successfully retrieved ticket categories",
+        meta: {
+          ...generatePaginationMeta({
+            currentPage: page,
+            total: filteredTicketCategories.length,
+          }),
+        },
       });
     } catch (error) {
       return handleResponseError(error);

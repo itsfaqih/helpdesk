@@ -143,9 +143,19 @@ export const adminHandlers = [
         return true;
       });
 
+      const sortedAdmins = filteredAdmins.sort((a, b) => {
+        if (a.updated_at > b.updated_at) {
+          return -1;
+        } else if (a.updated_at < b.updated_at) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
       const page = filters.page ?? 1;
 
-      const paginatedAdmins = filteredAdmins.slice((page - 1) * 10, page * 10);
+      const paginatedAdmins = sortedAdmins.slice((page - 1) * 10, page * 10);
 
       return successResponse({
         data: paginatedAdmins,

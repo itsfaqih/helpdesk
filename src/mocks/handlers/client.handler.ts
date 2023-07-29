@@ -132,9 +132,19 @@ export const clientHandlers = [
         return true;
       });
 
+      const sortedClients = filteredClients.sort((a, b) => {
+        if (a.updated_at > b.updated_at) {
+          return -1;
+        } else if (a.updated_at < b.updated_at) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
       const page = filters.page ?? 1;
 
-      const paginatedClients = filteredClients.slice(
+      const paginatedClients = sortedClients.slice(
         (page - 1) * 10,
         page * 10
       );
