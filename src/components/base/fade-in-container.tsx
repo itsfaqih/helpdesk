@@ -1,10 +1,7 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/libs/cn.lib";
 
-type FadeInContainerProps = React.ComponentPropsWithoutRef<
-  typeof motion.div
-> & {
+type FadeInContainerProps = React.ComponentPropsWithoutRef<"div"> & {
   from?: "top" | "bottom" | "left" | "right";
 };
 
@@ -13,15 +10,15 @@ export function FadeInContainer({
   className,
   ...props
 }: FadeInContainerProps) {
-  const yFrom = (from === "top" && -20) || (from === "bottom" && 20) || 0;
-  const xFrom = (from === "left" && -20) || (from === "right" && 20) || 0;
+  const slideInFrom =
+    (from === "top" && "slide-in-from-top-4") ||
+    (from === "bottom" && "slide-in-from-bottom-4") ||
+    (from === "left" && "slide-in-from-left-4") ||
+    (from === "right" && "slide-in-from-right-4");
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: yFrom, x: xFrom }}
-      animate={{ opacity: 1, y: 0, x: 0 }}
-      exit={{ opacity: 0, y: yFrom, x: xFrom }}
-      className={cn(className)}
+    <div
+      className={cn("animate-in fade-in duration-200", slideInFrom, className)}
       {...props}
     />
   );

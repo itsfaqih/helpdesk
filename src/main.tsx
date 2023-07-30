@@ -8,7 +8,6 @@ import {
   redirect,
   RouterProvider,
 } from "react-router-dom";
-import { AnimatePresence, MotionConfig } from "framer-motion";
 import { LoginPage } from "./pages/auth/login";
 import { RegisterPage } from "./pages/auth/register";
 import { ForgotPasswordPage } from "./pages/auth/forgot-password";
@@ -248,11 +247,7 @@ prepare()
     ReactDOM.createRoot(document.getElementById("root")!).render(
       <React.StrictMode>
         <QueryClientProvider client={queryClient}>
-          <MotionConfig reducedMotion="user">
-            <AnimatePresence>
-              <RouterProvider router={router} />
-            </AnimatePresence>
-          </MotionConfig>
+          <RouterProvider router={router} />
         </QueryClientProvider>
       </React.StrictMode>
     );
