@@ -65,7 +65,7 @@ export const adminHandlers = [
   rest.put("/api/admins/:adminId", async (req) => {
     try {
       await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
-    } catch (error) {
+
       const data = UpdateAdminSchema.parse(await req.json());
 
       const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
@@ -99,6 +99,8 @@ export const adminHandlers = [
         data: updatedAdminWithoutPassword,
         message: "Successfully updated admin",
       });
+    } catch (error) {
+      return handleResponseError(error);
     }
   }),
   rest.get("/api/admins", async (req) => {

@@ -134,6 +134,7 @@ export function AdminShowPage() {
                   readOnly={!admin?.is_active}
                   srOnlyLabel
                   errorPlaceholder
+                  data-testid="textbox-full-name"
                 />
               )}
             </div>
@@ -152,6 +153,7 @@ export function AdminShowPage() {
                   readOnly
                   srOnlyLabel
                   errorPlaceholder
+                  data-testid="textbox-email"
                 />
               )}
             </div>
@@ -190,6 +192,7 @@ export function AdminShowPage() {
                               }
                               errorPlaceholder
                               className="w-full"
+                              data-testid="select-role"
                             >
                               {(selectedOption as { label?: string })?.label ??
                                 "Select role"}
@@ -201,6 +204,7 @@ export function AdminShowPage() {
                                 key={role.value}
                                 value={role.value}
                                 label={role.label}
+                                data-testid={`option-${role.value}`}
                               />
                             ))}
                           </SelectContent>
@@ -223,6 +227,7 @@ export function AdminShowPage() {
                   updateAdminMutation.isSuccess &&
                   !updateAdminForm.formState.isDirty
                 }
+                data-testid="btn-update-admin"
               >
                 Update Admin
               </Button>

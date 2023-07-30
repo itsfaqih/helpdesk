@@ -73,6 +73,7 @@ export function AdminCreatePage() {
                 error={createAdminForm.formState.errors.full_name?.message}
                 srOnlyLabel
                 errorPlaceholder
+                data-testid="textbox-full-name"
               />
             </div>
           </div>
@@ -88,6 +89,7 @@ export function AdminCreatePage() {
                 error={createAdminForm.formState.errors.email?.message}
                 srOnlyLabel
                 errorPlaceholder
+                data-testid="textbox-email"
               />
             </div>
           </div>
@@ -103,6 +105,7 @@ export function AdminCreatePage() {
                 error={createAdminForm.formState.errors.password?.message}
                 srOnlyLabel
                 errorPlaceholder
+                data-testid="textbox-password"
               />
             </div>
           </div>
@@ -137,6 +140,7 @@ export function AdminCreatePage() {
                             }
                             errorPlaceholder
                             className="w-full"
+                            data-testid="select-role"
                           >
                             {(selectedOption as { label?: string })?.label ??
                               "Select role"}
@@ -148,6 +152,7 @@ export function AdminCreatePage() {
                               key={role.value}
                               value={role.value}
                               label={role.label}
+                              data-testid={`option-${role.value}`}
                             />
                           ))}
                         </SelectContent>
@@ -164,6 +169,7 @@ export function AdminCreatePage() {
               type="submit"
               loading={createAdminMutation.isLoading}
               success={createAdminMutation.isSuccess}
+              data-testid="btn-create-admin"
             >
               Create Admin
             </Button>

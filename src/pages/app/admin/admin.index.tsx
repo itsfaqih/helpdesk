@@ -3,7 +3,6 @@ import { CaretRight, PencilSimple, Plus, Power } from "@phosphor-icons/react";
 import { Controller, useForm } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
-import { Input } from "@/components/base/input";
 import {
   Select,
   SelectContent,
@@ -51,6 +50,7 @@ import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageResetButton } from "../_components/page-reset-button";
 import { DeactivateAdminDialog } from "./_components/deactivate-admin-dialog";
 import { ReactivateAdminDialog } from "./_components/reactivate-admin-dialog";
+import { AppPageSearchBox } from "../_components/page-search-box";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -171,6 +171,7 @@ export function AdminIndexPage() {
                 variant="primary"
                 leading={Plus}
                 className="hidden sm:inline-flex"
+                data-testid="link-create-admin"
               >
                 New Admin
               </Button>
@@ -192,8 +193,8 @@ export function AdminIndexPage() {
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="1">Active</TabTrigger>
-                <TabTrigger value="0">Deactivated</TabTrigger>
+                <TabTrigger value="1" data-testid="tab-is_deactivated-active">Active</TabTrigger>
+                <TabTrigger value="0" data-testid="tab-is_deactivated-deactivated">Deactivated</TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -201,13 +202,12 @@ export function AdminIndexPage() {
         />
         <div className="mt-5">
           <div className="flex flex-wrap gap-3 sm:items-center">
-            <Input
-              name="search"
-              onChange={(e) => setSearch(e.target.value)}
+            <AppPageSearchBox
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
               value={search ?? ""}
-              type="search"
               placeholder="Search by full name or email"
-              className="flex-1 min-w-[20rem]"
             />
 
             <Controller
@@ -275,7 +275,7 @@ export function AdminIndexPage() {
           }
           refetch={adminIndexQuery.refetch}
           headings={["Full Name", "Email", "Role", "Date created"]}
-          rows={adminIndexQuery.data?.data.map((admin) => [
+          rows={adminIndexQuery.data?.data.map((admin, index) => [
             admin.full_name,
             admin.email,
             adminRoleValueToLabel(admin.role),
@@ -298,12 +298,14 @@ export function AdminIndexPage() {
                       to={`/admins/${admin.id}`}
                       icon={PencilSimple}
                       label="Edit"
+                      data-testid={`link-edit-admin-${index}`}
                     />
                     <IconButton
                       icon={Power}
                       label="Deactivate"
                       onClick={deactivateAdmin(admin.id)}
                       className="text-red-600"
+                      data-testid={`btn-deactivate-admin-${index}`}
                     />
                   </>
                 ) : (
@@ -313,6 +315,7 @@ export function AdminIndexPage() {
                       to={`/admins/${admin.id}`}
                       icon={CaretRight}
                       label="View"
+                      data-testid={`link-view-admin-${index}`}
                     />
 
                     <IconButton
@@ -320,6 +323,7 @@ export function AdminIndexPage() {
                       label="Reactivate"
                       onClick={reactivateAdmin(admin.id)}
                       className="text-green-600"
+                      data-testid={`btn-reactivate-admin-${index}`}
                     />
                   </>
                 ))}
