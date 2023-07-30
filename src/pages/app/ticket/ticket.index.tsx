@@ -258,7 +258,7 @@ export function TicketIndexPage() {
               to={{
                 pathname: "/tickets",
                 search: loaderData.data.request.is_archived
-                  ? "is_archived=1"
+                  ? `is_archived=${loaderData.data.request.is_archived}`
                   : undefined,
               }}
               onClick={() => setSearch(null)}
