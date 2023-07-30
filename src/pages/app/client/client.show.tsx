@@ -28,6 +28,8 @@ import { Card } from "@/components/base/card";
 import { Skeleton } from "@/components/base/skeleton";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
+import { RestoreClientDialog } from "./_components/restore-client-dialog";
+import { ArchiveClientDialog } from "./_components/archive-client-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -76,7 +78,40 @@ export function ClientShowPage() {
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <AppPageBackLink to="/clients" />
-      <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
+      <div className="flex items-center mt-4">
+        <AppPageTitle title={loaderData.pageTitle} />
+
+        <div className="ml-auto">
+          {client &&
+            (client.is_archived ? (
+              <RestoreClientDialog
+                clientId={client.id}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="white"
+                    data-testid="btn-restore-client"
+                  >
+                    Restore Client
+                  </Button>
+                }
+              />
+            ) : (
+              <ArchiveClientDialog
+                clientId={client.id}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="danger"
+                    data-testid="btn-archive-client"
+                  >
+                    Archive Client
+                  </Button>
+                }
+              />
+            ))}
+        </div>
+      </div>
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="update-client-form"
@@ -94,6 +129,7 @@ export function ClientShowPage() {
                   placeholder="Enter Full Name"
                   disabled={updateClientMutation.isLoading}
                   error={updateClientForm.formState.errors.full_name?.message}
+                  readOnly={client?.is_archived}
                   srOnlyLabel
                   errorPlaceholder
                   data-testid="textbox-full-name"
@@ -101,21 +137,23 @@ export function ClientShowPage() {
               )}
             </div>
           </div>
-          <div className="flex justify-end">
-            <Button
-              form="update-client-form"
-              type="submit"
-              variant="primary"
-              loading={updateClientMutation.isLoading}
-              success={
-                updateClientMutation.isSuccess &&
-                !updateClientForm.formState.isDirty
-              }
-              data-testid="btn-update-client"
-            >
-              Update Client
-            </Button>
-          </div>
+          {!client?.is_archived && (
+            <div className="flex justify-end">
+              <Button
+                form="update-client-form"
+                type="submit"
+                variant="primary"
+                loading={updateClientMutation.isLoading}
+                success={
+                  updateClientMutation.isSuccess &&
+                  !updateClientForm.formState.isDirty
+                }
+                data-testid="btn-update-client"
+              >
+                Update Client
+              </Button>
+            </div>
+          )}
         </form>
       </Card>
     </AppPageContainer>

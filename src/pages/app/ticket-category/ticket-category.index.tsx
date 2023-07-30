@@ -2,6 +2,7 @@ import React from "react";
 import {
   Archive,
   ArrowCounterClockwise,
+  CaretRight,
   PencilSimple,
   Plus,
 } from "@phosphor-icons/react";
@@ -15,11 +16,7 @@ import {
   Tabs,
 } from "@/components/base/tabs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  QueryClient,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import {
   TicketCategoryIndexRequestSchema,
   TicketCategoryIndexRequest,
@@ -46,14 +43,12 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
 import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { TicketCategory, TicketCategorySchema } from "@/schemas/ticket.schema";
-import { api } from "@/libs/api.lib";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
 import { AppPageResetButton } from "../_components/page-reset-button";
 import { AppPageSearchBox } from "../_components/page-search-box";
+import { RestoreTicketCategoryDialog } from "./_components/restore-ticket-category-dialog";
+import { ArchiveTicketCategoryDialog } from "./_components/archive-ticket-category-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -266,13 +261,22 @@ export function TicketCategoryIndexPage() {
                   />
                 </>
               ) : (
-                <IconButton
-                  icon={ArrowCounterClockwise}
-                  label="Restore"
-                  onClick={restoreTicketCategory(category.id)}
-                  className="text-green-600"
-                  data-testid={`btn-restore-ticket-category-${index}`}
-                />
+                <>
+                  <IconButton
+                    as={Link}
+                    to={`/ticket-categories/${category.id}`}
+                    icon={CaretRight}
+                    label="View"
+                    data-testid={`link-view-ticket-category-${index}`}
+                  />
+                  <IconButton
+                    icon={ArrowCounterClockwise}
+                    label="Restore"
+                    onClick={restoreTicketCategory(category.id)}
+                    className="text-green-600"
+                    data-testid={`btn-restore-ticket-category-${index}`}
+                  />
+                </>
               )}
             </div>,
           ])}
@@ -355,155 +359,4 @@ export function TicketCategoryIndexPage() {
       />
     </>
   );
-}
-
-type ArchiveTicketCategoryDialogProps = {
-  ticketCategoryId: TicketCategory["id"];
-  trigger?: React.ReactNode;
-  isOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
-};
-
-function ArchiveTicketCategoryDialog({
-  ticketCategoryId,
-  trigger,
-  isOpen,
-  onOpenChange,
-}: ArchiveTicketCategoryDialogProps) {
-  const archiveTicketCategoryMutation = useArchiveTicketCategoryMutation({
-    ticketCategoryId,
-  });
-
-  return (
-    <ConfirmationDialog
-      id="archive-ticket-category"
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      title="Archive Ticket Category"
-      description="Are you sure you want to archive this ticket category? After archiving, the
-      ticket category will no longer be listed in the ticket category list"
-      destructive
-      isLoading={archiveTicketCategoryMutation.isLoading}
-      isSuccess={archiveTicketCategoryMutation.isSuccess}
-      buttonLabel="Archive Category"
-      buttonOnClick={() => archiveTicketCategoryMutation.mutate()}
-      trigger={trigger}
-      onSuccess={() => {
-        onOpenChange?.(false);
-      }}
-    />
-  );
-}
-
-const ArchiveTicketCategoryResponseSchema = APIResponseSchema({
-  schema: TicketCategorySchema.pick({
-    id: true,
-    name: true,
-    description: true,
-  }),
-});
-
-type UseArchiveTicketCategoryMutationParams = {
-  ticketCategoryId: TicketCategory["id"];
-};
-
-function useArchiveTicketCategoryMutation({
-  ticketCategoryId,
-}: UseArchiveTicketCategoryMutationParams) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn() {
-      try {
-        const res = await api.put(
-          undefined,
-          `/ticket-categories/${ticketCategoryId}/archive`
-        );
-
-        return ArchiveTicketCategoryResponseSchema.parse(res);
-      } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries(["ticket-category", "index"]);
-    },
-  });
-}
-
-type RestoreTicketCategoryDialogProps = {
-  ticketCategoryId: TicketCategory["id"];
-  trigger?: React.ReactNode;
-  isOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
-};
-
-function RestoreTicketCategoryDialog({
-  ticketCategoryId,
-  trigger,
-  isOpen,
-  onOpenChange,
-}: RestoreTicketCategoryDialogProps) {
-  const restoreTicketCategoryMutation = useRestoreTicketCategoryMutation({
-    ticketCategoryId: ticketCategoryId,
-  });
-
-  return (
-    <ConfirmationDialog
-      id="restore-ticket-category"
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      title="Restore Ticket Category"
-      description="Are you sure you want to restore this ticket category? After restoring, the
-      ticket category will be listed in the ticket category list"
-      isLoading={restoreTicketCategoryMutation.isLoading}
-      isSuccess={restoreTicketCategoryMutation.isSuccess}
-      buttonLabel="Restore Category"
-      buttonOnClick={() => restoreTicketCategoryMutation.mutate()}
-      trigger={trigger}
-      onSuccess={() => {
-        onOpenChange?.(false);
-      }}
-    />
-  );
-}
-
-const RestoreTicketCategoryResponseSchema = APIResponseSchema({
-  schema: TicketCategorySchema.pick({
-    id: true,
-    name: true,
-    description: true,
-  }),
-});
-
-type UseRestoreTicketCategoryMutationParams = {
-  ticketCategoryId: TicketCategory["id"];
-};
-
-function useRestoreTicketCategoryMutation({
-  ticketCategoryId,
-}: UseRestoreTicketCategoryMutationParams) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn() {
-      try {
-        const res = await api.put(
-          undefined,
-          `/ticket-categories/${ticketCategoryId}/restore`
-        );
-
-        return RestoreTicketCategoryResponseSchema.parse(res);
-      } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries(["ticket-category", "index"]);
-    },
-  });
 }

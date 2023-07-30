@@ -2,6 +2,7 @@ import React from "react";
 import {
   Archive,
   ArrowCounterClockwise,
+  CaretRight,
   PencilSimple,
   Plus,
 } from "@phosphor-icons/react";
@@ -14,15 +15,8 @@ import {
   TabTrigger,
   Tabs,
 } from "@/components/base/tabs";
-import { Client, ClientSchema } from "@/schemas/client.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  QueryClient,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { api } from "@/libs/api.lib";
-import { APIResponseSchema } from "@/schemas/api.schema";
+import { QueryClient } from "@tanstack/react-query";
 import {
   ClientIndexRequest,
   ClientIndexRequestSchema,
@@ -51,9 +45,10 @@ import { Table } from "@/components/base/table";
 import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
 import { AppPageSearchBox } from "../_components/page-search-box";
 import { AppPageResetButton } from "../_components/page-reset-button";
+import { RestoreClientDialog } from "./_components/restore-client-dialog";
+import { ArchiveClientDialog } from "./_components/archive-client-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -264,13 +259,23 @@ export function ClientIndexPage() {
                     />
                   </>
                 ) : (
-                  <IconButton
-                    icon={ArrowCounterClockwise}
-                    label="Restore"
-                    onClick={restoreClient(client.id)}
-                    className="text-green-600"
-                    data-testid={`btn-restore-client-${index}`}
-                  />
+                  <>
+                    <IconButton
+                      as={Link}
+                      to={`/clients/${client.id}`}
+                      icon={CaretRight}
+                      label="View"
+                      data-testid={`link-view-client-${index}`}
+                    />
+
+                    <IconButton
+                      icon={ArrowCounterClockwise}
+                      label="Restore"
+                      onClick={restoreClient(client.id)}
+                      className="text-green-600"
+                      data-testid={`btn-restore-client-${index}`}
+                    />
+                  </>
                 ))}
             </div>,
           ])}
@@ -351,143 +356,4 @@ export function ClientIndexPage() {
       />
     </>
   );
-}
-
-type ArchiveClientDialogProps = {
-  clientId: Client["id"];
-  trigger?: React.ReactNode;
-  isOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
-};
-
-function ArchiveClientDialog({
-  clientId,
-  trigger,
-  isOpen,
-  onOpenChange,
-}: ArchiveClientDialogProps) {
-  const archiveClientMutation = useArchiveClientMutation({ clientId });
-
-  return (
-    <ConfirmationDialog
-      id="archive-client"
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      title="Archive Client"
-      description="Are you sure you want to archive this client? After archiving, the
-      client will not be listed in the client list"
-      destructive
-      isLoading={archiveClientMutation.isLoading}
-      isSuccess={archiveClientMutation.isSuccess}
-      buttonLabel="Archive Client"
-      buttonOnClick={() => archiveClientMutation.mutate()}
-      trigger={trigger}
-      onSuccess={() => {
-        onOpenChange?.(false);
-      }}
-    />
-  );
-}
-
-const ArchiveClientResponseSchema = APIResponseSchema({
-  schema: ClientSchema.pick({
-    id: true,
-    full_name: true,
-  }),
-});
-
-type UseArchiveClientMutationParams = {
-  clientId: Client["id"];
-};
-
-function useArchiveClientMutation({
-  clientId,
-}: UseArchiveClientMutationParams) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn() {
-      try {
-        const res = await api.put(undefined, `/clients/${clientId}/archive`);
-
-        return ArchiveClientResponseSchema.parse(res);
-      } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries(["client", "index"]);
-    },
-  });
-}
-
-type RestoreClientDialogProps = {
-  clientId: Client["id"];
-  trigger?: React.ReactNode;
-  isOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
-};
-
-function RestoreClientDialog({
-  clientId,
-  trigger,
-  isOpen,
-  onOpenChange,
-}: RestoreClientDialogProps) {
-  const restoreClientMutation = useRestoreClientMutation({ clientId });
-
-  return (
-    <ConfirmationDialog
-      id="restore-client"
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      title="Restore Client"
-      description="Are you sure you want to restore this client? After archiving, the
-      client will be listed in the client list"
-      isLoading={restoreClientMutation.isLoading}
-      isSuccess={restoreClientMutation.isSuccess}
-      buttonLabel="Restore Client"
-      buttonOnClick={() => restoreClientMutation.mutate()}
-      trigger={trigger}
-      onSuccess={() => {
-        onOpenChange?.(false);
-      }}
-    />
-  );
-}
-
-const RestoreClientResponseSchema = APIResponseSchema({
-  schema: ClientSchema.pick({
-    id: true,
-    full_name: true,
-  }),
-});
-
-type UseRestoreClientMutationParams = {
-  clientId: Client["id"];
-};
-
-function useRestoreClientMutation({
-  clientId,
-}: UseRestoreClientMutationParams) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn() {
-      try {
-        const res = await api.put(undefined, `/clients/${clientId}/restore`);
-
-        return RestoreClientResponseSchema.parse(res);
-      } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries(["client", "index"]);
-    },
-  });
 }

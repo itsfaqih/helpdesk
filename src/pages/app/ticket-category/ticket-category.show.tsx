@@ -29,6 +29,8 @@ import { Skeleton } from "@/components/base/skeleton";
 import { TextAreabox } from "@/components/derived/textareabox";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
+import { RestoreTicketCategoryDialog } from "./_components/restore-ticket-category-dialog";
+import { ArchiveTicketCategoryDialog } from "./_components/archive-ticket-category-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -78,7 +80,40 @@ export function TicketCategoryShowPage() {
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <AppPageBackLink to="/ticket-categories" />
-      <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
+      <div className="flex items-center mt-4">
+        <AppPageTitle title={loaderData.pageTitle} />
+
+        <div className="ml-auto">
+          {ticketCategory &&
+            (ticketCategory.is_archived ? (
+              <RestoreTicketCategoryDialog
+                ticketCategoryId={ticketCategory.id}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="white"
+                    data-testid="btn-restore-ticket-category"
+                  >
+                    Restore Category
+                  </Button>
+                }
+              />
+            ) : (
+              <ArchiveTicketCategoryDialog
+                ticketCategoryId={ticketCategory.id}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="danger"
+                    data-testid="btn-archive-ticket-category"
+                  >
+                    Archive Category
+                  </Button>
+                }
+              />
+            ))}
+        </div>
+      </div>
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="update-ticket-category-form"
@@ -115,12 +150,17 @@ export function TicketCategoryShowPage() {
                 <TextAreabox
                   {...updateTicketCategoryForm.register("description")}
                   label="Description"
-                  placeholder="Enter Description"
+                  placeholder={
+                    ticketCategory?.is_archived
+                      ? "No description"
+                      : "Enter Description"
+                  }
                   disabled={updateTicketCategoryMutation.isLoading}
                   error={
                     updateTicketCategoryForm.formState.errors.description
                       ?.message
                   }
+                  readOnly={ticketCategory?.is_archived}
                   srOnlyLabel
                   errorPlaceholder
                   data-testid="textbox-description"
@@ -128,21 +168,23 @@ export function TicketCategoryShowPage() {
               )}
             </div>
           </div>
-          <div className="flex justify-end">
-            <Button
-              form="update-ticket-category-form"
-              type="submit"
-              variant="primary"
-              loading={updateTicketCategoryMutation.isLoading}
-              success={
-                updateTicketCategoryMutation.isSuccess &&
-                !updateTicketCategoryForm.formState.isDirty
-              }
-              data-testid="btn-update-ticket-category"
-            >
-              Update Category
-            </Button>
-          </div>
+          {!ticketCategory?.is_archived && (
+            <div className="flex justify-end">
+              <Button
+                form="update-ticket-category-form"
+                type="submit"
+                variant="primary"
+                loading={updateTicketCategoryMutation.isLoading}
+                success={
+                  updateTicketCategoryMutation.isSuccess &&
+                  !updateTicketCategoryForm.formState.isDirty
+                }
+                data-testid="btn-update-ticket-category"
+              >
+                Update Category
+              </Button>
+            </div>
+          )}
         </form>
       </Card>
     </AppPageContainer>

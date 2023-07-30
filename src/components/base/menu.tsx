@@ -33,7 +33,7 @@ export const MenuItem = React.forwardRef<
     ref={ref}
     className={cn(
       "flex w-full select-none items-center rounded-md px-2.5 py-2 text-sm font-medium",
-      "data-[hover]:bg-gray-100",
+      "data-[highlighted]:bg-gray-100",
       "data-[focus]:outline-none data-[focus]:bg-gray-100",
       className
     )}

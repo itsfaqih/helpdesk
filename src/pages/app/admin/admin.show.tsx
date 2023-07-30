@@ -32,6 +32,8 @@ import { Card } from "@/components/base/card";
 import { Skeleton } from "@/components/base/skeleton";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
+import { DeactivateAdminDialog } from "./_components/deactivate-admin-dialog";
+import { ReactivateAdminDialog } from "./_components/reactivate-admin-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -78,7 +80,40 @@ export function AdminShowPage() {
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <AppPageBackLink to="/admins" />
-      <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
+      <div className="flex items-center mt-4">
+        <AppPageTitle title={loaderData.pageTitle} />
+
+        <div className="ml-auto">
+          {admin &&
+            (admin.is_active ? (
+              <DeactivateAdminDialog
+                adminId={admin.id}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="danger"
+                    data-testid="btn-deactivate-admin"
+                  >
+                    Deactivate Admin
+                  </Button>
+                }
+              />
+            ) : (
+              <ReactivateAdminDialog
+                adminId={admin.id}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="white"
+                    data-testid="btn-reactivate-client"
+                  >
+                    Reactivate Admin
+                  </Button>
+                }
+              />
+            ))}
+        </div>
+      </div>
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="update-admin-form"
@@ -96,6 +131,7 @@ export function AdminShowPage() {
                   placeholder="Enter Full Name"
                   disabled={updateAdminMutation.isLoading}
                   error={updateAdminForm.formState.errors.full_name?.message}
+                  readOnly={!admin?.is_active}
                   srOnlyLabel
                   errorPlaceholder
                 />
@@ -141,6 +177,7 @@ export function AdminShowPage() {
                       selectedOption={adminRoleOptions.find(
                         (role) => role.value === field.value
                       )}
+                      readOnly={!admin?.is_active}
                     >
                       {({ selectedOption }) => (
                         <>
@@ -175,20 +212,22 @@ export function AdminShowPage() {
               )}
             </div>
           </div>
-          <div className="flex justify-end">
-            <Button
-              form="update-admin-form"
-              type="submit"
-              variant="primary"
-              loading={updateAdminMutation.isLoading}
-              success={
-                updateAdminMutation.isSuccess &&
-                !updateAdminForm.formState.isDirty
-              }
-            >
-              Update Admin
-            </Button>
-          </div>
+          {admin?.is_active && (
+            <div className="flex justify-end">
+              <Button
+                form="update-admin-form"
+                type="submit"
+                variant="primary"
+                loading={updateAdminMutation.isLoading}
+                success={
+                  updateAdminMutation.isSuccess &&
+                  !updateAdminForm.formState.isDirty
+                }
+              >
+                Update Admin
+              </Button>
+            </div>
+          )}
         </form>
       </Card>
     </AppPageContainer>

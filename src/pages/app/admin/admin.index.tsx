@@ -1,5 +1,5 @@
 import React from "react";
-import { PencilSimple, Plus, Power } from "@phosphor-icons/react";
+import { CaretRight, PencilSimple, Plus, Power } from "@phosphor-icons/react";
 import { Controller, useForm } from "react-hook-form";
 import qs from "qs";
 import { Button, IconButton } from "@/components/base/button";
@@ -17,15 +17,8 @@ import {
   TabTrigger,
   Tabs,
 } from "@/components/base/tabs";
-import { Admin, AdminSchema } from "@/schemas/admin.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  QueryClient,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { api } from "@/libs/api.lib";
-import { APIResponseSchema } from "@/schemas/api.schema";
+import { QueryClient } from "@tanstack/react-query";
 import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { adminRoleValueToLabel } from "@/utils/admin.util";
 import {
@@ -55,8 +48,9 @@ import { AppPageTitle } from "../_components/page-title.app";
 import { Table } from "@/components/base/table";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
 import { AppPageResetButton } from "../_components/page-reset-button";
+import { DeactivateAdminDialog } from "./_components/deactivate-admin-dialog";
+import { ReactivateAdminDialog } from "./_components/reactivate-admin-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -80,6 +74,13 @@ AdminIndexPage.loader = loader;
 export function AdminIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
+  const [actionDialogState, setActionDialogState] = React.useState<{
+    adminId: string | null;
+    action: "deactivate" | "reactivate" | null;
+  }>({
+    adminId: null,
+    action: null,
+  });
 
   const loggedInAdminQuery = useLoggedInAdminQuery();
   const loggedInAdmin = loggedInAdminQuery.data?.data;
@@ -129,6 +130,24 @@ export function AdminIndexPage() {
       filtersForm.setValue("page", loaderData.data.request.page);
     }
   }, [filtersForm, loaderData.data.request]);
+
+  const deactivateAdmin = React.useCallback((adminId: string) => {
+    return () =>
+      setActionDialogState((prev) => ({
+        ...prev,
+        adminId,
+        action: "deactivate",
+      }));
+  }, []);
+
+  const reactivateAdmin = React.useCallback((adminId: string) => {
+    return () =>
+      setActionDialogState((prev) => ({
+        ...prev,
+        adminId,
+        action: "reactivate",
+      }));
+  }, []);
 
   return (
     <>
@@ -280,29 +299,29 @@ export function AdminIndexPage() {
                       icon={PencilSimple}
                       label="Edit"
                     />
-
-                    <DeactivateAdminDialog
-                      adminId={admin.id}
-                      trigger={
-                        <IconButton
-                          icon={Power}
-                          label="Deactivate"
-                          className="text-red-600"
-                        />
-                      }
+                    <IconButton
+                      icon={Power}
+                      label="Deactivate"
+                      onClick={deactivateAdmin(admin.id)}
+                      className="text-red-600"
                     />
                   </>
                 ) : (
-                  <ReactivateAdminDialog
-                    adminId={admin.id}
-                    trigger={
-                      <IconButton
-                        icon={Power}
-                        label="Reactivate"
-                        className="text-green-600"
-                      />
-                    }
-                  />
+                  <>
+                    <IconButton
+                      as={Link}
+                      to={`/admins/${admin.id}`}
+                      icon={CaretRight}
+                      label="View"
+                    />
+
+                    <IconButton
+                      icon={Power}
+                      label="Reactivate"
+                      onClick={reactivateAdmin(admin.id)}
+                      className="text-green-600"
+                    />
+                  </>
                 ))}
             </div>,
           ])}
@@ -358,151 +377,28 @@ export function AdminIndexPage() {
           </div>
         )}
       </AppPageContainer>
+      <DeactivateAdminDialog
+        key={`deactivate-${actionDialogState.adminId ?? "null"}`}
+        adminId={actionDialogState.adminId ?? ""}
+        isOpen={actionDialogState.action === "deactivate"}
+        onOpenChange={(open) => {
+          setActionDialogState((prev) => ({
+            adminId: open ? prev.adminId : null,
+            action: open ? "deactivate" : null,
+          }));
+        }}
+      />
+      <ReactivateAdminDialog
+        key={`reactivate-${actionDialogState.adminId ?? "null"}`}
+        adminId={actionDialogState.adminId ?? ""}
+        isOpen={actionDialogState.action === "reactivate"}
+        onOpenChange={(open) =>
+          setActionDialogState((prev) => ({
+            adminId: open ? prev.adminId : null,
+            action: open ? "reactivate" : null,
+          }))
+        }
+      />
     </>
   );
-}
-
-type DeactivateAdminDialogProps = {
-  adminId: Admin["id"];
-  trigger?: React.ReactNode;
-  isOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
-};
-
-function DeactivateAdminDialog({
-  adminId,
-  trigger,
-  isOpen,
-  onOpenChange,
-}: DeactivateAdminDialogProps) {
-  const deactivateAdminMutation = useDeactivateAdminMutation({ adminId });
-
-  return (
-    <ConfirmationDialog
-      id="deactivate-admin"
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      title="Deactivate Admin"
-      description="Are you sure you want to deactivate this admin? After deactivating,
-      the admin will not be able to login to the system"
-      destructive
-      isLoading={deactivateAdminMutation.isLoading}
-      isSuccess={deactivateAdminMutation.isSuccess}
-      buttonLabel="Deactivate Admin"
-      buttonOnClick={() => deactivateAdminMutation.mutate()}
-      trigger={trigger}
-      onSuccess={() => {
-        onOpenChange?.(false);
-      }}
-    />
-  );
-}
-
-const DeactivateAdminResponseSchema = APIResponseSchema({
-  schema: AdminSchema.pick({
-    id: true,
-    email: true,
-    full_name: true,
-    role: true,
-    is_active: true,
-  }),
-});
-
-type UseDeactivateAdminMutationParams = {
-  adminId: Admin["id"];
-};
-
-function useDeactivateAdminMutation({
-  adminId,
-}: UseDeactivateAdminMutationParams) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn() {
-      try {
-        const res = await api.put(undefined, `/admins/${adminId}/deactivate`);
-
-        return DeactivateAdminResponseSchema.parse(res);
-      } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries(["admin", "index"]);
-    },
-  });
-}
-
-type ReactivateAdminDialogProps = {
-  adminId: Admin["id"];
-  trigger?: React.ReactNode;
-  isOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
-};
-
-function ReactivateAdminDialog({
-  adminId,
-  trigger,
-  isOpen,
-  onOpenChange,
-}: ReactivateAdminDialogProps) {
-  const reactivateAdminMutation = useReactivateAdminMutation({ adminId });
-
-  return (
-    <ConfirmationDialog
-      id="reactivate-admin"
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      title="Reactivate Admin"
-      description="Are you sure you want to reactivate this admin? After reactivating
-      the admin will be able to login to the system"
-      isLoading={reactivateAdminMutation.isLoading}
-      isSuccess={reactivateAdminMutation.isSuccess}
-      buttonLabel="Reactivate Admin"
-      buttonOnClick={() => reactivateAdminMutation.mutate()}
-      trigger={trigger}
-      onSuccess={() => {
-        onOpenChange?.(false);
-      }}
-    />
-  );
-}
-
-const ReactivateAdminResponseSchema = APIResponseSchema({
-  schema: AdminSchema.pick({
-    id: true,
-    email: true,
-    full_name: true,
-    role: true,
-    is_active: true,
-  }),
-});
-
-type UseReactivateAdminMutationParams = {
-  adminId: Admin["id"];
-};
-
-function useReactivateAdminMutation({
-  adminId,
-}: UseReactivateAdminMutationParams) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn() {
-      try {
-        const res = await api.put(undefined, `/admins/${adminId}/activate`);
-
-        return ReactivateAdminResponseSchema.parse(res);
-      } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries(["admin", "index"]);
-    },
-  });
 }
