@@ -10,7 +10,7 @@ export const Avatar = React.forwardRef<
   <Ark.Avatar
     ref={ref}
     className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full shadow-haptic-gray-300",
       className
     )}
     {...props}

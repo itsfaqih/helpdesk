@@ -1,7 +1,10 @@
 import { TicketIndexRequestSchema } from "@/queries/ticket.query";
 import {
+  CreateTicketAssigmentSchema,
   CreateTicketSchema,
   Ticket,
+  TicketAssigment,
+  TicketAssigmentSchema,
   TicketSchema,
   TicketWithRelationsSchema,
 } from "@/schemas/ticket.schema";
@@ -225,6 +228,58 @@ export const ticketHandlers = [
       return successResponse({
         data: updatedTicket,
         message: "Successfully activated ticket",
+      });
+    } catch (error) {
+      return handleResponseError(error);
+    }
+  }),
+  rest.post("/api/tickets/:ticketId/assigments", async (req) => {
+    try {
+      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+
+      const unparsedStoredTickets =
+        (await localforage.getItem("tickets")) ?? [];
+      const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
+
+      const ticketId = req.params.ticketId;
+
+      const ticketToUpdate = storedTickets.find(
+        (ticket) => ticket.id === ticketId
+      );
+
+      if (!ticketToUpdate) {
+        throw new NotFoundError("Ticket is not found");
+      }
+
+      const data = CreateTicketAssigmentSchema.parse(await req.json());
+
+      if (data.ticket_id !== ticketId) {
+        throw new Error("Ticket ID is not match");
+      }
+
+      const unparsedStoredTicketAssigments =
+        (await localforage.getItem("ticket-assigments")) ?? [];
+      const storedTicketAssigments = TicketAssigmentSchema.array().parse(
+        unparsedStoredTicketAssigments
+      );
+
+      const newTicketAssignment: TicketAssigment = {
+        id: nanoid(),
+        ticket_id: data.ticket_id,
+        admin_id: data.admin_id,
+        created_at: new Date().toISOString(),
+      };
+
+      const newTicketAssigments = [
+        ...storedTicketAssigments,
+        newTicketAssignment,
+      ];
+
+      await localforage.setItem("ticket-assigments", newTicketAssigments);
+
+      return successResponse({
+        data: newTicketAssignment,
+        message: "Successfully created ticket assigment",
       });
     } catch (error) {
       return handleResponseError(error);

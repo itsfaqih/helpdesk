@@ -1,10 +1,14 @@
-import { TicketWithRelationsSchema } from "@/schemas/ticket.schema";
+import {
+  TicketAssigmentWithRelations,
+  TicketWithRelations,
+} from "@/schemas/ticket.schema";
 import { nanoid } from "nanoid";
 import { mockClientRecords } from "./client.record";
 import { mockTicketCategoryRecords } from "./ticket-category.record";
 import { mockChannelRecords } from "./channel.record";
+import { mockAdminRecords } from "./admin.record";
 
-export const mockTicketRecords: TicketWithRelationsSchema[] = [
+export const mockTicketRecords: TicketWithRelations[] = [
   {
     id: nanoid(),
     category_id: mockTicketCategoryRecords[0].id,
@@ -19,6 +23,7 @@ export const mockTicketRecords: TicketWithRelationsSchema[] = [
     category: mockTicketCategoryRecords[0],
     channel: mockChannelRecords[0],
     client: mockClientRecords[0],
+    assignments: [],
   },
   {
     id: nanoid(),
@@ -33,6 +38,7 @@ export const mockTicketRecords: TicketWithRelationsSchema[] = [
     category: mockTicketCategoryRecords[2],
     channel: mockChannelRecords[1],
     client: mockClientRecords[0],
+    assignments: [],
   },
   {
     id: nanoid(),
@@ -48,6 +54,7 @@ export const mockTicketRecords: TicketWithRelationsSchema[] = [
     category: mockTicketCategoryRecords[0],
     channel: mockChannelRecords[2],
     client: mockClientRecords[1],
+    assignments: [],
   },
   {
     id: nanoid(),
@@ -62,5 +69,25 @@ export const mockTicketRecords: TicketWithRelationsSchema[] = [
     category: mockTicketCategoryRecords[1],
     channel: mockChannelRecords[3],
     client: mockClientRecords[1],
+    assignments: [],
+  },
+];
+
+export const mockTicketAssignments: TicketAssigmentWithRelations[] = [
+  {
+    id: nanoid(),
+    ticket_id: mockTicketRecords[0].id,
+    admin_id: mockAdminRecords[0].id,
+    created_at: new Date().toISOString(),
+    ticket: mockTicketRecords[0],
+    admin: mockAdminRecords[0],
+  },
+  {
+    id: nanoid(),
+    ticket_id: mockTicketRecords[1].id,
+    admin_id: mockAdminRecords[1].id,
+    created_at: new Date().toISOString(),
+    ticket: mockTicketRecords[1],
+    admin: mockAdminRecords[1],
   },
 ];

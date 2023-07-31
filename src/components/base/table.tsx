@@ -42,7 +42,7 @@ export function Table({
                       key={index}
                       scope="col"
                       className={cn(
-                        "py-3.5 text-left text-sm font-medium text-gray-500",
+                        "py-3.5 text-left text-sm font-medium text-gray-500 whitespace-nowrap",
                         {
                           "pl-4 pr-3": index === 0,
                           "px-3": index !== 0,

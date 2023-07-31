@@ -54,6 +54,13 @@ import { TicketStatusEnum } from "@/schemas/ticket.schema";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageResetButton } from "../_components/page-reset-button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/base/avatar";
+import { getInitials } from "@/utils/text.util";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/base/tooltip";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -279,20 +286,39 @@ export function TicketIndexPage() {
           refetch={ticketIndexQuery.refetch}
           headings={[
             "Title",
-            "Client's name",
-            "Status",
+            "Client",
             "Category",
+            "Assignees",
+            "Status",
             "Last updated",
-            "Date created",
           ]}
           rows={ticketIndexQuery.data?.data.map((ticket) => [
             ticket.title,
             ticket.client.full_name,
+            ticket.category.name,
+            <div className="flex items-center justify-start">
+              {ticket.assignments.length === 0 && (
+                <span className="text-gray-500">-</span>
+              )}
+              {ticket.assignments.map((assignment) => (
+                <Tooltip positioning={{ placement: "top" }}>
+                  <TooltipTrigger className="cursor-default">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={undefined} />
+                      <AvatarFallback>
+                        {assignment.admin.full_name
+                          ? getInitials(assignment.admin.full_name)
+                          : ""}
+                      </AvatarFallback>
+                    </Avatar>
+                  </TooltipTrigger>
+                  <TooltipContent>{assignment.admin.full_name}</TooltipContent>
+                </Tooltip>
+              ))}
+            </div>,
             <Badge color={ticketStatusToBadgeColor(ticket.status)}>
               {ticketStatusToLabel(ticket.status)}
             </Badge>,
-            ticket.category.name,
-            formatDateTime(ticket.created_at),
             formatDateTime(ticket.updated_at),
             <div className="flex items-center justify-end gap-x-1">
               <IconButton

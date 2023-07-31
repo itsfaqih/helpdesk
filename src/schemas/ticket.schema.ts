@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ClientSchema } from "./client.schema";
 import { ChannelSchema } from "./channel.schema";
+import { AdminSchema } from "./admin.schema";
 
 export const TicketStatusEnum = z.enum([
   "open",
@@ -27,14 +28,13 @@ export const TicketSchema = z.object({
 export type Ticket = z.infer<typeof TicketSchema>;
 
 export const TicketWithRelationsSchema = TicketSchema.extend({
+  assignments: z.lazy(() => TicketAssignmentWithRelationsSchema.array()),
   category: z.lazy(() => TicketCategorySchema),
   channel: z.lazy(() => ChannelSchema),
   client: z.lazy(() => ClientSchema),
 });
 
-export type TicketWithRelationsSchema = z.infer<
-  typeof TicketWithRelationsSchema
->;
+export type TicketWithRelations = z.infer<typeof TicketWithRelationsSchema>;
 
 export const CreateTicketSchema = TicketSchema.pick({
   title: true,
@@ -74,4 +74,34 @@ export const UpdateTicketCategorySchema = TicketCategorySchema.pick({
 
 export type UpdateTicketCategorySchema = z.infer<
   typeof UpdateTicketCategorySchema
+>;
+
+export const TicketAssigmentSchema = z.object({
+  id: z.string().nonempty(),
+  ticket_id: z.string().nonempty(),
+  admin_id: z.string().nonempty(),
+  created_at: z.string().datetime(),
+  deleted_at: z.string().datetime().optional(),
+});
+
+export type TicketAssigment = z.infer<typeof TicketAssigmentSchema>;
+
+export const CreateTicketAssigmentSchema = TicketAssigmentSchema.pick({
+  ticket_id: true,
+  admin_id: true,
+});
+
+export type CreateTicketAssigmentSchema = z.infer<
+  typeof CreateTicketAssigmentSchema
+>;
+
+export const TicketAssignmentWithRelationsSchema = TicketAssigmentSchema.extend(
+  {
+    ticket: z.lazy(() => TicketSchema),
+    admin: z.lazy(() => AdminSchema),
+  }
+);
+
+export type TicketAssigmentWithRelations = z.infer<
+  typeof TicketAssignmentWithRelationsSchema
 >;

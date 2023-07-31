@@ -23,7 +23,10 @@ import { TicketIndexPage } from "./pages/app/ticket/ticket.index";
 import { Admin } from "./schemas/admin.schema";
 import { Client } from "./schemas/client.schema";
 import {
+  TicketAssigmentWithRelations,
+  TicketAssignmentWithRelationsSchema,
   TicketCategory,
+  TicketWithRelations,
   TicketWithRelationsSchema,
 } from "./schemas/ticket.schema";
 import { TicketShowPage } from "./pages/app/ticket/ticket.show";
@@ -33,7 +36,10 @@ import { TicketCategoryCreatePage } from "./pages/app/ticket-category/ticket-cat
 import { mockAdminRecords } from "./mocks/records/admin.record";
 import { mockClientRecords } from "./mocks/records/client.record";
 import { mockTicketCategoryRecords } from "./mocks/records/ticket-category.record";
-import { mockTicketRecords } from "./mocks/records/ticket.record";
+import {
+  mockTicketAssignments,
+  mockTicketRecords,
+} from "./mocks/records/ticket.record";
 import { ChannelIndexPage } from "./pages/app/channel/channel.index";
 import { Channel } from "./schemas/channel.schema";
 import { mockChannelRecords } from "./mocks/records/channel.record";
@@ -54,7 +60,6 @@ async function prepare() {
   }
 
   let existingChannels = await localforage.getItem<Channel[]>("channels");
-
   if (!existingChannels) {
     existingChannels = mockChannelRecords;
 
@@ -71,14 +76,13 @@ async function prepare() {
   let existingTicketCategories = await localforage.getItem<TicketCategory[]>(
     "ticket_categories"
   );
-
   if (!existingTicketCategories) {
     existingTicketCategories = mockTicketCategoryRecords;
 
     await localforage.setItem("ticket_categories", existingTicketCategories);
   }
 
-  let existingTickets: TicketWithRelationsSchema[] = [];
+  let existingTickets: TicketWithRelations[] = [];
   const unparsedExistingTickets = await localforage.getItem("tickets");
 
   const existingTicketsParsing = TicketWithRelationsSchema.array().safeParse(
@@ -91,6 +95,38 @@ async function prepare() {
   } else {
     existingTickets = existingTicketsParsing.data;
   }
+
+  let existingTicketAssignments: TicketAssigmentWithRelations[] = [];
+  const unparsedExistingTicketAssignments = await localforage.getItem(
+    "ticket_assignments"
+  );
+
+  const existingTicketAssignmentsParsing =
+    TicketAssignmentWithRelationsSchema.array().safeParse(
+      unparsedExistingTicketAssignments
+    );
+  if (!existingTicketAssignmentsParsing.success) {
+    existingTicketAssignments = mockTicketAssignments;
+
+    await localforage.setItem("ticket_assignments", existingTicketAssignments);
+  } else {
+    existingTicketAssignments = existingTicketAssignmentsParsing.data;
+  }
+
+  const assignedTickets: TicketWithRelations[] = existingTickets.map(
+    (ticket) => {
+      const ticketAssignments = existingTicketAssignments.filter(
+        (ticketAssignment) => ticketAssignment.ticket_id === ticket.id
+      );
+
+      return {
+        ...ticket,
+        assignments: ticketAssignments,
+      };
+    }
+  );
+
+  await localforage.setItem("tickets", assignedTickets);
 }
 
 prepare()

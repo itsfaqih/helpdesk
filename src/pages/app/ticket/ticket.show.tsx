@@ -19,6 +19,13 @@ import { Badge } from "@/components/base/badge";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/base/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/base/avatar";
+import { getInitials } from "@/utils/text.util";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -115,14 +122,39 @@ export function TicketShowPage() {
               )}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
-              <span className="font-medium text-gray-600">Created At</span>
+              <span className="font-medium text-gray-600">Assignees</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-              {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
+              {ticket && ticket.assignments.length === 0 && (
+                <span className="text-gray-500">-</span>
+              )}
+              {ticket &&
+                ticket.assignments.map((assignment) => (
+                  <Tooltip positioning={{ placement: "top" }}>
+                    <TooltipTrigger className="cursor-default">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={undefined} />
+                        <AvatarFallback>
+                          {assignment.admin.full_name
+                            ? getInitials(assignment.admin.full_name)
+                            : ""}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {assignment.admin.full_name}
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Updated At</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
               {ticket && <span>{formatDateTime(ticket.updated_at)}</span>}
+            </div>
+            <div className="flex items-center gap-1.5 justify-between">
+              <span className="font-medium text-gray-600">Created At</span>
+              {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+              {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
             </div>
           </div>
         </Card>
@@ -212,10 +244,30 @@ export function TicketShowPage() {
                 </td>
               </tr>
               <tr>
-                <td className="py-2 font-medium text-gray-600">Created At</td>
+                <td className="py-2 font-medium text-gray-600">Assignees</td>
                 <td className="py-2 text-right text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
+                  {ticket && ticket.assignments.length === 0 && (
+                    <span className="text-gray-500">-</span>
+                  )}
+                  {ticket &&
+                    ticket.assignments.map((assignment) => (
+                      <Tooltip positioning={{ placement: "top" }}>
+                        <TooltipTrigger className="cursor-default">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage src={undefined} />
+                            <AvatarFallback>
+                              {assignment.admin.full_name
+                                ? getInitials(assignment.admin.full_name)
+                                : ""}
+                            </AvatarFallback>
+                          </Avatar>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {assignment.admin.full_name}
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
                 </td>
               </tr>
               <tr>
@@ -223,6 +275,13 @@ export function TicketShowPage() {
                 <td className="py-2 text-right text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
                   {ticket && <span>{formatDateTime(ticket.updated_at)}</span>}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-2 font-medium text-gray-600">Created At</td>
+                <td className="py-2 text-right text-gray-800">
+                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+                  {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
                 </td>
               </tr>
             </tbody>
