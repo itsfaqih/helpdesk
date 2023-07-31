@@ -74,7 +74,7 @@ SelectTrigger.displayName = Ark.SelectTrigger.displayName;
 export const SelectContent = React.forwardRef<
   React.ElementRef<typeof Ark.SelectContent>,
   React.ComponentPropsWithoutRef<typeof Ark.SelectContent>
->(({ className, ...props }, ref) => (
+>(({ children, className, ...props }, ref) => (
   <Ark.Portal>
     <Ark.SelectPositioner>
       <Ark.SelectContent
@@ -84,7 +84,9 @@ export const SelectContent = React.forwardRef<
           className
         )}
         {...props}
-      />
+      >
+        <div className="flex flex-col gap-1">{children}</div>
+      </Ark.SelectContent>
     </Ark.SelectPositioner>
   </Ark.Portal>
 ));
@@ -99,8 +101,10 @@ export const SelectOption = React.forwardRef<
     ref={ref}
     className={cn(
       "cursor-default flex w-full items-center rounded-md p-2 text-sm font-medium",
-      "data-[focus]:outline-none data-[focus]:bg-gray-100",
+      "data-[highlighted]:outline-none data-[highlighted]:bg-gray-100",
       "data-[disabled]:opacity-70",
+      "aria-selected:text-brand-800 aria-selected:bg-brand-50",
+      "aria-selected:data-[highlighted]:bg-brand-50",
       className
     )}
     {...props}
