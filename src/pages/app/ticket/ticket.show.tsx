@@ -66,7 +66,19 @@ export function TicketShowPage() {
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Category</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-              {ticket && <span>{ticket.category.name}</span>}
+              {ticket && (
+                <Link
+                  to={`/ticket-categories/${ticket.category_id}`}
+                  target="_blank"
+                  title={ticket.category.name}
+                  className="inline-flex items-center gap-1"
+                >
+                  <span className="w-40 text-right truncate">
+                    {ticket.category.name}
+                  </span>{" "}
+                  <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
+                </Link>
+              )}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Client</span>
@@ -146,7 +158,19 @@ export function TicketShowPage() {
                 <td className="py-2 font-medium text-gray-600">Category</td>
                 <td className="py-2 text-right text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && <span>{ticket.category.name}</span>}
+                  {ticket && (
+                    <Link
+                      to={`/ticket-categories/${ticket.category_id}`}
+                      target="_blank"
+                      title={ticket.category.name}
+                      className="inline-flex items-center gap-1"
+                    >
+                      <span className="w-40 text-right truncate">
+                        {ticket.category.name}
+                      </span>{" "}
+                      <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
+                    </Link>
+                  )}
                 </td>
               </tr>
               <tr>
