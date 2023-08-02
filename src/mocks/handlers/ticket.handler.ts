@@ -1,10 +1,10 @@
 import { TicketIndexRequestSchema } from "@/queries/ticket.query";
 import {
-  CreateTicketAssigmentSchema,
+  CreateTicketAssignmentSchema,
   CreateTicketSchema,
   Ticket,
-  TicketAssigment,
-  TicketAssigmentSchema,
+  TicketAssignment,
+  TicketAssignmentSchema,
   TicketSchema,
   TicketWithRelationsSchema,
 } from "@/schemas/ticket.schema";
@@ -233,7 +233,7 @@ export const ticketHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.post("/api/tickets/:ticketId/assigments", async (req) => {
+  rest.post("/api/tickets/:ticketId/assignments", async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
@@ -251,35 +251,35 @@ export const ticketHandlers = [
         throw new NotFoundError("Ticket is not found");
       }
 
-      const data = CreateTicketAssigmentSchema.parse(await req.json());
+      const data = CreateTicketAssignmentSchema.parse(await req.json());
 
       if (data.ticket_id !== ticketId) {
         throw new Error("Ticket ID is not match");
       }
 
-      const unparsedStoredTicketAssigments =
-        (await localforage.getItem("ticket-assigments")) ?? [];
-      const storedTicketAssigments = TicketAssigmentSchema.array().parse(
-        unparsedStoredTicketAssigments
+      const unparsedStoredTicketAssignments =
+        (await localforage.getItem("ticket_assignments")) ?? [];
+      const storedTicketAssignments = TicketAssignmentSchema.array().parse(
+        unparsedStoredTicketAssignments
       );
 
-      const newTicketAssignment: TicketAssigment = {
+      const newTicketAssignment: TicketAssignment = {
         id: nanoid(),
         ticket_id: data.ticket_id,
         admin_id: data.admin_id,
         created_at: new Date().toISOString(),
       };
 
-      const newTicketAssigments = [
-        ...storedTicketAssigments,
+      const newTicketAssignments = [
+        ...storedTicketAssignments,
         newTicketAssignment,
       ];
 
-      await localforage.setItem("ticket-assigments", newTicketAssigments);
+      await localforage.setItem("ticket_assignments", newTicketAssignments);
 
       return successResponse({
         data: newTicketAssignment,
-        message: "Successfully created ticket assigment",
+        message: "Successfully created ticket assignment",
       });
     } catch (error) {
       return handleResponseError(error);

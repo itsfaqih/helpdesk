@@ -1,3 +1,4 @@
+import React from "react";
 import { AppPageTitle } from "../_components/page-title.app";
 import { QueryClient } from "@tanstack/react-query";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
@@ -9,7 +10,7 @@ import {
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { Card } from "@/components/base/card";
 import { Link } from "@/components/base/link";
-import { ArrowSquareOut } from "@phosphor-icons/react";
+import { ArrowSquareOut, Plus, X } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
 import {
   ticketStatusToBadgeColor,
@@ -26,6 +27,19 @@ import {
 } from "@/components/base/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/base/avatar";
 import { getInitials } from "@/utils/text.util";
+import { IconButton } from "@/components/base/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/base/popover";
+import { useAdminIndexQuery } from "@/queries/admin.query";
+import { useDebounce } from "@/hooks/use-debounce";
+import { Command } from "cmdk";
+import { inputClassName } from "@/components/base/input";
+import { Loop } from "@/components/base/loop";
+import { useCreateTicketAssignmentMutation } from "@/mutations/ticket.mutation";
+import { Ticket } from "@/schemas/ticket.schema";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -122,14 +136,17 @@ export function TicketShowPage() {
               )}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
-              <span className="font-medium text-gray-600">Assignees</span>
+              <span className="font-medium text-gray-600">Assigned agents</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
               {ticket && ticket.assignments.length === 0 && (
                 <span className="text-gray-500">-</span>
               )}
               {ticket &&
                 ticket.assignments.map((assignment) => (
-                  <Tooltip positioning={{ placement: "top" }}>
+                  <Tooltip
+                    key={assignment.id}
+                    positioning={{ placement: "top" }}
+                  >
                     <TooltipTrigger className="cursor-default">
                       <Avatar className="w-8 h-8">
                         <AvatarImage src={undefined} />
@@ -244,29 +261,58 @@ export function TicketShowPage() {
                 </td>
               </tr>
               <tr>
-                <td className="py-2 font-medium text-gray-600">Assignees</td>
-                <td className="py-2 text-right text-gray-800">
+                <td colSpan={2} className="py-2 font-medium text-gray-600">
+                  <div className="flex items-center justify-between">
+                    <span>Assigned agents</span>
+                    {ticketShowQuery.isLoading && (
+                      <Skeleton className="w-8 h-8" />
+                    )}
+                    {ticket && (
+                      <AddTicketAssigneePopover
+                        ticketId={ticket.id}
+                        trigger={<IconButton icon={Plus} label="Add agent" />}
+                      />
+                    )}
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2} className="pb-2 text-right text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && ticket.assignments.length === 0 && (
-                    <span className="text-gray-500">-</span>
-                  )}
                   {ticket &&
-                    ticket.assignments.map((assignment) => (
-                      <Tooltip positioning={{ placement: "top" }}>
-                        <TooltipTrigger className="cursor-default">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={undefined} />
-                            <AvatarFallback>
-                              {assignment.admin.full_name
-                                ? getInitials(assignment.admin.full_name)
-                                : ""}
-                            </AvatarFallback>
-                          </Avatar>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {assignment.admin.full_name}
-                        </TooltipContent>
-                      </Tooltip>
+                    (ticket.assignments.length === 0 ? (
+                      <span className="text-gray-500">-</span>
+                    ) : (
+                      <div className="flex flex-col gap-y-4">
+                        {ticket.assignments.map((assignment) => (
+                          <div
+                            key={assignment.id}
+                            className="group flex items-center gap-x-2.5"
+                          >
+                            <Avatar className="w-8 h-8 cursor-default">
+                              <AvatarImage src={undefined} />
+                              <AvatarFallback>
+                                {assignment.admin.full_name
+                                  ? getInitials(assignment.admin.full_name)
+                                  : ""}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col flex-1 text-left">
+                              <span className="text-sm text-gray-800 line-clamp-1">
+                                {assignment.admin.full_name}
+                              </span>
+                              <span className="text-xs line-clamp-1">
+                                {assignment.admin.email}
+                              </span>
+                            </div>
+                            <IconButton
+                              icon={X}
+                              label="Remove agent"
+                              className="invisible ml-auto group-hover:visible"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     ))}
                 </td>
               </tr>
@@ -289,5 +335,93 @@ export function TicketShowPage() {
         </Card>
       </div>
     </AppPageContainer>
+  );
+}
+
+type AddTicketAssigneePopoverProps = {
+  ticketId: Ticket["id"];
+  trigger: React.ReactNode;
+};
+
+function AddTicketAssigneePopover({
+  ticketId,
+  trigger,
+}: AddTicketAssigneePopoverProps) {
+  const [searchAdmin, setSearchAdmin] = React.useState("");
+  const debouncedSearchAdmin = useDebounce(searchAdmin, 500);
+
+  const adminIndexQuery = useAdminIndexQuery({ search: debouncedSearchAdmin });
+  const admins = adminIndexQuery.data?.data ?? [];
+
+  const createTicketAssignmentMutation = useCreateTicketAssignmentMutation();
+
+  return (
+    <Popover positioning={{ placement: "bottom-end" }}>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+
+      <PopoverContent className="min-w-[18rem] z-10">
+        <span className="text-gray-400">Assign agent</span>
+        <Command shouldFilter={false} className="w-full mt-2">
+          <Command.Input
+            value={searchAdmin}
+            onValueChange={(value) => setSearchAdmin(value)}
+            placeholder="Search by name or email"
+            className={inputClassName({ className: "w-full" })}
+          />
+
+          <Command.List className="flex flex-col mt-2 gap-y-1">
+            {adminIndexQuery.isLoading && (
+              <Command.Loading>
+                <Loop amount={2}>
+                  <div className="flex items-center gap-x-2.5 cursor-default data-[selected]:bg-gray-100 px-2.5 py-1.5 rounded-md">
+                    <Skeleton className="w-8 h-8 rounded-full" />
+                    <div className="flex flex-col flex-1 text-left">
+                      <Skeleton className="w-1/2 h-4" />
+                      <Skeleton className="w-4/5 h-3 mt-1" />
+                    </div>
+                  </div>
+                </Loop>
+              </Command.Loading>
+            )}
+
+            {adminIndexQuery.isSuccess && admins.length === 0 && (
+              <div
+                role="presentation"
+                className="py-3.5 text-center text-gray-500"
+              >
+                No results found.
+              </div>
+            )}
+
+            {admins.map((admin) => (
+              <Command.Item
+                key={admin.id}
+                value={admin.id}
+                onSelect={(value) => {
+                  createTicketAssignmentMutation.mutate({
+                    ticket_id: ticketId,
+                    admin_id: value,
+                  });
+                }}
+                className="flex items-center gap-x-2.5 cursor-default data-[selected]:bg-gray-100 px-2.5 py-1.5 rounded-md"
+              >
+                <Avatar className="w-8 h-8 cursor-default">
+                  <AvatarImage src={undefined} />
+                  <AvatarFallback>
+                    {admin.full_name ? getInitials(admin.full_name) : ""}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col flex-1 text-left">
+                  <span className="text-sm text-gray-800 line-clamp-1">
+                    {admin.full_name}
+                  </span>
+                  <span className="text-xs line-clamp-1">{admin.email}</span>
+                </div>
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

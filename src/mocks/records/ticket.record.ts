@@ -1,5 +1,5 @@
 import {
-  TicketAssigmentWithRelations,
+  TicketAssignmentWithRelations,
   TicketWithRelations,
 } from "@/schemas/ticket.schema";
 import { nanoid } from "nanoid";
@@ -73,7 +73,7 @@ export const mockTicketRecords: TicketWithRelations[] = [
   },
 ];
 
-export const mockTicketAssignments: TicketAssigmentWithRelations[] = [
+export const mockTicketAssignments: TicketAssignmentWithRelations[] = [
   {
     id: nanoid(),
     ticket_id: mockTicketRecords[0].id,

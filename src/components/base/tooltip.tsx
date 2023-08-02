@@ -18,7 +18,7 @@ export const TooltipContent = React.forwardRef<
       <Ark.TooltipContent
         ref={ref}
         className={cn(
-          "bg-gray-900 text-sm px-2 py-1 rounded-md text-white",
+          "animate-in fade-in slide-in-from-bottom-4 bg-gray-900 text-sm px-2 py-1 rounded-md text-white pointer-events-none",
           className
         )}
         {...props}

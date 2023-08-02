@@ -76,7 +76,7 @@ export type UpdateTicketCategorySchema = z.infer<
   typeof UpdateTicketCategorySchema
 >;
 
-export const TicketAssigmentSchema = z.object({
+export const TicketAssignmentSchema = z.object({
   id: z.string().nonempty(),
   ticket_id: z.string().nonempty(),
   admin_id: z.string().nonempty(),
@@ -84,24 +84,23 @@ export const TicketAssigmentSchema = z.object({
   deleted_at: z.string().datetime().optional(),
 });
 
-export type TicketAssigment = z.infer<typeof TicketAssigmentSchema>;
+export type TicketAssignment = z.infer<typeof TicketAssignmentSchema>;
 
-export const CreateTicketAssigmentSchema = TicketAssigmentSchema.pick({
+export const CreateTicketAssignmentSchema = TicketAssignmentSchema.pick({
   ticket_id: true,
   admin_id: true,
 });
 
-export type CreateTicketAssigmentSchema = z.infer<
-  typeof CreateTicketAssigmentSchema
+export type CreateTicketAssignmentSchema = z.infer<
+  typeof CreateTicketAssignmentSchema
 >;
 
-export const TicketAssignmentWithRelationsSchema = TicketAssigmentSchema.extend(
-  {
+export const TicketAssignmentWithRelationsSchema =
+  TicketAssignmentSchema.extend({
     ticket: z.lazy(() => TicketSchema),
     admin: z.lazy(() => AdminSchema),
-  }
-);
+  });
 
-export type TicketAssigmentWithRelations = z.infer<
+export type TicketAssignmentWithRelations = z.infer<
   typeof TicketAssignmentWithRelationsSchema
 >;

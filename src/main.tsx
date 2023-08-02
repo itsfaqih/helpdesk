@@ -23,7 +23,7 @@ import { TicketIndexPage } from "./pages/app/ticket/ticket.index";
 import { Admin } from "./schemas/admin.schema";
 import { Client } from "./schemas/client.schema";
 import {
-  TicketAssigmentWithRelations,
+  TicketAssignmentWithRelations,
   TicketAssignmentWithRelationsSchema,
   TicketCategory,
   TicketWithRelations,
@@ -96,7 +96,7 @@ async function prepare() {
     existingTickets = existingTicketsParsing.data;
   }
 
-  let existingTicketAssignments: TicketAssigmentWithRelations[] = [];
+  let existingTicketAssignments: TicketAssignmentWithRelations[] = [];
   const unparsedExistingTicketAssignments = await localforage.getItem(
     "ticket_assignments"
   );

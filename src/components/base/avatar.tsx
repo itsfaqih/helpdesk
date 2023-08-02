@@ -10,7 +10,7 @@ export const Avatar = React.forwardRef<
   <Ark.Avatar
     ref={ref}
     className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full shadow-haptic-gray-300",
+      "flex h-10 w-10 shrink-0 overflow-hidden rounded-full shadow-haptic-gray-300",
       className
     )}
     {...props}
@@ -39,7 +39,7 @@ export const AvatarFallback = React.forwardRef<
   <Ark.AvatarFallback
     ref={ref}
     className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-muted",
+      "flex h-full w-full items-center justify-center rounded-full bg-white",
       className
     )}
     {...props}
