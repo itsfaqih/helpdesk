@@ -95,6 +95,15 @@ export type CreateTicketAssignmentSchema = z.infer<
   typeof CreateTicketAssignmentSchema
 >;
 
+export const DeleteTicketAssignmentSchema = TicketAssignmentSchema.pick({
+  id: true,
+  ticket_id: true,
+});
+
+export type DeleteTicketAssignmentSchema = z.infer<
+  typeof DeleteTicketAssignmentSchema
+>;
+
 export const TicketAssignmentWithRelationsSchema =
   TicketAssignmentSchema.extend({
     ticket: z.lazy(() => TicketSchema),

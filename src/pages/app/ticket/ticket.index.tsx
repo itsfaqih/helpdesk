@@ -296,14 +296,14 @@ export function TicketIndexPage() {
             ticket.title,
             ticket.client.full_name,
             ticket.category.name,
-            <div className="flex items-center justify-start">
+            <div className="flex items-center justify-start -space-x-2">
               {ticket.assignments.length === 0 && (
                 <span className="text-gray-500">-</span>
               )}
               {ticket.assignments.map((assignment) => (
-                <Tooltip positioning={{ placement: "top" }}>
+                <Tooltip key={assignment.id} positioning={{ placement: "top" }}>
                   <TooltipTrigger className="cursor-default">
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="w-8 h-8 hover:relative">
                       <AvatarImage src={undefined} />
                       <AvatarFallback>
                         {assignment.admin.full_name

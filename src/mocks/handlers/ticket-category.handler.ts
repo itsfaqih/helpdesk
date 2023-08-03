@@ -15,6 +15,7 @@ import {
 } from "../mock-utils";
 import { NotFoundError } from "@/utils/error.util";
 import { generatePaginationMeta } from "@/utils/api.util";
+import { getTicketCategories } from "../records/ticket-category.record";
 
 export const ticketCategoryHandlers = [
   rest.post("/api/ticket-categories", async (req) => {
@@ -55,11 +56,7 @@ export const ticketCategoryHandlers = [
   }),
   rest.get("/api/ticket-categories", async (req) => {
     try {
-      const unparsedStoredTicketCategories =
-        (await localforage.getItem("ticket_categories")) ?? [];
-      const storedTicketCategories = TicketCategorySchema.array().parse(
-        unparsedStoredTicketCategories
-      );
+      const storedTicketCategories = await getTicketCategories();
 
       const unparsedFilters = Object.fromEntries(req.url.searchParams);
       const filters = TicketCategoryIndexRequestSchema.parse(unparsedFilters);

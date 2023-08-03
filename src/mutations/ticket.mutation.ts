@@ -2,6 +2,7 @@ import { api } from "@/libs/api.lib";
 import { APIResponseSchema } from "@/schemas/api.schema";
 import {
   CreateTicketAssignmentSchema,
+  DeleteTicketAssignmentSchema,
   TicketAssignmentSchema,
 } from "@/schemas/ticket.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +23,36 @@ export function useCreateTicketAssignmentMutation() {
         );
 
         return CreateTicketAssignmentResponseSchema.parse(res);
+      } catch (error) {
+        throw new Error(
+          "Something went wrong. Please contact the administrator"
+        );
+      }
+    },
+    async onSuccess(res) {
+      await queryClient.invalidateQueries(["ticket", "index"]);
+      await queryClient.invalidateQueries([
+        "ticket",
+        "show",
+        res.data.ticket_id,
+      ]);
+    },
+  });
+}
+
+const DeleteTicketAssignmentResponseSchema = APIResponseSchema({
+  schema: TicketAssignmentSchema,
+});
+
+export function useDeleteTicketAssignmentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn({ id, ticket_id }: DeleteTicketAssignmentSchema) {
+      try {
+        const res = await api.delete(`/tickets/${ticket_id}/assignments/${id}`);
+
+        return DeleteTicketAssignmentResponseSchema.parse(res);
       } catch (error) {
         throw new Error(
           "Something went wrong. Please contact the administrator"

@@ -1,4 +1,6 @@
-import { Channel } from "@/schemas/channel.schema";
+import { Channel, ChannelSchema } from "@/schemas/channel.schema";
+import { NotFoundError } from "@/utils/error.util";
+import localforage from "localforage";
 import { nanoid } from "nanoid";
 
 export const mockChannelRecords: Channel[] = [
@@ -78,5 +80,20 @@ export const mockChannelRecords: Channel[] = [
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-  }
+  },
 ];
+
+export async function getChannelByid(
+  channelId: Channel["id"]
+): Promise<Channel> {
+  const unparsedStoredClients = await localforage.getItem("channels");
+  const storedClients = ChannelSchema.array().parse(unparsedStoredClients);
+
+  const client = storedClients.find((client) => client.id === channelId);
+
+  if (!client) {
+    throw new NotFoundError(`Channel with id ${channelId} is not found`);
+  }
+
+  return client;
+}

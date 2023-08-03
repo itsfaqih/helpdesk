@@ -1,4 +1,6 @@
-import { Admin } from "@/schemas/admin.schema";
+import { Admin, AdminSchema } from "@/schemas/admin.schema";
+import { NotFoundError } from "@/utils/error.util";
+import localforage from "localforage";
 
 export const mockAdminRecords: Admin[] = [
   {
@@ -22,3 +24,16 @@ export const mockAdminRecords: Admin[] = [
     updated_at: new Date().toISOString(),
   },
 ];
+
+export async function getAdminById(adminId: Admin["id"]): Promise<Admin> {
+  const unparsedStoredAdmins = await localforage.getItem("admins");
+  const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
+
+  const admin = storedAdmins.find((admin) => admin.id === adminId);
+
+  if (!admin) {
+    throw new NotFoundError(`Admin with id ${adminId} not found`);
+  }
+
+  return admin;
+}

@@ -1,14 +1,20 @@
 import {
-  TicketAssignmentWithRelations,
+  Ticket,
+  TicketSchema,
   TicketWithRelations,
 } from "@/schemas/ticket.schema";
 import { nanoid } from "nanoid";
-import { mockClientRecords } from "./client.record";
-import { mockTicketCategoryRecords } from "./ticket-category.record";
-import { mockChannelRecords } from "./channel.record";
-import { mockAdminRecords } from "./admin.record";
+import { getClientById, mockClientRecords } from "./client.record";
+import {
+  getTicketCategoryById,
+  mockTicketCategoryRecords,
+} from "./ticket-category.record";
+import { getChannelByid, mockChannelRecords } from "./channel.record";
+import localforage from "localforage";
+import { getTicketAssignmentsWithRelationsByTicketId } from "./ticket-assignment.record";
+import { NotFoundError } from "@/utils/error.util";
 
-export const mockTicketRecords: TicketWithRelations[] = [
+export const mockTicketRecords: Ticket[] = [
   {
     id: nanoid(),
     category_id: mockTicketCategoryRecords[0].id,
@@ -20,10 +26,6 @@ export const mockTicketRecords: TicketWithRelations[] = [
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category: mockTicketCategoryRecords[0],
-    channel: mockChannelRecords[0],
-    client: mockClientRecords[0],
-    assignments: [],
   },
   {
     id: nanoid(),
@@ -35,10 +37,6 @@ export const mockTicketRecords: TicketWithRelations[] = [
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category: mockTicketCategoryRecords[2],
-    channel: mockChannelRecords[1],
-    client: mockClientRecords[0],
-    assignments: [],
   },
   {
     id: nanoid(),
@@ -51,10 +49,6 @@ export const mockTicketRecords: TicketWithRelations[] = [
     is_archived: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category: mockTicketCategoryRecords[0],
-    channel: mockChannelRecords[2],
-    client: mockClientRecords[1],
-    assignments: [],
   },
   {
     id: nanoid(),
@@ -66,28 +60,81 @@ export const mockTicketRecords: TicketWithRelations[] = [
     is_archived: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category: mockTicketCategoryRecords[1],
-    channel: mockChannelRecords[3],
-    client: mockClientRecords[1],
-    assignments: [],
   },
 ];
 
-export const mockTicketAssignments: TicketAssignmentWithRelations[] = [
-  {
-    id: nanoid(),
-    ticket_id: mockTicketRecords[0].id,
-    admin_id: mockAdminRecords[0].id,
-    created_at: new Date().toISOString(),
-    ticket: mockTicketRecords[0],
-    admin: mockAdminRecords[0],
-  },
-  {
-    id: nanoid(),
-    ticket_id: mockTicketRecords[1].id,
-    admin_id: mockAdminRecords[1].id,
-    created_at: new Date().toISOString(),
-    ticket: mockTicketRecords[1],
-    admin: mockAdminRecords[1],
-  },
-];
+export async function getTickets(): Promise<Ticket[]> {
+  const unparsedStoredTickets = await localforage.getItem("tickets");
+  const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
+
+  return storedTickets;
+}
+
+export async function getTicketById(ticketId: Ticket["id"]): Promise<Ticket> {
+  const storedTickets = await getTickets();
+
+  const ticket = storedTickets.find((ticket) => ticket.id === ticketId);
+
+  if (!ticket) {
+    throw new NotFoundError(`Ticket with id ${ticketId} not found`);
+  }
+
+  return ticket;
+}
+
+type GetTicketWithRelationsByIdOptions = {
+  ticketId: Ticket["id"];
+  assignments?: {
+    withTrash?: boolean;
+  };
+};
+
+export async function getTicketWithRelationsById(
+  options: GetTicketWithRelationsByIdOptions
+): Promise<TicketWithRelations> {
+  const ticket = await getTicketById(options.ticketId);
+
+  const ticketWithRelations: TicketWithRelations = {
+    ...ticket,
+    assignments: await getTicketAssignmentsWithRelationsByTicketId({
+      ticketId: ticket.id,
+      withTrash: options.assignments?.withTrash,
+    }),
+    category: await getTicketCategoryById(ticket.category_id),
+    channel: await getChannelByid(ticket.channel_id),
+    client: await getClientById(ticket.client_id),
+  };
+
+  return ticketWithRelations;
+}
+
+type GetTicketsWithRelationsOptions = {
+  assignments?: {
+    withTrash?: boolean;
+  };
+};
+
+export async function getTicketsWithRelations(
+  options?: GetTicketsWithRelationsOptions
+): Promise<TicketWithRelations[]> {
+  const storedTickets = await getTickets();
+
+  const storedTicketsWithRelations: TicketWithRelations[] = await Promise.all(
+    storedTickets.map(async (ticket) => {
+      const ticketWithRelations: TicketWithRelations = {
+        ...ticket,
+        assignments: await getTicketAssignmentsWithRelationsByTicketId({
+          ticketId: ticket.id,
+          withTrash: options?.assignments?.withTrash,
+        }),
+        category: await getTicketCategoryById(ticket.category_id),
+        channel: await getChannelByid(ticket.channel_id),
+        client: await getClientById(ticket.client_id),
+      };
+
+      return ticketWithRelations;
+    })
+  );
+
+  return storedTicketsWithRelations;
+}

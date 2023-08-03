@@ -6,7 +6,6 @@ import {
   TicketAssignment,
   TicketAssignmentSchema,
   TicketSchema,
-  TicketWithRelationsSchema,
 } from "@/schemas/ticket.schema";
 import { generatePaginationMeta } from "@/utils/api.util";
 import localforage from "localforage";
@@ -19,6 +18,10 @@ import {
   successResponse,
 } from "../mock-utils";
 import { NotFoundError } from "@/utils/error.util";
+import {
+  getTicketWithRelationsById,
+  getTicketsWithRelations,
+} from "../records/ticket.record";
 
 export const ticketHandlers = [
   rest.post("/api/tickets", async (req) => {
@@ -58,11 +61,7 @@ export const ticketHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
-      const unparsedStoredTickets =
-        (await localforage.getItem("tickets")) ?? [];
-      const storedTickets = TicketWithRelationsSchema.array().parse(
-        unparsedStoredTickets
-      );
+      const storedTickets = await getTicketsWithRelations();
 
       const unparsedFilters = Object.fromEntries(req.url.searchParams);
       const filters = TicketIndexRequestSchema.parse(unparsedFilters);
@@ -135,19 +134,12 @@ export const ticketHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
-      const unparsedStoredTickets =
-        (await localforage.getItem("tickets")) ?? [];
-      const storedTickets = TicketWithRelationsSchema.array().parse(
-        unparsedStoredTickets
-      );
-
-      const ticketId = req.params.ticketId;
-
-      const ticket = storedTickets.find((ticket) => ticket.id === ticketId);
-
-      if (!ticket) {
-        throw new NotFoundError("Ticket is not found");
-      }
+      const ticket = await getTicketWithRelationsById({
+        ticketId: req.params.ticketId as string,
+        assignments: {
+          withTrash: true,
+        },
+      });
 
       return successResponse({
         data: ticket,
@@ -285,4 +277,52 @@ export const ticketHandlers = [
       return handleResponseError(error);
     }
   }),
+  rest.delete(
+    "/api/tickets/:ticketId/assignments/:ticketAssignmentId",
+    async (req) => {
+      try {
+        await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+
+        const unparsedStoredTicketAssignments = await localforage.getItem(
+          "ticket_assignments"
+        );
+        const storedTicketAssignments = TicketAssignmentSchema.array().parse(
+          unparsedStoredTicketAssignments
+        );
+
+        const ticketAssignmentId = req.params.ticketAssignmentId;
+
+        const ticketAssignmentToDelete = storedTicketAssignments.find(
+          (ticketAssignment) => ticketAssignment.id === ticketAssignmentId
+        );
+
+        if (!ticketAssignmentToDelete) {
+          throw new NotFoundError("Ticket assignment is not found");
+        }
+
+        const softDeletedTicketAssignment: TicketAssignment = {
+          ...ticketAssignmentToDelete,
+          deleted_at: new Date().toISOString(),
+        };
+
+        const newTicketAssignments = storedTicketAssignments.map(
+          (ticketAssignment) => {
+            if (ticketAssignment.id !== ticketAssignmentId) {
+              return ticketAssignment;
+            }
+            return softDeletedTicketAssignment;
+          }
+        );
+
+        await localforage.setItem("ticket_assignments", newTicketAssignments);
+
+        return successResponse({
+          data: softDeletedTicketAssignment,
+          message: "Successfully deleted ticket assignment",
+        });
+      } catch (error) {
+        return handleResponseError(error);
+      }
+    }
+  ),
 ];

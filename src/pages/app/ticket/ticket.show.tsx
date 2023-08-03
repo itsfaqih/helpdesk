@@ -9,7 +9,7 @@ import {
 } from "@/queries/ticket.query";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { Card } from "@/components/base/card";
-import { Link } from "@/components/base/link";
+import { Link, linkClass } from "@/components/base/link";
 import { ArrowSquareOut, Plus, X } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
 import {
@@ -20,11 +20,6 @@ import { Badge } from "@/components/base/badge";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/base/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/base/avatar";
 import { getInitials } from "@/utils/text.util";
 import { IconButton } from "@/components/base/button";
@@ -38,12 +33,22 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { Command } from "cmdk";
 import { inputClassName } from "@/components/base/input";
 import { Loop } from "@/components/base/loop";
-import { useCreateTicketAssignmentMutation } from "@/mutations/ticket.mutation";
-import { Ticket } from "@/schemas/ticket.schema";
+import {
+  useCreateTicketAssignmentMutation,
+  useDeleteTicketAssignmentMutation,
+} from "@/mutations/ticket.mutation";
+import { Ticket, TicketAssignmentWithRelations } from "@/schemas/ticket.schema";
+import {
+  fetchLoggedInAdminQuery,
+  useLoggedInAdminQuery,
+} from "@/queries/logged-in-admin.query";
+import { cn } from "@/libs/cn.lib";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
     const requestData = TicketShowRequestSchema.parse(params);
+
+    await fetchLoggedInAdminQuery({ queryClient });
 
     await fetchTicketShowQuery({ queryClient, request: requestData }).catch(
       (err) => {
@@ -67,6 +72,12 @@ export function TicketShowPage() {
     id: loaderData.data.request.id,
   });
   const ticket = ticketShowQuery.data?.data;
+
+  const loggedInAdminQuery = useLoggedInAdminQuery();
+  const createTicketAssignmentMutation = useCreateTicketAssignmentMutation();
+
+  const activeTicketAssigments =
+    ticket?.assignments.filter((assignment) => !assignment.deleted_at) ?? [];
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
@@ -135,32 +146,34 @@ export function TicketShowPage() {
                 </Link>
               )}
             </div>
-            <div className="flex items-center gap-1.5 justify-between">
+            <div className="flex flex-col gap-1.5">
               <span className="font-medium text-gray-600">Assigned agents</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-              {ticket && ticket.assignments.length === 0 && (
-                <span className="text-gray-500">-</span>
+              {ticket && activeTicketAssigments.length === 0 && (
+                <span className="text-gray-500">
+                  No assigned agents—
+                  <button
+                    onClick={() => {
+                      createTicketAssignmentMutation.mutate({
+                        admin_id: loggedInAdminQuery.data!.data.id,
+                        ticket_id: ticket.id,
+                      });
+                    }}
+                    className={cn(linkClass(), {
+                      "opacity-70 cursor-wait":
+                        createTicketAssignmentMutation.isLoading,
+                    })}
+                  >
+                    Assign your self
+                  </button>
+                </span>
               )}
               {ticket &&
-                ticket.assignments.map((assignment) => (
-                  <Tooltip
+                activeTicketAssigments.map((assignment) => (
+                  <TicketAssignmentItem
                     key={assignment.id}
-                    positioning={{ placement: "top" }}
-                  >
-                    <TooltipTrigger className="cursor-default">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={undefined} />
-                        <AvatarFallback>
-                          {assignment.admin.full_name
-                            ? getInitials(assignment.admin.full_name)
-                            : ""}
-                        </AvatarFallback>
-                      </Avatar>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {assignment.admin.full_name}
-                    </TooltipContent>
-                  </Tooltip>
+                    assignment={assignment}
+                  />
                 ))}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
@@ -277,40 +290,34 @@ export function TicketShowPage() {
                 </td>
               </tr>
               <tr>
-                <td colSpan={2} className="pb-2 text-right text-gray-800">
+                <td colSpan={2} className="pb-2 text-gray-800">
                   {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
                   {ticket &&
-                    (ticket.assignments.length === 0 ? (
-                      <span className="text-gray-500">-</span>
+                    (activeTicketAssigments.length === 0 ? (
+                      <span className="text-gray-500">
+                        No assigned agents—
+                        <button
+                          onClick={() => {
+                            createTicketAssignmentMutation.mutate({
+                              admin_id: loggedInAdminQuery.data!.data.id,
+                              ticket_id: ticket.id,
+                            });
+                          }}
+                          className={cn(linkClass(), {
+                            "opacity-70 cursor-wait":
+                              createTicketAssignmentMutation.isLoading,
+                          })}
+                        >
+                          Assign your self
+                        </button>
+                      </span>
                     ) : (
                       <div className="flex flex-col gap-y-4">
-                        {ticket.assignments.map((assignment) => (
-                          <div
+                        {activeTicketAssigments.map((assignment) => (
+                          <TicketAssignmentItem
                             key={assignment.id}
-                            className="group flex items-center gap-x-2.5"
-                          >
-                            <Avatar className="w-8 h-8 cursor-default">
-                              <AvatarImage src={undefined} />
-                              <AvatarFallback>
-                                {assignment.admin.full_name
-                                  ? getInitials(assignment.admin.full_name)
-                                  : ""}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col flex-1 text-left">
-                              <span className="text-sm text-gray-800 line-clamp-1">
-                                {assignment.admin.full_name}
-                              </span>
-                              <span className="text-xs line-clamp-1">
-                                {assignment.admin.email}
-                              </span>
-                            </div>
-                            <IconButton
-                              icon={X}
-                              label="Remove agent"
-                              className="invisible ml-auto group-hover:visible"
-                            />
-                          </div>
+                            assignment={assignment}
+                          />
                         ))}
                       </div>
                     ))}
@@ -423,5 +430,52 @@ function AddTicketAssigneePopover({
         </Command>
       </PopoverContent>
     </Popover>
+  );
+}
+
+type TicketAssignmentItemProps = {
+  assignment: TicketAssignmentWithRelations;
+};
+
+function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
+  const deleteTicketAssigmentMutation = useDeleteTicketAssignmentMutation();
+
+  return (
+    <div className="group flex items-center gap-x-2.5">
+      <div
+        className={cn("flex items-center gap-x-2.5 flex-1", {
+          "opacity-70": deleteTicketAssigmentMutation.isLoading,
+        })}
+      >
+        <Avatar className="w-8 h-8 cursor-default">
+          <AvatarImage src={undefined} />
+          <AvatarFallback>
+            {assignment.admin.full_name
+              ? getInitials(assignment.admin.full_name)
+              : ""}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col flex-1 text-left">
+          <span className="text-sm text-gray-800 line-clamp-1">
+            {assignment.admin.full_name}
+          </span>
+          <span className="text-xs line-clamp-1">{assignment.admin.email}</span>
+        </div>
+      </div>
+      <IconButton
+        icon={X}
+        label="Remove agent"
+        onClick={() => {
+          deleteTicketAssigmentMutation.mutate({
+            id: assignment.id,
+            ticket_id: assignment.ticket.id,
+          });
+        }}
+        loading={deleteTicketAssigmentMutation.isLoading}
+        className={cn("ml-auto", {
+          "invisible group-hover:visible": deleteTicketAssigmentMutation.isIdle,
+        })}
+      />
+    </div>
   );
 }
