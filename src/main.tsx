@@ -20,13 +20,14 @@ import { ClientIndexPage } from "./pages/app/client/client.index";
 import { ClientShowPage } from "./pages/app/client/client.show";
 import { ClientCreatePage } from "./pages/app/client/client.create";
 import { TicketIndexPage } from "./pages/app/ticket/ticket.index";
-import { Admin } from "./schemas/admin.schema";
-import { Client } from "./schemas/client.schema";
+import { Admin, AdminSchema } from "./schemas/admin.schema";
+import { Client, ClientSchema } from "./schemas/client.schema";
 import {
   Ticket,
   TicketAssignment,
   TicketAssignmentSchema,
   TicketCategory,
+  TicketCategorySchema,
   TicketSchema,
 } from "./schemas/ticket.schema";
 import { TicketShowPage } from "./pages/app/ticket/ticket.show";
@@ -38,7 +39,7 @@ import { mockClientRecords } from "./mocks/records/client.record";
 import { mockTicketCategoryRecords } from "./mocks/records/ticket-category.record";
 import { mockTicketRecords } from "./mocks/records/ticket.record";
 import { ChannelIndexPage } from "./pages/app/channel/channel.index";
-import { Channel } from "./schemas/channel.schema";
+import { Channel, ChannelSchema } from "./schemas/channel.schema";
 import { mockChannelRecords } from "./mocks/records/channel.record";
 import { ChannelCreatePage } from "./pages/app/channel/channel.create";
 import { ChannelShowPage } from "./pages/app/channel/channel.show";
@@ -50,34 +51,59 @@ async function prepare() {
   await worker.start();
 
   // seed dummy data to indexeddb
-  let existingAdmins = await localforage.getItem<Admin[]>("admins");
-  if (!existingAdmins) {
+  let existingAdmins: Admin[] = [];
+  const unparsedAdmins = await localforage.getItem<Admin[]>("admins");
+
+  const existingAdminsParsing = AdminSchema.array().safeParse(unparsedAdmins);
+
+  if (!existingAdminsParsing.success) {
     existingAdmins = mockAdminRecords;
 
     await localforage.setItem("admins", existingAdmins);
+  } else {
+    existingAdmins = existingAdminsParsing.data;
   }
 
-  let existingChannels = await localforage.getItem<Channel[]>("channels");
-  if (!existingChannels) {
+  let existingChannels: Channel[] = [];
+  const unparsedChannels = await localforage.getItem<Channel[]>("channels");
+
+  const existingChannelsParsing =
+    ChannelSchema.array().safeParse(unparsedChannels);
+
+  if (!existingChannelsParsing.success) {
     existingChannels = mockChannelRecords;
 
     await localforage.setItem("channels", existingChannels);
+  } else {
+    existingChannels = existingChannelsParsing.data;
   }
 
-  let existingClients = await localforage.getItem<Client[]>("clients");
-  if (!existingClients) {
+  let existingClients: Client[] = [];
+  const unparsedClients = await localforage.getItem<Client[]>("clients");
+
+  const existingClientsParsing =
+    ClientSchema.array().safeParse(unparsedClients);
+  if (!existingClientsParsing.success) {
     existingClients = mockClientRecords;
 
     await localforage.setItem("clients", existingClients);
+  } else {
+    existingClients = existingClientsParsing.data;
   }
 
-  let existingTicketCategories = await localforage.getItem<TicketCategory[]>(
+  let existingTicketCategories: TicketCategory[] = [];
+  const unparsedTicketCategories = await localforage.getItem<TicketCategory[]>(
     "ticket_categories"
   );
-  if (!existingTicketCategories) {
+
+  const existingTicketCategoriesParsing =
+    TicketCategorySchema.array().safeParse(unparsedTicketCategories);
+  if (!existingTicketCategoriesParsing.success) {
     existingTicketCategories = mockTicketCategoryRecords;
 
     await localforage.setItem("ticket_categories", existingTicketCategories);
+  } else {
+    existingTicketCategories = existingTicketCategoriesParsing.data;
   }
 
   let existingTickets: Ticket[] = [];
