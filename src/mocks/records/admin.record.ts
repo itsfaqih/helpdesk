@@ -26,7 +26,7 @@ export const mockAdminRecords: Admin[] = [
 ];
 
 export async function getAdminById(adminId: Admin["id"]): Promise<Admin> {
-  const unparsedStoredAdmins = await localforage.getItem("admins");
+  const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
   const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
   const admin = storedAdmins.find((admin) => admin.id === adminId);
@@ -36,4 +36,11 @@ export async function getAdminById(adminId: Admin["id"]): Promise<Admin> {
   }
 
   return admin;
+}
+
+export async function getAdmins(): Promise<Admin[]> {
+  const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+  const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
+
+  return storedAdmins;
 }

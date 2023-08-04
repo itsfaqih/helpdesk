@@ -43,6 +43,8 @@ import {
   useLoggedInAdminQuery,
 } from "@/queries/logged-in-admin.query";
 import { cn } from "@/libs/cn.lib";
+import { Spinner } from "@/components/base/spinner";
+import { Admin, AdminWithoutPassword } from "@/schemas/admin.schema";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -354,16 +356,27 @@ function AddTicketAssigneePopover({
   ticketId,
   trigger,
 }: AddTicketAssigneePopoverProps) {
+  const [open, setOpen] = React.useState(false);
   const [searchAdmin, setSearchAdmin] = React.useState("");
   const debouncedSearchAdmin = useDebounce(searchAdmin, 500);
 
-  const adminIndexQuery = useAdminIndexQuery({ search: debouncedSearchAdmin });
+  const adminIndexQuery = useAdminIndexQuery({
+    search: debouncedSearchAdmin,
+    assignable_ticket_id: ticketId,
+  });
   const admins = adminIndexQuery.data?.data ?? [];
 
-  const createTicketAssignmentMutation = useCreateTicketAssignmentMutation();
-
   return (
-    <Popover positioning={{ placement: "bottom-end" }}>
+    <Popover
+      open={open}
+      onOpen={() => {
+        setOpen(true);
+      }}
+      onClose={() => {
+        setOpen(false);
+      }}
+      positioning={{ placement: "bottom-end" }}
+    >
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
 
       <PopoverContent className="min-w-[18rem] z-10">
@@ -401,30 +414,11 @@ function AddTicketAssigneePopover({
             )}
 
             {admins.map((admin) => (
-              <Command.Item
+              <AddTicketAssigneePopoverItem
                 key={admin.id}
-                value={admin.id}
-                onSelect={(value) => {
-                  createTicketAssignmentMutation.mutate({
-                    ticket_id: ticketId,
-                    admin_id: value,
-                  });
-                }}
-                className="flex items-center gap-x-2.5 cursor-default data-[selected]:bg-gray-100 px-2.5 py-1.5 rounded-md"
-              >
-                <Avatar className="w-8 h-8 cursor-default">
-                  <AvatarImage src={undefined} />
-                  <AvatarFallback>
-                    {admin.full_name ? getInitials(admin.full_name) : ""}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col flex-1 text-left">
-                  <span className="text-sm text-gray-800 line-clamp-1">
-                    {admin.full_name}
-                  </span>
-                  <span className="text-xs line-clamp-1">{admin.email}</span>
-                </div>
-              </Command.Item>
+                admin={admin}
+                ticketId={ticketId}
+              />
             ))}
           </Command.List>
         </Command>
@@ -432,6 +426,56 @@ function AddTicketAssigneePopover({
     </Popover>
   );
 }
+
+type AddTicketAssigneePopoverItemProps = {
+  admin: AdminWithoutPassword;
+  ticketId: Ticket["id"];
+};
+
+const AddTicketAssigneePopoverItem = React.forwardRef<
+  React.ElementRef<typeof Command.Item>,
+  AddTicketAssigneePopoverItemProps
+>(({ admin, ticketId }, ref) => {
+  const createTicketAssignmentMutation = useCreateTicketAssignmentMutation();
+
+  return (
+    <Command.Item
+      ref={ref}
+      value={admin.id}
+      disabled={createTicketAssignmentMutation.isLoading}
+      onSelect={(value) => {
+        createTicketAssignmentMutation.mutate({
+          ticket_id: ticketId,
+          admin_id: value,
+        });
+      }}
+      className={cn(
+        "group flex items-center gap-x-2.5 cursor-default px-2.5 py-1.5 rounded-md",
+        "data-[selected]:bg-brand-50"
+      )}
+    >
+      <Avatar className="w-8 h-8 cursor-default group-aria-disabled:opacity-70">
+        <AvatarImage src={undefined} />
+        <AvatarFallback>
+          {admin.full_name ? getInitials(admin.full_name) : ""}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex flex-col flex-1 text-left group-aria-disabled:opacity-70">
+        <span className="text-sm line-clamp-1 group-data-[selected]:text-brand-800 text-gray-800">
+          {admin.full_name}
+        </span>
+        <span className="text-xs line-clamp-1 group-data-[selected]:text-brand-700 text-gray-500">
+          {admin.email}
+        </span>
+      </div>
+      {createTicketAssignmentMutation.isLoading ? (
+        <Spinner className="text-brand-700" />
+      ) : (
+        <Plus className="w-4 h-4 group-data-[selected]:text-brand-700" />
+      )}
+    </Command.Item>
+  );
+});
 
 type TicketAssignmentItemProps = {
   assignment: TicketAssignmentWithRelations;

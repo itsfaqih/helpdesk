@@ -4,6 +4,7 @@ import {
   AdminWithoutPasswordSchema,
 } from "@/schemas/admin.schema";
 import { APIResponseSchema } from "@/schemas/api.schema";
+import { TicketSchema } from "@/schemas/ticket.schema";
 import { UserError } from "@/utils/error.util";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 import qs from "qs";
@@ -16,6 +17,7 @@ export const AdminIndexRequestSchema = z.object({
     .optional()
     .catch(undefined),
   is_active: z.enum(["1", "0"]).optional().catch(undefined),
+  assignable_ticket_id: TicketSchema.shape.id.optional().catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });
 

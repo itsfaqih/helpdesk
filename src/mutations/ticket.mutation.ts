@@ -36,6 +36,7 @@ export function useCreateTicketAssignmentMutation() {
         "show",
         res.data.ticket_id,
       ]);
+      await queryClient.invalidateQueries(["admin", "index"]);
     },
   });
 }
@@ -66,6 +67,7 @@ export function useDeleteTicketAssignmentMutation() {
         "show",
         res.data.ticket_id,
       ]);
+      await queryClient.invalidateQueries(["admin", "index"]);
     },
   });
 }

@@ -17,6 +17,9 @@ import {
   successResponse,
 } from "../mock-utils";
 import { ConflictError, NotFoundError } from "@/utils/error.util";
+import { getAdmins } from "../records/admin.record";
+import { getTicketAssignmentsWithRelationsByTicketId } from "../records/ticket-assignment.record";
+import { TicketAssignmentWithRelations } from "@/schemas/ticket.schema";
 
 export const adminHandlers = [
   rest.post("/api/admins", async (req) => {
@@ -107,11 +110,26 @@ export const adminHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
-      const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
-      const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
+      const storedAdmins = await getAdmins();
 
       const unparsedFilters = Object.fromEntries(req.url.searchParams);
       const filters = AdminIndexRequestSchema.parse(unparsedFilters);
+
+      let storedTicketAssignments: TicketAssignmentWithRelations[] = [];
+
+      if (filters.assignable_ticket_id) {
+        storedTicketAssignments =
+          await getTicketAssignmentsWithRelationsByTicketId({
+            ticketId: filters.assignable_ticket_id,
+          });
+      }
+
+      // return successResponse({
+      //   data: storedTicketAssignments.some(
+      //     (assignment) => assignment.admin_id === "super-admin-id"
+      //   ),
+      //   message: "Successfully retrieved admins",
+      // });
 
       const filteredAdmins = storedAdmins.filter((admin) => {
         if (filters.search) {
@@ -128,6 +146,16 @@ export const adminHandlers = [
 
         if (filters.role) {
           if (admin.role !== filters.role) {
+            return false;
+          }
+        }
+
+        if (filters.assignable_ticket_id) {
+          if (
+            storedTicketAssignments.some(
+              (assignment) => assignment.admin_id === admin.id
+            )
+          ) {
             return false;
           }
         }
@@ -165,7 +193,7 @@ export const adminHandlers = [
         meta: {
           ...generatePaginationMeta({
             currentPage: page,
-            total: filteredAdmins.length,
+            total: sortedAdmins.length,
           }),
         },
       });
@@ -177,8 +205,7 @@ export const adminHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
-      const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
-      const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
+      const storedAdmins = await getAdmins();
 
       const adminId = req.params.adminId;
 
@@ -203,8 +230,7 @@ export const adminHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
-      const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
-      const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
+      const storedAdmins = await getAdmins();
 
       const adminId = req.params.adminId;
 
