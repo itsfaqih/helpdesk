@@ -44,7 +44,7 @@ import {
 } from "@/queries/logged-in-admin.query";
 import { cn } from "@/libs/cn.lib";
 import { Spinner } from "@/components/base/spinner";
-import { Admin, AdminWithoutPassword } from "@/schemas/admin.schema";
+import { AdminWithoutPassword } from "@/schemas/admin.schema";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
