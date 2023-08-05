@@ -162,7 +162,17 @@ export function TicketShowPage() {
         </Card>
         <Card className="p-4.5 xl:hidden sm:mx-0 -mx-6 sm:rounded-md rounded-none block">
           <div className="flex flex-col gap-1.5">
-            <span className="font-medium text-gray-600">Assigned agents</span>
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-gray-600">Assigned agents</span>
+              {ticketShowQuery.isLoading && <Skeleton className="w-8 h-8" />}
+              {ticket && (
+                <AddTicketAssigneePopover
+                  ticketId={ticket.id}
+                  trigger={<IconButton icon={Plus} label="Add agent" />}
+                />
+              )}
+            </div>
+
             {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
             {ticket && activeTicketAssigments.length === 0 && (
               <span className="text-gray-500">
