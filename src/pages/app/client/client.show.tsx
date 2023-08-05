@@ -89,7 +89,7 @@ export function ClientShowPage() {
                 trigger={
                   <Button
                     type="button"
-                    variant="white"
+                    variant="plain"
                     data-testid="btn-restore-client"
                   >
                     Restore Client

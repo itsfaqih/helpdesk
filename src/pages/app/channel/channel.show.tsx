@@ -58,7 +58,7 @@ export function ChannelShowPage() {
                 trigger={
                   <Button
                     type="button"
-                    variant="white"
+                    variant="plain"
                     data-testid="btn-restore-channel"
                   >
                     Restore Channel

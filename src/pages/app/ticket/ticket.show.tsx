@@ -10,7 +10,16 @@ import {
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { Card } from "@/components/base/card";
 import { Link, linkClass } from "@/components/base/link";
-import { ArrowSquareOut, Plus, X } from "@phosphor-icons/react";
+import {
+  ArrowSquareOut,
+  BellRinging,
+  CaretRight,
+  Envelope,
+  PaperPlaneRight,
+  Plus,
+  WhatsappLogo,
+  X,
+} from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
 import {
   ticketStatusToBadgeColor,
@@ -22,7 +31,7 @@ import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/base/avatar";
 import { getInitials } from "@/utils/text.util";
-import { IconButton } from "@/components/base/button";
+import { Button, IconButton } from "@/components/base/button";
 import {
   Popover,
   PopoverContent,
@@ -45,6 +54,12 @@ import {
 import { cn } from "@/libs/cn.lib";
 import { Spinner } from "@/components/base/spinner";
 import { AdminWithoutPassword } from "@/schemas/admin.schema";
+import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "@/components/base/menu";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -202,22 +217,24 @@ export function TicketShowPage() {
               ))}
           </div>
         </Card>
-        <Card className="px-4.5 py-5 sm:mx-0 -mx-6 sm:rounded-md rounded-none flex-1 h-fit">
-          <h2 className="font-semibold text-gray-800">
-            {ticketShowQuery.isLoading && <Skeleton className="w-40" />}
-            {ticket && <span>{ticket.title}</span>}
-          </h2>
-          <div className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">
-            {ticketShowQuery.isLoading && <Skeleton className="w-40" />}
-            {ticket?.description ? (
-              <span className="text-gray-800">{ticket.description}</span>
-            ) : (
-              <span className="text-gray-500">No description</span>
-            )}
-          </div>
-        </Card>
-        <div className="flex flex-col gap-5">
-          <Card className="w-80 px-4.5 py-3 xl:block hidden h-fit">
+        <div className="flex flex-col flex-1 gap-5">
+          <Card className="px-4.5 py-5 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
+            <h2 className="font-semibold text-gray-800">
+              {ticketShowQuery.isLoading && <Skeleton className="w-40" />}
+              {ticket && <span>{ticket.title}</span>}
+            </h2>
+            <div className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">
+              {ticketShowQuery.isLoading && <Skeleton className="w-40" />}
+              {ticket?.description ? (
+                <span className="text-gray-800">{ticket.description}</span>
+              ) : (
+                <span className="text-gray-500">No description</span>
+              )}
+            </div>
+          </Card>
+        </div>
+        <div className="flex flex-col gap-5 w-80">
+          <Card className="px-4.5 py-3 xl:block hidden h-fit">
             <table className="w-full text-sm">
               <tbody>
                 <tr>
@@ -305,7 +322,7 @@ export function TicketShowPage() {
               </tbody>
             </table>
           </Card>
-          <Card className="w-80 px-4.5 py-3 xl:block hidden h-fit">
+          <Card className="px-4.5 py-3 xl:block hidden h-fit">
             <table className="w-full text-sm">
               <tbody>
                 <tr>
@@ -363,6 +380,69 @@ export function TicketShowPage() {
           </Card>
         </div>
       </div>
+      <div className="fixed bottom-0 left-0 w-full lg:pl-64">
+        <div className="flex gap-5 p-6">
+          <div className="flex justify-center flex-1">
+            <div className="flex items-center overflow-hidden bg-white rounded-md shadow-haptic-gray-300">
+              <Popover positioning={{ placement: "top" }}>
+                <PopoverTrigger asChild>
+                  <Button
+                    leading={PaperPlaneRight}
+                    variant="transparent"
+                    className=""
+                  >
+                    Action
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="min-w-[18rem] z-10">
+                  <Command className="w-full">
+                    <Command.List className="flex flex-col gap-y-1">
+                      <Command.Item className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800">
+                        <Envelope className="flex-shrink-0 w-4.5 h-4.5" />
+                        <span className="flex-1 text-left">Reply by Email</span>
+                      </Command.Item>
+                      <Command.Item className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800">
+                        <WhatsappLogo className="flex-shrink-0 w-4.5 h-4.5" />
+                        <span className="flex-1 text-left">
+                          Reply by WhatsApp
+                        </span>
+                      </Command.Item>
+                      <Command.Item className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800">
+                        <BellRinging className="flex-shrink-0 w-4.5 h-4.5" />
+                        <span className="flex-1 text-left">
+                          Escalate to Supervisor
+                        </span>
+                      </Command.Item>
+                    </Command.List>
+                    <Command.Input
+                      placeholder="Search action"
+                      className={inputClassName({ className: "w-full mt-2" })}
+                    />
+                  </Command>
+                </PopoverContent>
+              </Popover>
+
+              <Menu>
+                <MenuTrigger asChild>
+                  <Button
+                    trailing={CaretRight}
+                    variant="transparent"
+                    className=""
+                  >
+                    Mark as
+                  </Button>
+                </MenuTrigger>
+                <MenuContent>
+                  <MenuItem id="resolved">Resolved</MenuItem>
+                  <MenuItem id="unresolved">Unresolved</MenuItem>
+                </MenuContent>
+              </Menu>
+            </div>
+          </div>
+          <div className="w-80" />
+        </div>
+      </div>
     </AppPageContainer>
   );
 }
@@ -413,7 +493,7 @@ function AddTicketAssigneePopover({
             {adminIndexQuery.isLoading && (
               <Command.Loading>
                 <Loop amount={2}>
-                  <div className="flex items-center gap-x-2.5 cursor-default data-[selected]:bg-gray-100 px-2.5 py-1.5 rounded-md">
+                  <div className="flex items-center gap-x-2.5 cursor-default px-2.5 py-1.5 rounded-md">
                     <Skeleton className="w-8 h-8 rounded-full" />
                     <div className="flex flex-col flex-1 text-left">
                       <Skeleton className="w-1/2 h-4" />

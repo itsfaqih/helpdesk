@@ -104,7 +104,7 @@ export function AdminShowPage() {
                 trigger={
                   <Button
                     type="button"
-                    variant="white"
+                    variant="plain"
                     data-testid="btn-reactivate-client"
                   >
                     Reactivate Admin

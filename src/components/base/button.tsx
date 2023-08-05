@@ -84,17 +84,21 @@ function ButtonComponent(
 export const Button = forwardRefWithAs<ButtonProps, "button">(ButtonComponent);
 
 const buttonClass = cva(
-  "relative disabled:opacity-70 rounded-md inline-flex font-medium tracking-wide active:scale-95 transition focus:outline-2 focus:outline-offset-4 items-center",
+  "relative disabled:opacity-70 rounded-md inline-flex font-medium tracking-wide transition focus:outline-2 focus:outline-offset-4 items-center",
   {
     variants: {
       variant: {
         primary:
-          "bg-haptic-brand-700 hover:bg-haptic-brand-800 shadow-haptic-brand-900 hover:shadow-haptic-brand-950",
+          "bg-haptic-brand-700 hover:bg-haptic-brand-800 shadow-haptic-brand-900 hover:shadow-haptic-brand-950 active:bg-haptic-brand-900",
         danger:
-          "bg-haptic-red-700 hover:bg-haptic-red-800 outline-red-600 shadow-haptic-red-900 hover:shadow-haptic-red-950",
-        white:
-          "bg-white hover:bg-gray-100 text-gray-700 shadow-haptic-gray-300 hover:shadow-haptic-gray-400",
-        transparent: "hover:bg-gray-100 text-gray-700",
+          "bg-haptic-red-700 hover:bg-haptic-red-800 outline-red-600 shadow-haptic-red-900 hover:shadow-haptic-red-950 active:bg-haptic-red-900",
+        plain:
+          "bg-white hover:bg-gray-100 text-gray-700 shadow-haptic-gray-300 hover:shadow-haptic-gray-400 active:bg-gray-200",
+        transparent: "hover:bg-gray-100 text-gray-700 active:bg-gray-200",
+        "primary-subtle":
+          "bg-haptic-brand-100 text-brand-700 hover:bg-haptic-brand-200 hover:text-brand-800 active:bg-haptic-brand-300",
+        "plain-subtle":
+          "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300",
       },
       size: {
         sm: "py-2 sm:py-1 px-2.5",
@@ -108,7 +112,13 @@ const buttonClass = cva(
     },
     compoundVariants: [
       {
-        variant: ["primary", "white", "transparent"],
+        variant: [
+          "primary",
+          "plain",
+          "transparent",
+          "primary-subtle",
+          "plain-subtle",
+        ],
         className: "outline-brand-600",
       },
       {
@@ -116,7 +126,7 @@ const buttonClass = cva(
         className: "text-white",
       },
       {
-        variant: ["primary", "white"],
+        variant: ["primary", "plain"],
         className: "shadow-sm",
       },
       {

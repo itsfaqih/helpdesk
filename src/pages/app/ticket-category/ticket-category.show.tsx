@@ -91,7 +91,7 @@ export function TicketCategoryShowPage() {
                 trigger={
                   <Button
                     type="button"
-                    variant="white"
+                    variant="plain"
                     data-testid="btn-restore-ticket-category"
                   >
                     Restore Category

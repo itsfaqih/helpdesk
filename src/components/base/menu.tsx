@@ -4,6 +4,7 @@ import { cn } from "@/libs/cn.lib";
 
 export const Menu = Ark.Menu;
 export const MenuTrigger = Ark.MenuTrigger;
+export const MenuContextTrigger = Ark.MenuContextTrigger;
 
 export const MenuContent = React.forwardRef<
   React.ElementRef<typeof Ark.MenuContent>,
@@ -33,7 +34,7 @@ export const MenuItem = React.forwardRef<
     ref={ref}
     className={cn(
       "flex w-full select-none items-center rounded-md px-2.5 py-2 text-sm font-medium",
-      "data-[highlighted]:bg-gray-100",
+      "data-[highlighted]:bg-brand-50 data-[highlighted]:text-brand-800",
       "data-[focus]:outline-none data-[focus]:bg-gray-100",
       className
     )}
