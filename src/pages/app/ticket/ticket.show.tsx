@@ -148,36 +148,6 @@ export function TicketShowPage() {
                 </Link>
               )}
             </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="font-medium text-gray-600">Assigned agents</span>
-              {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-              {ticket && activeTicketAssigments.length === 0 && (
-                <span className="text-gray-500">
-                  No assigned agents—
-                  <button
-                    onClick={() => {
-                      createTicketAssignmentMutation.mutate({
-                        admin_id: loggedInAdminQuery.data!.data.id,
-                        ticket_id: ticket.id,
-                      });
-                    }}
-                    className={cn(linkClass(), {
-                      "opacity-70 cursor-wait":
-                        createTicketAssignmentMutation.isLoading,
-                    })}
-                  >
-                    Assign your self
-                  </button>
-                </span>
-              )}
-              {ticket &&
-                activeTicketAssigments.map((assignment) => (
-                  <TicketAssignmentItem
-                    key={assignment.id}
-                    assignment={assignment}
-                  />
-                ))}
-            </div>
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Updated At</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
@@ -188,6 +158,38 @@ export function TicketShowPage() {
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
               {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
             </div>
+          </div>
+        </Card>
+        <Card className="p-4.5 xl:hidden sm:mx-0 -mx-6 sm:rounded-md rounded-none block">
+          <div className="flex flex-col gap-1.5">
+            <span className="font-medium text-gray-600">Assigned agents</span>
+            {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+            {ticket && activeTicketAssigments.length === 0 && (
+              <span className="text-gray-500">
+                No assigned agents—
+                <button
+                  onClick={() => {
+                    createTicketAssignmentMutation.mutate({
+                      admin_id: loggedInAdminQuery.data!.data.id,
+                      ticket_id: ticket.id,
+                    });
+                  }}
+                  className={cn(linkClass(), {
+                    "opacity-70 cursor-wait":
+                      createTicketAssignmentMutation.isLoading,
+                  })}
+                >
+                  Assign your self
+                </button>
+              </span>
+            )}
+            {ticket &&
+              activeTicketAssigments.map((assignment) => (
+                <TicketAssignmentItem
+                  key={assignment.id}
+                  assignment={assignment}
+                />
+              ))}
           </div>
         </Card>
         <Card className="px-4.5 py-5 sm:mx-0 -mx-6 sm:rounded-md rounded-none flex-1 h-fit">
@@ -204,144 +206,152 @@ export function TicketShowPage() {
             )}
           </div>
         </Card>
-        <Card className="w-80 px-4.5 py-3 xl:block hidden h-fit">
-          <table className="w-full text-sm">
-            <tbody>
-              <tr>
-                <td className="py-2 font-medium text-gray-600">Status</td>
-                <td className="py-2 text-right">
-                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && (
-                    <Badge color={ticketStatusToBadgeColor(ticket.status)}>
-                      {ticketStatusToLabel(ticket.status)}
-                    </Badge>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 font-medium text-gray-600">Category</td>
-                <td className="py-2 text-right text-gray-800">
-                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && (
-                    <Link
-                      to={`/ticket-categories/${ticket.category_id}`}
-                      target="_blank"
-                      title={ticket.category.name}
-                      className="inline-flex items-center gap-1"
-                    >
-                      <span className="w-40 text-right truncate">
-                        {ticket.category.name}
-                      </span>{" "}
-                      <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
-                    </Link>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 font-medium text-gray-600">Client</td>
-                <td className="py-2 text-right text-gray-800">
-                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && (
-                    <Link
-                      to={`/clients/${ticket.client_id}`}
-                      target="_blank"
-                      title={ticket.client.full_name}
-                      className="inline-flex items-center gap-1"
-                    >
-                      <span className="w-40 text-right truncate">
-                        {ticket.client.full_name}
-                      </span>{" "}
-                      <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
-                    </Link>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 font-medium text-gray-600">Channel</td>
-                <td className="py-2 text-right text-gray-800">
-                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && (
-                    <Link
-                      to={`/channels/${ticket.channel_id}`}
-                      target="_blank"
-                      title={ticket.channel.name}
-                      className="inline-flex items-center gap-1"
-                    >
-                      <span className="w-40 text-right truncate">
-                        {ticket.channel.name}
-                      </span>{" "}
-                      <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
-                    </Link>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={2} className="py-2 font-medium text-gray-600">
-                  <div className="flex items-center justify-between">
-                    <span>Assigned agents</span>
-                    {ticketShowQuery.isLoading && (
-                      <Skeleton className="w-8 h-8" />
-                    )}
+        <div className="flex flex-col gap-5">
+          <Card className="w-80 px-4.5 py-3 xl:block hidden h-fit">
+            <table className="w-full text-sm">
+              <tbody>
+                <tr>
+                  <td className="py-2 font-medium text-gray-600">Status</td>
+                  <td className="py-2 text-right">
+                    {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
                     {ticket && (
-                      <AddTicketAssigneePopover
-                        ticketId={ticket.id}
-                        trigger={<IconButton icon={Plus} label="Add agent" />}
-                      />
+                      <Badge color={ticketStatusToBadgeColor(ticket.status)}>
+                        {ticketStatusToLabel(ticket.status)}
+                      </Badge>
                     )}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={2} className="pb-2 text-gray-800">
-                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket &&
-                    (activeTicketAssigments.length === 0 ? (
-                      <span className="text-gray-500">
-                        No assigned agents—
-                        <button
-                          onClick={() => {
-                            createTicketAssignmentMutation.mutate({
-                              admin_id: loggedInAdminQuery.data!.data.id,
-                              ticket_id: ticket.id,
-                            });
-                          }}
-                          className={cn(linkClass(), {
-                            "opacity-70 cursor-wait":
-                              createTicketAssignmentMutation.isLoading,
-                          })}
-                        >
-                          Assign your self
-                        </button>
-                      </span>
-                    ) : (
-                      <div className="flex flex-col gap-y-4">
-                        {activeTicketAssigments.map((assignment) => (
-                          <TicketAssignmentItem
-                            key={assignment.id}
-                            assignment={assignment}
-                          />
-                        ))}
-                      </div>
-                    ))}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 font-medium text-gray-600">Updated At</td>
-                <td className="py-2 text-right text-gray-800">
-                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && <span>{formatDateTime(ticket.updated_at)}</span>}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 font-medium text-gray-600">Created At</td>
-                <td className="py-2 text-right text-gray-800">
-                  {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                  {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </Card>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium text-gray-600">Category</td>
+                  <td className="py-2 text-right text-gray-800">
+                    {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+                    {ticket && (
+                      <Link
+                        to={`/ticket-categories/${ticket.category_id}`}
+                        target="_blank"
+                        title={ticket.category.name}
+                        className="inline-flex items-center gap-1"
+                      >
+                        <span className="w-40 text-right truncate">
+                          {ticket.category.name}
+                        </span>{" "}
+                        <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
+                      </Link>
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium text-gray-600">Client</td>
+                  <td className="py-2 text-right text-gray-800">
+                    {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+                    {ticket && (
+                      <Link
+                        to={`/clients/${ticket.client_id}`}
+                        target="_blank"
+                        title={ticket.client.full_name}
+                        className="inline-flex items-center gap-1"
+                      >
+                        <span className="w-40 text-right truncate">
+                          {ticket.client.full_name}
+                        </span>{" "}
+                        <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
+                      </Link>
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium text-gray-600">Channel</td>
+                  <td className="py-2 text-right text-gray-800">
+                    {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+                    {ticket && (
+                      <Link
+                        to={`/channels/${ticket.channel_id}`}
+                        target="_blank"
+                        title={ticket.channel.name}
+                        className="inline-flex items-center gap-1"
+                      >
+                        <span className="w-40 text-right truncate">
+                          {ticket.channel.name}
+                        </span>{" "}
+                        <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
+                      </Link>
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium text-gray-600">Updated At</td>
+                  <td className="py-2 text-right text-gray-800">
+                    {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+                    {ticket && <span>{formatDateTime(ticket.updated_at)}</span>}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium text-gray-600">Created At</td>
+                  <td className="py-2 text-right text-gray-800">
+                    {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+                    {ticket && <span>{formatDateTime(ticket.created_at)}</span>}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </Card>
+          <Card className="w-80 px-4.5 py-3 xl:block hidden h-fit">
+            <table className="w-full text-sm">
+              <tbody>
+                <tr>
+                  <td colSpan={2} className="py-2 font-medium text-gray-600">
+                    <div className="flex items-center justify-between">
+                      <span>Assigned agents</span>
+                      {ticketShowQuery.isLoading && (
+                        <Skeleton className="w-8 h-8" />
+                      )}
+                      {ticket && (
+                        <AddTicketAssigneePopover
+                          ticketId={ticket.id}
+                          trigger={<IconButton icon={Plus} label="Add agent" />}
+                        />
+                      )}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={2} className="pb-2 text-gray-800">
+                    {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
+                    {ticket &&
+                      (activeTicketAssigments.length === 0 ? (
+                        <span className="text-gray-500">
+                          No assigned agents—
+                          <button
+                            onClick={() => {
+                              createTicketAssignmentMutation.mutate({
+                                admin_id: loggedInAdminQuery.data!.data.id,
+                                ticket_id: ticket.id,
+                              });
+                            }}
+                            className={cn(linkClass(), {
+                              "opacity-70 cursor-wait":
+                                createTicketAssignmentMutation.isLoading,
+                            })}
+                          >
+                            Assign your self
+                          </button>
+                        </span>
+                      ) : (
+                        <div className="flex flex-col gap-y-4">
+                          {activeTicketAssigments.map((assignment) => (
+                            <TicketAssignmentItem
+                              key={assignment.id}
+                              assignment={assignment}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </Card>
+        </div>
       </div>
     </AppPageContainer>
   );
@@ -485,7 +495,7 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
   const deleteTicketAssigmentMutation = useDeleteTicketAssignmentMutation();
 
   return (
-    <div className="group flex items-center gap-x-2.5">
+    <div className="group flex items-center gap-x-2.5 hover:bg-gray-100 p-2.5 -mx-2.5 rounded-md transition">
       <div
         className={cn("flex items-center gap-x-2.5 flex-1", {
           "opacity-70": deleteTicketAssigmentMutation.isLoading,
@@ -503,7 +513,9 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
           <span className="text-sm text-gray-800 line-clamp-1">
             {assignment.admin.full_name}
           </span>
-          <span className="text-xs line-clamp-1">{assignment.admin.email}</span>
+          <span className="text-xs text-gray-500 line-clamp-1">
+            {assignment.admin.email}
+          </span>
         </div>
       </div>
       <IconButton
@@ -517,7 +529,8 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
         }}
         loading={deleteTicketAssigmentMutation.isLoading}
         className={cn("ml-auto", {
-          "invisible group-hover:visible": deleteTicketAssigmentMutation.isIdle,
+          "invisible group-hover:visible hover:bg-gray-200":
+            deleteTicketAssigmentMutation.isIdle,
         })}
       />
     </div>
