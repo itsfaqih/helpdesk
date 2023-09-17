@@ -30,13 +30,12 @@ type SelectTriggerProps = React.ComponentPropsWithoutRef<
   typeof Ark.SelectTrigger
 > & {
   error?: string;
-  errorPlaceholder?: boolean;
 };
 
 export const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof Ark.SelectTrigger>,
   SelectTriggerProps
->(({ error, errorPlaceholder, children, className, ...props }, ref) => (
+>(({ error, children, className, ...props }, ref) => (
   <div className="grid gap-1.5">
     <Ark.SelectTrigger
       ref={ref}
@@ -64,7 +63,6 @@ export const SelectTrigger = React.forwardRef<
         />
       </svg>
     </Ark.SelectTrigger>
-    {!error && errorPlaceholder && <div className="h-5" />}
     {error && <p className="text-sm text-rose-500">{error}</p>}
   </div>
 ));

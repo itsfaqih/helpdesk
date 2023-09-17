@@ -67,7 +67,6 @@ export function TicketCategoryCreatePage() {
                 disabled={createTicketCategoryMutation.isLoading}
                 error={createTicketCategoryForm.formState.errors.name?.message}
                 srOnlyLabel
-                errorPlaceholder
                 data-testid="textbox-name"
               />
             </div>
@@ -84,7 +83,6 @@ export function TicketCategoryCreatePage() {
                   createTicketCategoryForm.formState.errors.description?.message
                 }
                 srOnlyLabel
-                errorPlaceholder
                 data-testid="textbox-description"
               />
             </div>

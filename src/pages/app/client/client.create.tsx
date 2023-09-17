@@ -63,7 +63,6 @@ export function ClientCreatePage() {
                 disabled={createClientMutation.isLoading}
                 error={createClientForm.formState.errors.full_name?.message}
                 srOnlyLabel
-                errorPlaceholder
                 data-testid="textbox-full-name"
               />
             </div>

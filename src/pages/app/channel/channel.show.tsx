@@ -95,7 +95,6 @@ export function ChannelShowPage() {
                   value={channel?.name}
                   readOnly
                   srOnlyLabel
-                  errorPlaceholder
                   data-testid="textbox-name"
                 />
               )}

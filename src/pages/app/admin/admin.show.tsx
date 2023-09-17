@@ -133,7 +133,6 @@ export function AdminShowPage() {
                   error={updateAdminForm.formState.errors.full_name?.message}
                   readOnly={!admin?.is_active}
                   srOnlyLabel
-                  errorPlaceholder
                   data-testid="textbox-full-name"
                 />
               )}
@@ -152,7 +151,6 @@ export function AdminShowPage() {
                   value={admin?.email}
                   readOnly
                   srOnlyLabel
-                  errorPlaceholder
                   data-testid="textbox-email"
                 />
               )}
@@ -190,7 +188,6 @@ export function AdminShowPage() {
                               error={
                                 updateAdminForm.formState.errors.role?.message
                               }
-                              errorPlaceholder
                               className="w-full"
                               data-testid="select-role"
                             >

@@ -134,7 +134,6 @@ export function TicketCategoryShowPage() {
                   value={ticketCategory?.name}
                   readOnly
                   srOnlyLabel
-                  errorPlaceholder
                   data-testid="textbox-name"
                 />
               )}
@@ -162,7 +161,6 @@ export function TicketCategoryShowPage() {
                   }
                   readOnly={ticketCategory?.is_archived}
                   srOnlyLabel
-                  errorPlaceholder
                   data-testid="textbox-description"
                 />
               )}

@@ -63,7 +63,6 @@ export function ChannelCreatePage() {
                 disabled={createChannelMutation.isLoading}
                 error={createChannelForm.formState.errors.name?.message}
                 srOnlyLabel
-                errorPlaceholder
                 data-testid="textbox-name"
               />
             </div>

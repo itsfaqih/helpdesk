@@ -131,7 +131,6 @@ export function ClientShowPage() {
                   error={updateClientForm.formState.errors.full_name?.message}
                   readOnly={client?.is_archived}
                   srOnlyLabel
-                  errorPlaceholder
                   data-testid="textbox-full-name"
                 />
               )}

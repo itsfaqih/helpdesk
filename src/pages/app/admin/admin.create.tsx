@@ -72,7 +72,6 @@ export function AdminCreatePage() {
                 disabled={createAdminMutation.isLoading}
                 error={createAdminForm.formState.errors.full_name?.message}
                 srOnlyLabel
-                errorPlaceholder
                 data-testid="textbox-full-name"
               />
             </div>
@@ -88,7 +87,6 @@ export function AdminCreatePage() {
                 disabled={createAdminMutation.isLoading}
                 error={createAdminForm.formState.errors.email?.message}
                 srOnlyLabel
-                errorPlaceholder
                 data-testid="textbox-email"
               />
             </div>
@@ -104,7 +102,6 @@ export function AdminCreatePage() {
                 disabled={createAdminMutation.isLoading}
                 error={createAdminForm.formState.errors.password?.message}
                 srOnlyLabel
-                errorPlaceholder
                 data-testid="textbox-password"
               />
             </div>
@@ -138,7 +135,6 @@ export function AdminCreatePage() {
                             error={
                               createAdminForm.formState.errors.role?.message
                             }
-                            errorPlaceholder
                             className="w-full"
                             data-testid="select-role"
                           >

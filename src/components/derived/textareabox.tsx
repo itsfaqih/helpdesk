@@ -7,7 +7,6 @@ type TextAreaboxProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label: string;
   error?: string;
   srOnlyLabel?: boolean;
-  errorPlaceholder?: boolean;
   helperText?: string;
   optional?: boolean;
 };
@@ -21,7 +20,6 @@ export const TextAreabox = React.forwardRef<
       label,
       error,
       srOnlyLabel,
-      errorPlaceholder,
       helperText,
       optional,
       id,
@@ -53,7 +51,6 @@ export const TextAreabox = React.forwardRef<
           {...props}
         />
         {helperText && <p className="text-sm text-gray-500">{helperText}</p>}
-        {!error && errorPlaceholder && <div className="h-5" />}
         {error && <p className="text-sm text-rose-500">{error}</p>}
       </div>
     );
