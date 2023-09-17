@@ -45,6 +45,14 @@ import { ChannelCreatePage } from "./pages/app/channel/channel.create";
 import { ChannelShowPage } from "./pages/app/channel/channel.show";
 import { loggedInAdminQuery } from "./queries/logged-in-admin.query";
 import { mockTicketAssignments } from "./mocks/records/ticket-assignment.record";
+import {
+  ActionResponse,
+  ActionField,
+  ActionFieldSchema,
+  ActionSchema,
+} from "./schemas/action.schema";
+import { mockActionRecords } from "./mocks/records/action.record";
+import { mockActionFieldRecords } from "./mocks/records/action-field.record";
 
 async function prepare() {
   const { worker } = await import("./mocks/browser");
@@ -133,6 +141,34 @@ async function prepare() {
     await localforage.setItem("ticket_assignments", existingTicketAssignments);
   } else {
     existingTicketAssignments = existingTicketAssignmentsParsing.data;
+  }
+
+  let existingActions: ActionResponse[] = [];
+  const unparsedExistingActions = await localforage.getItem("actions");
+
+  const actionsParsing = ActionSchema.array().safeParse(
+    unparsedExistingActions
+  );
+  if (!actionsParsing.success) {
+    existingActions = mockActionRecords;
+
+    await localforage.setItem("actions", existingActions);
+  } else {
+    existingActions = actionsParsing.data;
+  }
+
+  let existingActionFields: ActionField[] = [];
+  const unparsedActionFields = await localforage.getItem("action_fields");
+
+  const existingActionFieldsParsing =
+    ActionFieldSchema.array().safeParse(unparsedActionFields);
+
+  if (!existingActionFieldsParsing.success) {
+    existingActionFields = mockActionFieldRecords();
+
+    await localforage.setItem("action_fields", existingActionFields);
+  } else {
+    existingActionFields = existingActionFieldsParsing.data;
   }
 }
 

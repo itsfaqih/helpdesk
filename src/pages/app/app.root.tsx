@@ -142,7 +142,7 @@ export function AppRoot() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <IconButton
-                  icon={List}
+                  icon={(props) => <List {...props} />}
                   label="Menu"
                   onClick={() => {
                     setIsSidebarOpen(true);

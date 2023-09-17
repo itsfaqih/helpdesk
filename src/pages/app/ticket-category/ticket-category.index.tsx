@@ -166,7 +166,7 @@ export function TicketCategoryIndexPage() {
                 as={Link}
                 to="/ticket-categories/create"
                 variant="primary"
-                leading={Plus}
+                leading={(props) => <Plus {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-ticket-category"
               >
@@ -247,13 +247,13 @@ export function TicketCategoryIndexPage() {
                   <IconButton
                     as={Link}
                     to={`/ticket-categories/${category.id}`}
-                    icon={PencilSimple}
+                    icon={(props) => <PencilSimple {...props} />}
                     label="Edit"
                     data-testid={`link-edit-ticket-category-${index}`}
                   />
 
                   <IconButton
-                    icon={Archive}
+                    icon={(props) => <Archive {...props} />}
                     label="Archive"
                     onClick={archiveTicketCategory(category.id)}
                     className="text-red-600"
@@ -265,12 +265,12 @@ export function TicketCategoryIndexPage() {
                   <IconButton
                     as={Link}
                     to={`/ticket-categories/${category.id}`}
-                    icon={CaretRight}
+                    icon={(props) => <CaretRight {...props} />}
                     label="View"
                     data-testid={`link-view-ticket-category-${index}`}
                   />
                   <IconButton
-                    icon={ArrowCounterClockwise}
+                    icon={(props) => <ArrowCounterClockwise {...props} />}
                     label="Restore"
                     onClick={restoreTicketCategory(category.id)}
                     className="text-green-600"

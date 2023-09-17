@@ -8,8 +8,8 @@ import { Spinner } from "./spinner";
 type ButtonProps = {
   size?: VariantProps<typeof buttonClass>["size"];
   variant?: VariantProps<typeof buttonClass>["variant"];
-  leading?: React.ElementType;
-  trailing?: React.ElementType;
+  leading?: (props: { className: string }) => React.ReactNode;
+  trailing?: (props: { className: string }) => React.ReactNode;
   loading?: boolean;
   success?: boolean;
 };
@@ -19,8 +19,8 @@ function ButtonComponent(
     as: Component = "button",
     size = "md",
     variant = "transparent",
-    leading: LeadingIcon,
-    trailing: TrailingIcon,
+    leading,
+    trailing,
     loading,
     success,
     disabled,
@@ -45,12 +45,7 @@ function ButtonComponent(
       )}
       {...props}
     >
-      {LeadingIcon && (
-        <LeadingIcon
-          aria-hidden={true}
-          className={iconClass({ size, leading: size })}
-        />
-      )}
+      {leading && leading({ className: iconClass({ size, leading: size }) })}
       {loading && (
         <span className="animate-in fade-in inline-flex items-center gap-x-0.5 h-5 absolute left-1/2 -translate-x-1/2">
           <span className="animate-blink mx-px h-1.5 w-1.5 rounded-full bg-white"></span>
@@ -71,12 +66,7 @@ function ButtonComponent(
       >
         {children}
       </span>
-      {TrailingIcon && (
-        <TrailingIcon
-          aria-hidden={true}
-          className={iconClass({ size, trailing: size })}
-        />
-      )}
+      {trailing && trailing({ className: iconClass({ size, trailing: size }) })}
     </Component>
   );
 }
@@ -158,7 +148,7 @@ const iconClass = cva("", {
 });
 
 type IconButtonProps = {
-  icon?: React.ElementType;
+  icon?: (props: { className: string }) => React.ReactNode;
   label?: string;
   size?: VariantProps<typeof buttonClass>["size"];
   variant?: VariantProps<typeof buttonClass>["variant"];
@@ -168,7 +158,7 @@ type IconButtonProps = {
 
 function IconButtonComponent(
   {
-    icon: Icon,
+    icon,
     label,
     as: Component = "button",
     size = "md",
@@ -191,9 +181,11 @@ function IconButtonComponent(
             className={iconButtonClass({ size, variant, loading, className })}
             {...props}
           >
-            {!loading && Icon && (
-              <Icon weight="bold" className={iconButtonIconClass({ size })} />
-            )}
+            {!loading &&
+              icon &&
+              icon({
+                className: iconButtonIconClass({ size }),
+              })}
             {loading && <Spinner className={iconButtonIconClass({ size })} />}
             <span className="sr-only">{label}</span>
           </Component>

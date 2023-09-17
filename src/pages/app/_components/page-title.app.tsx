@@ -8,9 +8,9 @@ type AppPageTitleProps = {
 
 export function AppPageTitle({ title, actions, className }: AppPageTitleProps) {
   return (
-    <div className={cn("flex items-center", className)}>
+    <div className={cn("flex items-center break-words", className)}>
       <h1
-        className="text-2xl font-bold text-gray-800"
+        className="text-2xl font-bold text-gray-800 break-words"
         data-testid="heading-page-title"
       >
         {title}

@@ -169,7 +169,7 @@ export function AdminIndexPage() {
                 as={Link}
                 to="/admins/create"
                 variant="primary"
-                leading={Plus}
+                leading={(props) => <Plus {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-admin"
               >
@@ -193,8 +193,15 @@ export function AdminIndexPage() {
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="1" data-testid="tab-is_deactivated-active">Active</TabTrigger>
-                <TabTrigger value="0" data-testid="tab-is_deactivated-deactivated">Deactivated</TabTrigger>
+                <TabTrigger value="1" data-testid="tab-is_deactivated-active">
+                  Active
+                </TabTrigger>
+                <TabTrigger
+                  value="0"
+                  data-testid="tab-is_deactivated-deactivated"
+                >
+                  Deactivated
+                </TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -285,7 +292,7 @@ export function AdminIndexPage() {
                 <IconButton
                   as={Link}
                   to={`/profile`}
-                  icon={PencilSimple}
+                  icon={(props) => <PencilSimple {...props} />}
                   label="Edit"
                 />
               )}
@@ -296,12 +303,12 @@ export function AdminIndexPage() {
                     <IconButton
                       as={Link}
                       to={`/admins/${admin.id}`}
-                      icon={PencilSimple}
+                      icon={(props) => <PencilSimple {...props} />}
                       label="Edit"
                       data-testid={`link-edit-admin-${index}`}
                     />
                     <IconButton
-                      icon={Power}
+                      icon={(props) => <Power {...props} />}
                       label="Deactivate"
                       onClick={deactivateAdmin(admin.id)}
                       className="text-red-600"
@@ -313,13 +320,13 @@ export function AdminIndexPage() {
                     <IconButton
                       as={Link}
                       to={`/admins/${admin.id}`}
-                      icon={CaretRight}
+                      icon={(props) => <CaretRight {...props} />}
                       label="View"
                       data-testid={`link-view-admin-${index}`}
                     />
 
                     <IconButton
-                      icon={Power}
+                      icon={(props) => <Power {...props} />}
                       label="Reactivate"
                       onClick={reactivateAdmin(admin.id)}
                       className="text-green-600"

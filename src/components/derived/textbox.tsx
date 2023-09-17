@@ -8,6 +8,8 @@ type TextboxProps = React.InputHTMLAttributes<HTMLInputElement> & {
   error?: string;
   srOnlyLabel?: boolean;
   errorPlaceholder?: boolean;
+  helperText?: string;
+  optional?: boolean;
 };
 
 export const Textbox = React.forwardRef<HTMLInputElement, TextboxProps>(
@@ -17,6 +19,8 @@ export const Textbox = React.forwardRef<HTMLInputElement, TextboxProps>(
       error,
       srOnlyLabel,
       errorPlaceholder,
+      helperText,
+      optional,
       id,
       name,
       className,
@@ -35,7 +39,8 @@ export const Textbox = React.forwardRef<HTMLInputElement, TextboxProps>(
             "sr-only": srOnlyLabel,
           })}
         >
-          {label}
+          {label}{" "}
+          {optional && <span className="text-gray-400">(Optional)</span>}
         </Label>
         <Input
           ref={ref}
@@ -44,6 +49,7 @@ export const Textbox = React.forwardRef<HTMLInputElement, TextboxProps>(
           invalid={!!error}
           {...props}
         />
+        {helperText && <p className="text-sm text-gray-500">{helperText}</p>}
         {!error && errorPlaceholder && <div className="h-5" />}
         {error && <p className="text-sm text-rose-500">{error}</p>}
       </div>

@@ -163,7 +163,7 @@ export function ClientIndexPage() {
                 as={Link}
                 to="/clients/create"
                 variant="primary"
-                leading={Plus}
+                leading={(props) => <Plus {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-client"
               >
@@ -245,13 +245,13 @@ export function ClientIndexPage() {
                     <IconButton
                       as={Link}
                       to={`/clients/${client.id}`}
-                      icon={PencilSimple}
+                      icon={(props) => <PencilSimple {...props} />}
                       label="Edit"
                       data-testid={`link-edit-client-${index}`}
                     />
 
                     <IconButton
-                      icon={Archive}
+                      icon={(props) => <Archive {...props} />}
                       label="Archive"
                       onClick={archiveClient(client.id)}
                       className="text-red-600"
@@ -263,13 +263,13 @@ export function ClientIndexPage() {
                     <IconButton
                       as={Link}
                       to={`/clients/${client.id}`}
-                      icon={CaretRight}
+                      icon={(props) => <CaretRight {...props} />}
                       label="View"
                       data-testid={`link-view-client-${index}`}
                     />
 
                     <IconButton
-                      icon={ArrowCounterClockwise}
+                      icon={(props) => <ArrowCounterClockwise {...props} />}
                       label="Restore"
                       onClick={restoreClient(client.id)}
                       className="text-green-600"

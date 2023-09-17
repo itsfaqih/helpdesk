@@ -12,13 +12,12 @@ import { Card } from "@/components/base/card";
 import { Link, linkClass } from "@/components/base/link";
 import {
   ArrowSquareOut,
-  BellRinging,
   CaretRight,
-  Envelope,
+  CheckCircle,
   PaperPlaneRight,
   Plus,
-  WhatsappLogo,
   X,
+  XCircle,
 } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/base/skeleton";
 import {
@@ -60,6 +59,14 @@ import {
   MenuItem,
   MenuTrigger,
 } from "@/components/base/menu";
+import { useChannelTicketResponseIndexQuery } from "@/queries/action.query";
+import { ActionResponse, ActionField } from "@/schemas/action.schema";
+import { useChannelTicketResponseFieldIndexQuery } from "@/queries/action-field.query";
+import { Textbox } from "@/components/derived/textbox";
+import { TextAreabox } from "@/components/derived/textareabox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { channelTicketResponseFieldsToZodSchema } from "@/utils/channel-ticket-response.util";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -95,6 +102,17 @@ export function TicketShowPage() {
 
   const activeTicketAssigments =
     ticket?.assignments.filter((assignment) => !assignment.deleted_at) ?? [];
+
+  const [channelTicketResponseSearch, setChannelTicketResponseSearch] =
+    React.useState("");
+
+  const channelTicketResponseIndexQuery = useChannelTicketResponseIndexQuery({
+    search: channelTicketResponseSearch,
+  });
+
+  const [ticketResponseFormState, setTicketResponseFormState] = React.useState<{
+    channelTicketResponse: ActionResponse;
+  } | null>(null);
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
@@ -183,7 +201,12 @@ export function TicketShowPage() {
               {ticket && (
                 <AddTicketAssigneePopover
                   ticketId={ticket.id}
-                  trigger={<IconButton icon={Plus} label="Add agent" />}
+                  trigger={
+                    <IconButton
+                      icon={(props) => <Plus {...props} />}
+                      label="Add agent"
+                    />
+                  }
                 />
               )}
             </div>
@@ -335,7 +358,12 @@ export function TicketShowPage() {
                       {ticket && (
                         <AddTicketAssigneePopover
                           ticketId={ticket.id}
-                          trigger={<IconButton icon={Plus} label="Add agent" />}
+                          trigger={
+                            <IconButton
+                              icon={(props) => <Plus {...props} />}
+                              label="Add agent"
+                            />
+                          }
                         />
                       )}
                     </div>
@@ -383,64 +411,119 @@ export function TicketShowPage() {
       <div className="fixed bottom-0 left-0 w-full lg:pl-64">
         <div className="flex gap-5 p-6">
           <div className="flex justify-center flex-1">
-            <div className="flex items-center overflow-hidden bg-white rounded-md shadow-haptic-gray-300">
+            <div className="flex items-center overflow-hidden bg-white divide-x divide-gray-300 rounded-md shadow-haptic-gray-300">
               <Popover positioning={{ placement: "top" }}>
                 <PopoverTrigger asChild>
-                  <Button
-                    leading={PaperPlaneRight}
-                    variant="transparent"
-                    className=""
-                  >
-                    Action
-                  </Button>
+                  {ticketResponseFormState?.channelTicketResponse ? (
+                    <Button
+                      leading={(props) => (
+                        <img
+                          src={
+                            ticketResponseFormState.channelTicketResponse
+                              .cta_icon_url ?? "https://placehold.co/18"
+                          }
+                          {...props}
+                        />
+                      )}
+                      variant="transparent"
+                      className="rounded-r-none"
+                    >
+                      {ticketResponseFormState.channelTicketResponse.cta_label}
+                    </Button>
+                  ) : (
+                    <Button
+                      leading={(props) => <PaperPlaneRight {...props} />}
+                      variant="transparent"
+                      className="rounded-r-none"
+                    >
+                      Action
+                    </Button>
+                  )}
                 </PopoverTrigger>
 
                 <PopoverContent className="min-w-[18rem] z-10">
-                  <Command className="w-full">
-                    <Command.List className="flex flex-col gap-y-1">
-                      <Command.Item className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800">
-                        <Envelope className="flex-shrink-0 w-4.5 h-4.5" />
-                        <span className="flex-1 text-left">Reply by Email</span>
-                      </Command.Item>
-                      <Command.Item className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800">
-                        <WhatsappLogo className="flex-shrink-0 w-4.5 h-4.5" />
-                        <span className="flex-1 text-left">
-                          Reply by WhatsApp
-                        </span>
-                      </Command.Item>
-                      <Command.Item className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800">
-                        <BellRinging className="flex-shrink-0 w-4.5 h-4.5" />
-                        <span className="flex-1 text-left">
-                          Escalate to Supervisor
-                        </span>
-                      </Command.Item>
-                    </Command.List>
-                    <Command.Input
-                      placeholder="Search action"
-                      className={inputClassName({ className: "w-full mt-2" })}
+                  {!ticketResponseFormState?.channelTicketResponse && (
+                    <Command shouldFilter={false} className="w-full">
+                      <Command.List className="flex flex-col gap-y-1">
+                        {channelTicketResponseIndexQuery.isSuccess &&
+                          channelTicketResponseIndexQuery.data.data.map(
+                            (channelTicketResponse) => (
+                              <Command.Item
+                                key={channelTicketResponse.id}
+                                onSelect={() => {
+                                  setTicketResponseFormState({
+                                    channelTicketResponse,
+                                  });
+                                }}
+                                className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800"
+                              >
+                                <img
+                                  src={
+                                    channelTicketResponse.cta_icon_url ??
+                                    "https://placehold.co/18"
+                                  }
+                                  className="flex-shrink-0 w-4.5 h-4.5 object-cover"
+                                />
+                                <span className="flex-1 text-left">
+                                  {channelTicketResponse.cta_label}
+                                </span>
+                              </Command.Item>
+                            )
+                          )}
+                      </Command.List>
+                      <Command.Input
+                        placeholder="Search action"
+                        value={channelTicketResponseSearch}
+                        onValueChange={(value) => {
+                          setChannelTicketResponseSearch(value);
+                        }}
+                        className={inputClassName({ className: "w-full mt-2" })}
+                      />
+                    </Command>
+                  )}
+                  {ticketResponseFormState?.channelTicketResponse && (
+                    <TicketResponseFormContainer
+                      channelTicketResponseId={
+                        ticketResponseFormState.channelTicketResponse.id
+                      }
+                      onCancel={() => {
+                        setTicketResponseFormState(null);
+                      }}
                     />
-                  </Command>
+                  )}
                 </PopoverContent>
               </Popover>
 
               <Menu>
                 <MenuTrigger asChild>
                   <Button
-                    trailing={CaretRight}
+                    trailing={(props) => <CaretRight {...props} />}
                     variant="transparent"
-                    className=""
+                    className="rounded-l-none"
                   >
                     Mark as
                   </Button>
                 </MenuTrigger>
                 <MenuContent>
-                  <MenuItem id="resolved">Resolved</MenuItem>
-                  <MenuItem id="unresolved">Unresolved</MenuItem>
+                  <MenuItem id="resolved">
+                    <CheckCircle
+                      weight="fill"
+                      className="w-5 h-5 text-green-500 mr-2"
+                    />
+                    Resolved
+                  </MenuItem>
+                  <MenuItem id="unresolved">
+                    <XCircle
+                      weight="fill"
+                      className="w-5 h-5 text-red-500 mr-2"
+                    />
+                    Unresolved
+                  </MenuItem>
                 </MenuContent>
               </Menu>
             </div>
           </div>
-          <div className="w-80" />
+          <div className="w-80 xl:block hidden" />
         </div>
       </div>
     </AppPageContainer>
@@ -609,7 +692,7 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
         </div>
       </div>
       <IconButton
-        icon={X}
+        icon={(props) => <X {...props} />}
         label="Remove agent"
         onClick={() => {
           deleteTicketAssigmentMutation.mutate({
@@ -624,5 +707,115 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
         })}
       />
     </div>
+  );
+}
+
+type TicketResponseFormContainerProps = {
+  channelTicketResponseId: ActionResponse["id"];
+  onCancel: () => void;
+};
+
+function TicketResponseFormContainer({
+  channelTicketResponseId,
+  onCancel,
+}: TicketResponseFormContainerProps) {
+  const channelTicketResponseFieldIndexQuery =
+    useChannelTicketResponseFieldIndexQuery({
+      actionId: channelTicketResponseId,
+    });
+
+  return (
+    <div className="animate-in fade-in py-2 px-1">
+      {channelTicketResponseFieldIndexQuery.isLoading && (
+        <div className="flex items-center gap-3">
+          <Spinner className="text-brand-500" />
+          <p className="text-gray-600">Loading form...</p>
+        </div>
+      )}
+      {channelTicketResponseFieldIndexQuery.isSuccess && (
+        <TicketResponseForm
+          fields={channelTicketResponseFieldIndexQuery.data.data}
+          onCancel={onCancel}
+        />
+      )}
+    </div>
+  );
+}
+
+type TicketResponseFormProps = {
+  fields: ActionField[];
+  onCancel: () => void;
+};
+
+function TicketResponseForm({ fields, onCancel }: TicketResponseFormProps) {
+  const schema = channelTicketResponseFieldsToZodSchema(fields);
+  const ticketResponseForm = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  return (
+    <form
+      onSubmit={ticketResponseForm.handleSubmit((data) => {
+        console.log(data);
+      })}
+      className="md:min-w-[40rem]"
+    >
+      <div className="flex flex-col gap-3">
+        {fields.map((field) => (
+          <div key={field.id}>
+            {field.type === "text" && (
+              <Textbox
+                {...ticketResponseForm.register(field.name)}
+                label={field.label}
+                placeholder={field.placeholder ?? undefined}
+                error={ticketResponseForm.formState.errors[
+                  field.name
+                ]?.message?.toString()}
+                optional={!field.is_required}
+                helperText={field.helper_text ?? undefined}
+              />
+            )}
+            {field.type === "textarea" && (
+              <TextAreabox
+                {...ticketResponseForm.register(field.name)}
+                label={field.label}
+                placeholder={field.placeholder ?? undefined}
+                rows={4}
+                error={ticketResponseForm.formState.errors[
+                  field.name
+                ]?.message?.toString()}
+                optional={!field.is_required}
+                helperText={field.helper_text ?? undefined}
+              />
+            )}
+            {field.type === "file" && (
+              <Textbox
+                {...ticketResponseForm.register(field.name)}
+                label={field.label}
+                type="file"
+                error={ticketResponseForm.formState.errors[
+                  field.name
+                ]?.message?.toString()}
+                optional={!field.is_required}
+                helperText={field.helper_text ?? undefined}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex gap-2 justify-end">
+        <Button
+          onClick={onCancel}
+          variant="plain"
+          type="button"
+          className="text-red-500"
+        >
+          Discard
+        </Button>
+        <Button variant="primary" type="submit">
+          Submit
+        </Button>
+      </div>
+    </form>
   );
 }

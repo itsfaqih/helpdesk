@@ -324,7 +324,7 @@ export function TicketIndexPage() {
               <IconButton
                 as={Link}
                 to={`/tickets/${ticket.id}`}
-                icon={CaretRight}
+                icon={(props) => <CaretRight {...props} />}
                 label="View"
               />
             </div>,

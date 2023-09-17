@@ -8,6 +8,8 @@ type TextAreaboxProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   error?: string;
   srOnlyLabel?: boolean;
   errorPlaceholder?: boolean;
+  helperText?: string;
+  optional?: boolean;
 };
 
 export const TextAreabox = React.forwardRef<
@@ -20,6 +22,8 @@ export const TextAreabox = React.forwardRef<
       error,
       srOnlyLabel,
       errorPlaceholder,
+      helperText,
+      optional,
       id,
       name,
       className,
@@ -38,7 +42,8 @@ export const TextAreabox = React.forwardRef<
             "sr-only": srOnlyLabel,
           })}
         >
-          {label}
+          {label}{" "}
+          {optional && <span className="text-gray-400">(Optional)</span>}
         </Label>
         <TextArea
           ref={ref}
@@ -47,6 +52,7 @@ export const TextAreabox = React.forwardRef<
           invalid={!!error}
           {...props}
         />
+        {helperText && <p className="text-sm text-gray-500">{helperText}</p>}
         {!error && errorPlaceholder && <div className="h-5" />}
         {error && <p className="text-sm text-rose-500">{error}</p>}
       </div>

@@ -161,7 +161,7 @@ export function ChannelIndexPage() {
                 as={Link}
                 to="/channels/create"
                 variant="primary"
-                leading={Plus}
+                leading={(props) => <Plus {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-channel"
               >
@@ -240,14 +240,14 @@ export function ChannelIndexPage() {
               <IconButton
                 as={Link}
                 to={`/channels/${channel.id}`}
-                icon={CaretRight}
+                icon={(props) => <CaretRight {...props} />}
                 label="View"
                 data-testid={`link-view-channel-${index}`}
               />
               {loggedInAdmin?.role === "super_admin" &&
                 (!channel.is_archived ? (
                   <IconButton
-                    icon={Archive}
+                    icon={(props) => <Archive {...props} />}
                     label="Archive"
                     onClick={archiveChannel(channel.id)}
                     className="text-red-600"
@@ -255,7 +255,7 @@ export function ChannelIndexPage() {
                   />
                 ) : (
                   <IconButton
-                    icon={ArrowCounterClockwise}
+                    icon={(props) => <ArrowCounterClockwise {...props} />}
                     label="Restore"
                     onClick={restoreChannel(channel.id)}
                     className="text-green-600"
