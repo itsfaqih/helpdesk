@@ -2,7 +2,11 @@ import React from "react";
 import * as Ark from "@ark-ui/react";
 import { cn } from "@/libs/cn.lib";
 
-export const Popover = Ark.Popover;
+export function Popover(
+  props: Omit<React.ComponentPropsWithoutRef<typeof Ark.Popover>, "portalled">
+) {
+  return <Ark.Popover {...props} />;
+}
 
 export const PopoverTrigger = Ark.PopoverTrigger;
 

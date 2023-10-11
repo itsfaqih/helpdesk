@@ -27,7 +27,7 @@ export function Table({
 }: TableProps) {
   return (
     <div
-      className={cn("flow-root min-h-[36.75rem]", className)}
+      className={cn("flow-root", className)}
       data-testid={`table-${id}`}
       {...props}
     >
@@ -41,13 +41,7 @@ export function Table({
                     <th
                       key={index}
                       scope="col"
-                      className={cn(
-                        "py-3.5 text-left text-sm font-medium text-gray-500 whitespace-nowrap",
-                        {
-                          "pl-4 pr-3": index === 0,
-                          "px-3": index !== 0,
-                        }
-                      )}
+                      className="py-2.5 px-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap"
                     >
                       {heading}
                     </th>
@@ -99,12 +93,11 @@ export function Table({
                         <td
                           key={index}
                           className={cn(
-                            "whitespace-nowrap py-2.5 text-sm text-gray-800",
+                            "whitespace-nowrap py-2 text-sm text-gray-800",
                             {
-                              "pl-4": index === 0,
                               "relative pl-3 pr-4 text-right font-medium sm:pr-6":
                                 index === arr.length - 1,
-                              "px-3": index !== 0 && index !== arr.length - 1,
+                              "px-3": index !== arr.length - 1,
                             }
                           )}
                         >

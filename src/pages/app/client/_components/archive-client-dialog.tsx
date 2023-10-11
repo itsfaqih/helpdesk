@@ -30,7 +30,7 @@ export function ArchiveClientDialog({
       destructive
       isLoading={archiveClientMutation.isLoading}
       isSuccess={archiveClientMutation.isSuccess}
-      buttonLabel="Archive Client"
+      buttonLabel="Archive"
       buttonOnClick={() => archiveClientMutation.mutate()}
       trigger={trigger}
       onSuccess={() => {

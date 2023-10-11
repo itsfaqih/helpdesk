@@ -1,5 +1,10 @@
+import React from "react";
 import { AppPageTitle } from "../_components/page-title.app";
-import { QueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import {
   ChannelShowRequestSchema,
@@ -16,6 +21,18 @@ import { AppPageContainer } from "@/components/derived/app-page-container";
 import { ArchiveChannelDialog } from "./_components/archive-channel-dialog";
 import { RestoreChannelDialog } from "./_components/restore-channel-dialog";
 import { AppPageBackLink } from "../_components/page-back-link";
+import { TextAreabox } from "@/components/derived/textareabox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Channel,
+  ChannelSchema,
+  UpdateChannelSchema,
+} from "@/schemas/channel.schema";
+import { APIResponseSchema } from "@/schemas/api.schema";
+import { api } from "@/libs/api.lib";
+import { ClockClockwise } from "@phosphor-icons/react";
+import { ArchiveButton } from "@/components/derived/archive-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -44,6 +61,23 @@ export function ChannelShowPage() {
   });
   const channel = channelShowQuery.data?.data;
 
+  const updateChannelForm = useForm<UpdateChannelSchema>({
+    resolver: zodResolver(UpdateChannelSchema),
+    defaultValues: channel,
+  });
+
+  const updateChannelMutation = useUpdateChannelMutation({
+    channelId: loaderData.data.request.id,
+  });
+
+  const onSubmit = updateChannelForm.handleSubmit((data) => {
+    updateChannelMutation.mutate(data);
+  });
+
+  React.useEffect(() => {
+    updateChannelForm.reset(channel);
+  }, [channel, updateChannelForm]);
+
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <AppPageBackLink to="/channels" />
@@ -59,9 +93,10 @@ export function ChannelShowPage() {
                   <Button
                     type="button"
                     variant="plain"
+                    leading={(props) => <ClockClockwise {...props} />}
                     data-testid="btn-restore-channel"
                   >
-                    Restore Channel
+                    Restore
                   </Button>
                 }
               />
@@ -69,20 +104,21 @@ export function ChannelShowPage() {
               <ArchiveChannelDialog
                 channelId={channel.id}
                 trigger={
-                  <Button
+                  <ArchiveButton
                     type="button"
-                    variant="danger"
                     data-testid="btn-archive-channel"
-                  >
-                    Archive Channel
-                  </Button>
+                  />
                 }
               />
             ))}
         </div>
       </div>
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
-        <div className="flex flex-col gap-y-4">
+        <form
+          id="update-channel-form"
+          onSubmit={onSubmit}
+          className="flex flex-col gap-y-4"
+        >
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="name">Name</Label>
             <div className="col-span-3">
@@ -100,8 +136,74 @@ export function ChannelShowPage() {
               )}
             </div>
           </div>
-        </div>
+          <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
+            <Label htmlFor="description">Description</Label>
+            <div className="col-span-3">
+              {channelShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
+              {channelShowQuery.isSuccess && (
+                <TextAreabox
+                  name="description"
+                  label="Description"
+                  placeholder="Enter Description"
+                  value={channel?.description ?? ""}
+                  srOnlyLabel
+                  rows={3}
+                  data-testid="textbox-description"
+                />
+              )}
+            </div>
+          </div>
+
+          {!channel?.is_archived && (
+            <div className="flex justify-end">
+              <Button
+                form="update-channel-form"
+                type="submit"
+                variant="primary"
+                loading={updateChannelMutation.isLoading}
+                success={
+                  updateChannelMutation.isSuccess &&
+                  !updateChannelForm.formState.isDirty
+                }
+                data-testid="btn-update-channel"
+              >
+                Update Channel
+              </Button>
+            </div>
+          )}
+        </form>
       </Card>
     </AppPageContainer>
   );
+}
+
+const UpdateChannelResponseSchema = APIResponseSchema({
+  schema: ChannelSchema,
+});
+
+type UseUpdateChannelMutationParams = {
+  channelId: Channel["id"];
+};
+
+function useUpdateChannelMutation({
+  channelId,
+}: UseUpdateChannelMutationParams) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn(data: UpdateChannelSchema) {
+      try {
+        const res = await api.put(data, `/channels/${channelId}`);
+
+        return UpdateChannelResponseSchema.parse(res);
+      } catch (error) {
+        throw new Error(
+          "Something went wrong. Please contact the administrator"
+        );
+      }
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries(["channel", "index"]);
+    },
+  });
 }

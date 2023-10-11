@@ -31,7 +31,7 @@ export function RestoreTicketCategoryDialog({
       ticket category will be listed in the ticket category list"
       isLoading={restoreTicketCategoryMutation.isLoading}
       isSuccess={restoreTicketCategoryMutation.isSuccess}
-      buttonLabel="Restore Category"
+      buttonLabel="Restore"
       buttonOnClick={() => restoreTicketCategoryMutation.mutate()}
       trigger={trigger}
       onSuccess={() => {

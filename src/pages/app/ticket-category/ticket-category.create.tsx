@@ -11,13 +11,13 @@ import { api } from "@/libs/api.lib";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { Textbox } from "@/components/derived/textbox";
-import { Button } from "@/components/base/button";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";
 import { TextAreabox } from "@/components/derived/textareabox";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
+import { SaveButton } from "@/components/derived/save-button";
 
 function loader() {
   return async () => {
@@ -58,12 +58,12 @@ export function TicketCategoryCreatePage() {
           className="flex flex-col gap-y-4"
         >
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
-            <Label htmlFor="full_name">Name</Label>
+            <Label htmlFor="name">Name</Label>
             <div className="col-span-3">
               <Textbox
                 {...createTicketCategoryForm.register("name")}
                 label="Name"
-                placeholder="Name"
+                placeholder="Enter name"
                 disabled={createTicketCategoryMutation.isLoading}
                 error={createTicketCategoryForm.formState.errors.name?.message}
                 srOnlyLabel
@@ -77,30 +77,28 @@ export function TicketCategoryCreatePage() {
               <TextAreabox
                 {...createTicketCategoryForm.register("description")}
                 label="Description"
-                placeholder="Enter Description"
+                placeholder="Enter description"
                 disabled={createTicketCategoryMutation.isLoading}
                 error={
                   createTicketCategoryForm.formState.errors.description?.message
                 }
                 srOnlyLabel
+                rows={3}
                 data-testid="textbox-description"
               />
             </div>
           </div>
           <div className="flex justify-end">
-            <Button
+            <SaveButton
               form="create-ticket-category-form"
               type="submit"
-              variant="primary"
               loading={createTicketCategoryMutation.isLoading}
               success={
                 createTicketCategoryMutation.isSuccess &&
                 !createTicketCategoryForm.formState.isDirty
               }
               data-testid="btn-create-ticket-category"
-            >
-              Create Category
-            </Button>
+            />
           </div>
         </form>
       </Card>

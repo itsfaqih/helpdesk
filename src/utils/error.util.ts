@@ -65,6 +65,14 @@ export class FetchError extends Error {
   }
 }
 
+export class UnprocessableEntityError extends UserError {
+  constructor(message?: string) {
+    super(message);
+    this.name = "UnprocessableEntityError";
+    this.code = 422;
+  }
+}
+
 export class ConflictError extends UserError {
   constructor(message?: string) {
     super(message);

@@ -71,6 +71,12 @@ function loader(queryClient: QueryClient) {
 
 AdminIndexPage.loader = loader;
 
+const adminRoleOptions = [
+  { value: "", label: "All role" },
+  { value: "super_admin", label: "Super Admin" },
+  { value: "operator", label: "Operator" },
+];
+
 export function AdminIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
@@ -169,11 +175,11 @@ export function AdminIndexPage() {
                 as={Link}
                 to="/admins/create"
                 variant="primary"
-                leading={(props) => <Plus {...props} />}
+                leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-admin"
               >
-                New Admin
+                Add Admin
               </Button>
             )
           }
@@ -223,12 +229,9 @@ export function AdminIndexPage() {
               render={({ field }) => (
                 <Select
                   name={field.name}
-                  selectedOption={{
-                    label: adminRoleValueToLabel(field.value ?? ""),
-                    value: field.value ?? "",
-                  }}
-                  onChange={(selectedOption) => {
-                    const value = selectedOption?.value;
+                  items={adminRoleOptions}
+                  onChange={(e) => {
+                    const value = e?.value[0];
 
                     if (
                       value === "" ||
@@ -238,21 +241,15 @@ export function AdminIndexPage() {
                       field.onChange(value);
                     }
                   }}
+                  value={field.value ? [field.value] : []}
                 >
-                  {({ selectedOption }) => (
-                    <>
-                      <SelectLabel className="sr-only">Role</SelectLabel>
-                      <SelectTrigger className="w-48">
-                        {(selectedOption as { label?: string })?.label ??
-                          "Select role"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectOption value="" label="All role" />
-                        <SelectOption value="super_admin" label="Super Admin" />
-                        <SelectOption value="operator" label="Operator" />
-                      </SelectContent>
-                    </>
-                  )}
+                  <SelectLabel className="sr-only">Role</SelectLabel>
+                  <SelectTrigger placeholder="Select role" className="w-48" />
+                  <SelectContent>
+                    {adminRoleOptions.map((option) => (
+                      <SelectOption key={option.value} item={option} />
+                    ))}
+                  </SelectContent>
                 </Select>
               )}
             />

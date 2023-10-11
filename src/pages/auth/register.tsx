@@ -5,7 +5,7 @@ import { Textbox } from "@/components/derived/textbox";
 import { api } from "@/libs/api.lib";
 import { AuthResponseSchema, RegisterSchema } from "@/schemas/auth.schema";
 import { sleep } from "@/utils/delay.util";
-import { ConflictError } from "@/utils/error.util";
+import { UnprocessableEntityError } from "@/utils/error.util";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -114,7 +114,7 @@ function useRegisterMutation() {
 
         return AuthResponseSchema.parse(res);
       } catch (error) {
-        if (error instanceof ConflictError) {
+        if (error instanceof UnprocessableEntityError) {
           throw new Error("Email is already registered");
         }
 

@@ -17,12 +17,6 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QueryClient } from "@tanstack/react-query";
 import {
-  ChannelIndexRequest,
-  ChannelIndexRequestSchema,
-  fetchChannelIndexQuery,
-  useChannelIndexQuery,
-} from "@/queries/channel.query";
-import {
   Link,
   LoaderFunctionArgs,
   useLoaderData,
@@ -44,56 +38,63 @@ import { Table } from "@/components/base/table";
 import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
 import { formatDateTime } from "@/utils/date";
 import { AppPageContainer } from "@/components/derived/app-page-container";
-import { ArchiveChannelDialog } from "./_components/archive-channel-dialog";
-import { RestoreChannelDialog } from "./_components/restore-channel-dialog";
 import { AppPageSearchBox } from "../_components/page-search-box";
 import { AppPageResetButton } from "../_components/page-reset-button";
+import {
+  ActionIndexRequest,
+  ActionIndexRequestSchema,
+  fetchActionIndexQuery,
+  useActionIndexQuery,
+} from "@/queries/action.query";
+import { ArchiveActionDialog } from "./_components/archive-action-dialog";
+import { RestoreActionDialog } from "./_components/restore-action-dialog";
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
-    const requestData = ChannelIndexRequestSchema.parse(
+    const requestData = ActionIndexRequestSchema.parse(
       Object.fromEntries(new URL(request.url).searchParams)
     );
 
-    fetchChannelIndexQuery({ queryClient, request: requestData }).catch(
+    fetchActionIndexQuery({ queryClient, request: requestData }).catch(
       (err) => {
         console.error(err);
       }
     );
 
     return loaderResponse({
-      pageTitle: "Channel",
+      pageTitle: "Action",
       data: { request: requestData },
     });
   };
 }
 
-ChannelIndexPage.loader = loader;
+ActionIndexPage.loader = loader;
 
-export function ChannelIndexPage() {
+export function ActionIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
   const [actionDialogState, setActionDialogState] = React.useState<{
-    channelId: string | null;
+    actionId: string | null;
     action: "archive" | "restore" | null;
   }>({
-    channelId: null,
+    actionId: null,
     action: null,
   });
 
   const loggedInAdminQuery = useLoggedInAdminQuery();
   const loggedInAdmin = loggedInAdminQuery.data?.data;
 
-  const channelIndexQuery = useChannelIndexQuery(loaderData.data.request);
+  const actionIndexQuery = useActionIndexQuery(loaderData.data.request);
 
-  const filtersForm = useForm<ChannelIndexRequest>({
-    resolver: zodResolver(ChannelIndexRequestSchema),
+  const filtersForm = useForm<ActionIndexRequest>({
+    resolver: zodResolver(ActionIndexRequestSchema),
     defaultValues: loaderData.data.request,
   });
 
   const [search, setSearch] = React.useState<string | null>(
     filtersForm.getValues("search") ?? null
   );
+
   useDebounce(() => {
     if (search === null || filtersForm.getValues("search") === search) {
       return;
@@ -123,20 +124,20 @@ export function ChannelIndexPage() {
     }
   }, [filtersForm, loaderData.data.request]);
 
-  const archiveChannel = React.useCallback((channelId: string) => {
+  const archiveAction = React.useCallback((actionId: string) => {
     return () =>
       setActionDialogState((prev) => ({
         ...prev,
-        channelId,
+        actionId,
         action: "archive",
       }));
   }, []);
 
-  const restoreChannel = React.useCallback((channelId: string) => {
+  const restoreAction = React.useCallback((actionId: string) => {
     return () =>
       setActionDialogState((prev) => ({
         ...prev,
-        channelId,
+        actionId,
         action: "restore",
       }));
   }, []);
@@ -145,9 +146,9 @@ export function ChannelIndexPage() {
     <>
       {loggedInAdmin?.role === "super_admin" && (
         <Link
-          to="/channels/create"
+          to="/actions/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
-          data-testid="mobile:link-create-channel"
+          data-testid="mobile:link-create-action"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -159,13 +160,13 @@ export function ChannelIndexPage() {
             loggedInAdmin?.role === "super_admin" && (
               <Button
                 as={Link}
-                to="/channels/create"
+                to="/actions/create"
                 variant="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
-                data-testid="link-create-channel"
+                data-testid="link-create-action"
               >
-                Add Channel
+                Add Action
               </Button>
             )
           }
@@ -211,7 +212,7 @@ export function ChannelIndexPage() {
 
             <AppPageResetButton
               to={{
-                pathname: "/channels",
+                pathname: "/actions",
                 search: loaderData.data.request.is_archived
                   ? `is_archived=${loaderData.data.request.is_archived}`
                   : undefined,
@@ -222,52 +223,58 @@ export function ChannelIndexPage() {
           </div>
         </div>
         <Table
-          id="channels"
-          loading={channelIndexQuery.isLoading}
-          error={channelIndexQuery.isError}
+          id="actions"
+          loading={actionIndexQuery.isLoading}
+          error={actionIndexQuery.isError}
           errorMessage={
-            (typeof channelIndexQuery.error === "object" &&
-              channelIndexQuery.error instanceof Error &&
-              channelIndexQuery.error.message) ||
+            (typeof actionIndexQuery.error === "object" &&
+              actionIndexQuery.error instanceof Error &&
+              actionIndexQuery.error.message) ||
             undefined
           }
-          refetch={channelIndexQuery.refetch}
-          headings={["Name", "Date created"]}
-          rows={channelIndexQuery.data?.data.map((channel, index) => [
-            channel.name,
-            formatDateTime(channel.created_at),
+          refetch={actionIndexQuery.refetch}
+          headings={["CTA Icon", "CTA Label", "Date created"]}
+          rows={actionIndexQuery.data?.data.map((action, index) => [
+            (action.cta_icon_type === "emoji" && (
+              <em-emoji id={action.cta_icon_value} />
+            )) ||
+              (action.cta_icon_type === "image" && (
+                <img src={action.cta_icon_value} alt="" />
+              )),
+            action.cta_label,
+            formatDateTime(action.created_at),
             <div className="flex items-center justify-end gap-x-1">
               <IconButton
                 as={Link}
-                to={`/channels/${channel.id}`}
+                to={`/actions/${action.id}`}
                 icon={(props) => <PencilSimple {...props} />}
-                label="Edit Channel"
-                data-testid={`link-edit-channel-${index}`}
+                label="Edit Action"
+                data-testid={`link-edit-action-${index}`}
               />
               {loggedInAdmin?.role === "super_admin" &&
-                (!channel.is_archived ? (
+                (!action.is_archived ? (
                   <IconButton
                     icon={(props) => <Archive {...props} />}
-                    label="Archive Channel"
-                    onClick={archiveChannel(channel.id)}
+                    label="Archive Action"
+                    onClick={archiveAction(action.id)}
                     className="text-red-600"
-                    data-testid={`btn-archive-channel-${index}`}
+                    data-testid={`btn-archive-action-${index}`}
                   />
                 ) : (
                   <IconButton
                     icon={(props) => <ArrowCounterClockwise {...props} />}
-                    label="Restore"
-                    onClick={restoreChannel(channel.id)}
+                    label="Restore Action"
+                    onClick={restoreAction(action.id)}
                     className="text-green-600"
-                    data-testid={`btn-restore-channel-${index}`}
+                    data-testid={`btn-restore-action-${index}`}
                   />
                 ))}
             </div>,
           ])}
           className="mt-5"
         />
-        {channelIndexQuery.isSuccess &&
-          channelIndexQuery.data.data.length > 0 && (
+        {actionIndexQuery.isSuccess &&
+          actionIndexQuery.data.data.length > 0 && (
             <div className="mt-5">
               <Controller
                 control={filtersForm.control}
@@ -275,9 +282,9 @@ export function ChannelIndexPage() {
                 render={({ field }) => (
                   <Pagination
                     page={field.value ?? 1}
-                    count={channelIndexQuery.data.meta?.pagination?.total ?? 1}
+                    count={actionIndexQuery.data.meta?.pagination?.total ?? 1}
                     pageSize={
-                      channelIndexQuery.data.meta?.pagination?.per_page ?? 1
+                      actionIndexQuery.data.meta?.pagination?.per_page ?? 1
                     }
                     onChange={({ page }) => {
                       field.onChange(page);
@@ -317,24 +324,24 @@ export function ChannelIndexPage() {
             </div>
           )}
       </AppPageContainer>
-      <ArchiveChannelDialog
-        key={`archive-${actionDialogState.channelId ?? "null"}`}
-        channelId={actionDialogState.channelId ?? ""}
+      <ArchiveActionDialog
+        key={`archive-${actionDialogState.actionId ?? "null"}`}
+        actionId={actionDialogState.actionId ?? ""}
         isOpen={actionDialogState.action === "archive"}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
-            channelId: open ? prev.channelId : null,
+            actionId: open ? prev.actionId : null,
             action: open ? "archive" : null,
           }));
         }}
       />
-      <RestoreChannelDialog
-        key={`restore-${actionDialogState.channelId ?? "null"}`}
-        channelId={actionDialogState.channelId ?? ""}
+      <RestoreActionDialog
+        key={`restore-${actionDialogState.actionId ?? "null"}`}
+        actionId={actionDialogState.actionId ?? ""}
         isOpen={actionDialogState.action === "restore"}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
-            channelId: open ? prev.channelId : null,
+            actionId: open ? prev.actionId : null,
             action: open ? "restore" : null,
           }));
         }}

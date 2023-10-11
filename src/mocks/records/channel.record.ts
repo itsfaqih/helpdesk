@@ -7,6 +7,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "WhatsApp",
+    description: "WhatsApp messaging app",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -14,6 +15,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Telegram",
+    description: "Telegram messaging app",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -21,6 +23,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Facebook",
+    description: "Facebook messenger",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -28,6 +31,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Instagram",
+    description: "Instagram DM",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -35,6 +39,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Twitter",
+    description: "Twitter DM",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -42,6 +47,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Email",
+    description: null,
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -49,6 +55,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "SMS",
+    description: null,
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -56,6 +63,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Main Website",
+    description: "Main website contact form",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -63,6 +71,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Second Website",
+    description: "Second website contact form",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -70,6 +79,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Third Website",
+    description: "Third website contact form",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -77,6 +87,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: "Another",
+    description: "Another contact form",
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

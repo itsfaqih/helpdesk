@@ -32,7 +32,7 @@ export function ArchiveTicketCategoryDialog({
       destructive
       isLoading={archiveTicketCategoryMutation.isLoading}
       isSuccess={archiveTicketCategoryMutation.isSuccess}
-      buttonLabel="Archive Category"
+      buttonLabel="Archive"
       buttonOnClick={() => archiveTicketCategoryMutation.mutate()}
       trigger={trigger}
       onSuccess={() => {

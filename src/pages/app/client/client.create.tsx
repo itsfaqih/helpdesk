@@ -3,17 +3,17 @@ import { APIResponseSchema } from "@/schemas/api.schema";
 import { ClientSchema, CreateClientSchema } from "@/schemas/client.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { ConflictError } from "@/utils/error.util";
 import { api } from "@/libs/api.lib";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textbox } from "@/components/derived/textbox";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";
-import { Button } from "@/components/base/button";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
+import { UnprocessableEntityError } from "@/utils/error.util";
+import { SaveButton } from "@/components/derived/save-button";
 
 function loader() {
   return async () => {
@@ -68,15 +68,12 @@ export function ClientCreatePage() {
             </div>
           </div>
           <div className="flex justify-end">
-            <Button
-              variant="primary"
+            <SaveButton
               type="submit"
               loading={createClientMutation.isLoading}
               success={createClientMutation.isSuccess}
               data-testid="btn-create-client"
-            >
-              Create Client
-            </Button>
+            />
           </div>
         </form>
       </Card>
@@ -104,7 +101,7 @@ function useCreateClientMutation() {
 
         return CreateClientResponseSchema.parse(res);
       } catch (error) {
-        if (error instanceof ConflictError) {
+        if (error instanceof UnprocessableEntityError) {
           throw new Error("Email is already registered");
         }
 

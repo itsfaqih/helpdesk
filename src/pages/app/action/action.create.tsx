@@ -1,8 +1,9 @@
 import { AppPageTitle } from "../_components/page-title.app";
 import { APIResponseSchema } from "@/schemas/api.schema";
-import { ChannelSchema, CreateChannelSchema } from "@/schemas/channel.schema";
+import { ActionSchema, CreateActionSchema } from "@/schemas/action.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { UnprocessableEntityError } from "@/utils/error.util";
 import { api } from "@/libs/api.lib";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textbox } from "@/components/derived/textbox";
@@ -13,58 +14,77 @@ import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
 import { TextAreabox } from "@/components/derived/textareabox";
-import { UnprocessableEntityError } from "@/utils/error.util";
+import { IconPicker } from "@/components/derived/icon-picker";
 import { SaveButton } from "@/components/derived/save-button";
 
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: "Create Channel",
+      pageTitle: "Create Action",
     });
   };
 }
 
-ChannelCreatePage.loader = loader;
+ActionCreatePage.loader = loader;
 
-export function ChannelCreatePage() {
+export function ActionCreatePage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
 
   const navigate = useNavigate();
-  const createChannelForm = useForm<CreateChannelSchema>({
-    resolver: zodResolver(CreateChannelSchema),
+  const createActionForm = useForm<CreateActionSchema>({
+    resolver: zodResolver(CreateActionSchema),
+    defaultValues: {
+      cta_icon_type: "emoji",
+    },
   });
 
-  const createChannelMutation = useCreateChannelMutation();
+  const createActionMutation = useCreateActionMutation();
 
-  const onSubmit = createChannelForm.handleSubmit((data) => {
-    createChannelMutation.mutate(data, {
+  const onSubmit = createActionForm.handleSubmit((data) => {
+    createActionMutation.mutate(data, {
       onSuccess(res) {
-        navigate(`/channels/${res.data.id}`);
+        navigate(`/actions/${res.data.id}`);
       },
     });
   });
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
-      <AppPageBackLink to="/channels" />
+      <AppPageBackLink to="/actions" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
-          id="create-channel-form"
+          id="create-action-form"
           onSubmit={onSubmit}
           className="flex flex-col gap-y-4"
         >
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="cta_icon_picker">CTA Icon</Label>
+            <div className="col-span-3 flex">
+              <Controller
+                control={createActionForm.control}
+                name="cta_icon_value"
+                render={({ field }) => (
+                  <IconPicker
+                    id="cta_icon_picker"
+                    value={{ emojiId: field.value }}
+                    onChange={({ emojiId }) => field.onChange(emojiId)}
+                  />
+                )}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
+            <Label htmlFor="cta_label">CTA Label</Label>
             <div className="col-span-3">
               <Textbox
-                {...createChannelForm.register("name")}
-                label="Name"
-                placeholder="Enter Name"
-                disabled={createChannelMutation.isLoading}
-                error={createChannelForm.formState.errors.name?.message}
+                {...createActionForm.register("cta_label")}
+                label="CTA Label"
+                placeholder="Enter CTA Label"
+                disabled={createActionMutation.isLoading}
+                error={createActionForm.formState.errors.cta_label?.message}
                 srOnlyLabel
-                data-testid="textbox-name"
+                data-testid="textbox-cta_label"
               />
             </div>
           </div>
@@ -72,11 +92,11 @@ export function ChannelCreatePage() {
             <Label htmlFor="description">Description</Label>
             <div className="col-span-3">
               <TextAreabox
-                {...createChannelForm.register("description")}
+                {...createActionForm.register("description")}
                 label="Description"
                 placeholder="Enter Description"
-                disabled={createChannelMutation.isLoading}
-                error={createChannelForm.formState.errors.description?.message}
+                disabled={createActionMutation.isLoading}
+                error={createActionForm.formState.errors.description?.message}
                 srOnlyLabel
                 rows={3}
                 data-testid="textbox-description"
@@ -86,9 +106,9 @@ export function ChannelCreatePage() {
           <div className="flex justify-end">
             <SaveButton
               type="submit"
-              loading={createChannelMutation.isLoading}
-              success={createChannelMutation.isSuccess}
-              data-testid="btn-create-channel"
+              loading={createActionMutation.isLoading}
+              success={createActionMutation.isSuccess}
+              data-testid="btn-create-action"
             />
           </div>
         </form>
@@ -97,25 +117,22 @@ export function ChannelCreatePage() {
   );
 }
 
-const CreateChannelResponseSchema = APIResponseSchema({
-  schema: ChannelSchema.pick({
-    id: true,
-    name: true,
-  }),
+const CreateActionResponseSchema = APIResponseSchema({
+  schema: ActionSchema,
 });
 
-function useCreateChannelMutation() {
+function useCreateActionMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    async mutationFn(data: CreateChannelSchema) {
+    async mutationFn(data: CreateActionSchema) {
       try {
-        const res = await api.post(data, "/channels");
+        const res = await api.post(data, "/actions");
 
-        return CreateChannelResponseSchema.parse(res);
+        return CreateActionResponseSchema.parse(res);
       } catch (error) {
         if (error instanceof UnprocessableEntityError) {
-          throw new Error("Channel with this name already exists");
+          throw new Error("Action with this name already exists");
         }
 
         throw new Error(
@@ -124,7 +141,7 @@ function useCreateChannelMutation() {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["channel", "index"]);
+      await queryClient.invalidateQueries(["action", "index"]);
     },
   });
 }

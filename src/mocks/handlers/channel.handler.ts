@@ -14,7 +14,7 @@ import {
   handleResponseError,
   successResponse,
 } from "../mock-utils";
-import { ConflictError, NotFoundError } from "@/utils/error.util";
+import { NotFoundError, UnprocessableEntityError } from "@/utils/error.util";
 
 export const channelHandlers = [
   rest.post("/api/channels", async (req) => {
@@ -32,7 +32,7 @@ export const channelHandlers = [
       );
 
       if (isChannelExisted) {
-        throw new ConflictError(
+        throw new UnprocessableEntityError(
           "Channel with the same name is already registered"
         );
       }
@@ -40,6 +40,7 @@ export const channelHandlers = [
       const newChannel: Channel = {
         id: nanoid(),
         name: data.name,
+        description: data.description,
         is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

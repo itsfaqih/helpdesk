@@ -34,6 +34,7 @@ import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
 import { DeactivateAdminDialog } from "./_components/deactivate-admin-dialog";
 import { ReactivateAdminDialog } from "./_components/reactivate-admin-dialog";
+import { SaveButton } from "@/components/derived/save-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -168,45 +169,36 @@ export function AdminShowPage() {
                     <Select
                       name={field.name}
                       disabled={updateAdminMutation.isLoading}
-                      onChange={(selectedOption) => {
-                        const value = selectedOption?.value;
+                      items={adminRoleOptions}
+                      onChange={(e) => {
+                        const value = e?.value[0];
+
                         if (value === "super_admin" || value === "operator") {
                           field.onChange(value);
                         }
                       }}
-                      selectedOption={adminRoleOptions.find(
-                        (role) => role.value === field.value
-                      )}
+                      value={[field.value]}
                       readOnly={!admin?.is_active}
                     >
-                      {({ selectedOption }) => (
-                        <>
-                          <div className="grid w-full items-center gap-1.5">
-                            <SelectLabel className="sr-only">Role</SelectLabel>
-                            <SelectTrigger
-                              ref={field.ref}
-                              error={
-                                updateAdminForm.formState.errors.role?.message
-                              }
-                              className="w-full"
-                              data-testid="select-role"
-                            >
-                              {(selectedOption as { label?: string })?.label ??
-                                "Select role"}
-                            </SelectTrigger>
-                          </div>
-                          <SelectContent className="w-full">
-                            {adminRoleOptions.map((role) => (
-                              <SelectOption
-                                key={role.value}
-                                value={role.value}
-                                label={role.label}
-                                data-testid={`option-${role.value}`}
-                              />
-                            ))}
-                          </SelectContent>
-                        </>
-                      )}
+                      <div className="grid w-full items-center gap-1.5">
+                        <SelectLabel className="sr-only">Role</SelectLabel>
+                        <SelectTrigger
+                          ref={field.ref}
+                          error={updateAdminForm.formState.errors.role?.message}
+                          placeholder="Select role"
+                          className="w-full"
+                          data-testid="select-role"
+                        />
+                      </div>
+                      <SelectContent className="w-full">
+                        {adminRoleOptions.map((option) => (
+                          <SelectOption
+                            key={option.value}
+                            item={option}
+                            data-testid={`option-${option.value}`}
+                          />
+                        ))}
+                      </SelectContent>
                     </Select>
                   )}
                 />
@@ -215,19 +207,16 @@ export function AdminShowPage() {
           </div>
           {admin?.is_active && (
             <div className="flex justify-end">
-              <Button
+              <SaveButton
                 form="update-admin-form"
                 type="submit"
-                variant="primary"
                 loading={updateAdminMutation.isLoading}
                 success={
                   updateAdminMutation.isSuccess &&
                   !updateAdminForm.formState.isDirty
                 }
                 data-testid="btn-update-admin"
-              >
-                Update Admin
-              </Button>
+              />
             </div>
           )}
         </form>
@@ -267,6 +256,7 @@ function useUpdateAdminMutation({ adminId }: UseUpdateAdminMutationParams) {
     },
     async onSuccess() {
       await queryClient.invalidateQueries(["admin", "index"]);
+      await queryClient.invalidateQueries(["admin", "show", adminId]);
     },
   });
 }

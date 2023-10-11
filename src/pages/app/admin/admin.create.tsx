@@ -3,7 +3,7 @@ import { APIResponseSchema } from "@/schemas/api.schema";
 import { AdminSchema, CreateAdminSchema } from "@/schemas/admin.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { ConflictError } from "@/utils/error.util";
+import { UnprocessableEntityError } from "@/utils/error.util";
 import { api } from "@/libs/api.lib";
 import {
   Select,
@@ -18,11 +18,11 @@ import { Textbox } from "@/components/derived/textbox";
 import { adminRoleOptions } from "@/utils/admin.util";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";
-import { Button } from "@/components/base/button";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
+import { SaveButton } from "@/components/derived/save-button";
 
 function loader() {
   return async () => {
@@ -116,59 +116,47 @@ export function AdminCreatePage() {
                   <Select
                     name={field.name}
                     disabled={createAdminMutation.isLoading}
-                    onChange={(selectedOption) => {
-                      const value = selectedOption?.value;
+                    items={adminRoleOptions}
+                    onChange={(e) => {
+                      const value = e.value[0];
+
                       if (value === "super_admin" || value === "operator") {
                         field.onChange(value);
                       }
                     }}
-                    selectedOption={adminRoleOptions.find(
-                      (role) => role.value === field.value
-                    )}
+                    value={[field.value]}
                   >
-                    {({ selectedOption }) => (
-                      <>
-                        <div className="grid w-full items-center gap-1.5">
-                          <SelectLabel className="sr-only">Role</SelectLabel>
-                          <SelectTrigger
-                            ref={field.ref}
-                            error={
-                              createAdminForm.formState.errors.role?.message
-                            }
-                            className="w-full"
-                            data-testid="select-role"
-                          >
-                            {(selectedOption as { label?: string })?.label ??
-                              "Select role"}
-                          </SelectTrigger>
-                        </div>
-                        <SelectContent>
-                          {adminRoleOptions.map((role) => (
-                            <SelectOption
-                              key={role.value}
-                              value={role.value}
-                              label={role.label}
-                              data-testid={`option-${role.value}`}
-                            />
-                          ))}
-                        </SelectContent>
-                      </>
-                    )}
+                    <div className="grid w-full items-center gap-1.5">
+                      <SelectLabel className="sr-only">Role</SelectLabel>
+                      <SelectTrigger
+                        ref={field.ref}
+                        error={createAdminForm.formState.errors.role?.message}
+                        placeholder="Select role"
+                        className="w-full"
+                        data-testid="select-role"
+                      />
+                    </div>
+                    <SelectContent>
+                      {adminRoleOptions.map((option) => (
+                        <SelectOption
+                          key={option.value}
+                          item={option}
+                          data-testid={`option-${option.value}`}
+                        />
+                      ))}
+                    </SelectContent>
                   </Select>
                 )}
               />
             </div>
           </div>
           <div className="flex justify-end">
-            <Button
-              variant="primary"
+            <SaveButton
               type="submit"
               loading={createAdminMutation.isLoading}
               success={createAdminMutation.isSuccess}
               data-testid="btn-create-admin"
-            >
-              Create Admin
-            </Button>
+            />
           </div>
         </form>
       </Card>
@@ -196,7 +184,7 @@ function useCreateAdminMutation() {
 
         return CreateAdminResponseSchema.parse(res);
       } catch (error) {
-        if (error instanceof ConflictError) {
+        if (error instanceof UnprocessableEntityError) {
           throw new Error("Email is already registered");
         }
 

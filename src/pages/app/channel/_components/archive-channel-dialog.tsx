@@ -31,7 +31,7 @@ export function ArchiveChannelDialog({
       destructive
       isLoading={archiveChannelMutation.isLoading}
       isSuccess={archiveChannelMutation.isSuccess}
-      buttonLabel="Archive Channel"
+      buttonLabel="Archive"
       buttonOnClick={() => archiveChannelMutation.mutate()}
       trigger={trigger}
       onSuccess={() => {

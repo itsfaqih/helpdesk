@@ -9,8 +9,10 @@ import {
 } from "@/utils/error.util";
 import localforage from "localforage";
 import { response, context, ResponseTransformer } from "msw";
+import { z } from "zod";
 
-type BaseResponseParams = {
+type BaseResponseParams<TData = unknown> = {
+  data?: TData;
   message: string;
   status?: number;
   transformers?: ResponseTransformer[];
@@ -50,6 +52,7 @@ export function successResponse<TData>({
 }
 
 export function errorResponse({
+  data = null,
   message,
   status = 200,
   transformers,
@@ -57,7 +60,7 @@ export function errorResponse({
   return response(
     ...(transformers ?? []),
     context.json({
-      data: null,
+      data,
       message,
     }),
     context.status(status),
@@ -103,6 +106,13 @@ export async function allowSuperAdminOnly({
 }
 
 export function handleResponseError(error: unknown) {
+  if (error instanceof z.ZodError) {
+    return errorResponse({
+      data: error.errors,
+      message: "Invalid payload data",
+      status: 400,
+    });
+  }
   if (error instanceof BaseResponseError) {
     return errorResponse({
       message: error.message,

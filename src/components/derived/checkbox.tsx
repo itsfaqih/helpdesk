@@ -23,7 +23,6 @@ export const Checkbox = React.forwardRef<
     >
       {(api) => (
         <>
-          <Ark.CheckboxInput data-peer />
           <Ark.CheckboxControl
             className={cn(
               "shadow-haptic-sm-gray-700 h-4.5 w-4.5 rounded-md bg-white text-white inline-flex items-center justify-center",

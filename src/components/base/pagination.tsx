@@ -17,7 +17,7 @@ export const PaginationEllipsis = React.forwardRef<
   <Ark.PaginationEllipsis
     ref={ref}
     className={cn(
-      "px-2 py-1 text-gray-800 text-sm w-9 h-9 flex items-center justify-center rounded-md",
+      "px-2 py-1 text-gray-800 text-sm w-8 h-8 flex items-center justify-center rounded-md",
       className
     )}
     {...props}
@@ -46,7 +46,7 @@ export const PaginationPrevPageTrigger = React.forwardRef<
   <Ark.PaginationPrevPageTrigger
     ref={ref}
     className={cn(
-      "px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-md w-9 h-9 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800 disabled:opacity-40",
+      "px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-md w-8 h-8 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800 disabled:opacity-40",
       className
     )}
     {...props}
@@ -65,7 +65,7 @@ export const PaginationNextPageTrigger = React.forwardRef<
   <Ark.PaginationNextPageTrigger
     ref={ref}
     className={cn(
-      "px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-md w-9 h-9 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800 disabled:opacity-40",
+      "px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-md w-8 h-8 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800 disabled:opacity-40",
       className
     )}
     {...props}
@@ -84,7 +84,7 @@ export const PaginationPageTrigger = React.forwardRef<
   <Ark.PaginationPageTrigger
     ref={ref}
     className={cn(
-      "tabular-nums aria-[current]:bg-brand-100 aria-[current]:text-brand-800 aria-[current]:hover:bg-brand-200 aria-[current]:hover:text-brand-900 aria-[current]:active:bg-brand-300 active:bg-gray-200 text-gray-800 text-sm w-9 font-medium h-9 flex items-center justify-center disabled:cursor-not-allowed hover:bg-gray-100 rounded-md",
+      "tabular-nums aria-[current]:bg-brand-100 aria-[current]:text-brand-800 aria-[current]:hover:bg-brand-200 aria-[current]:hover:text-brand-800 aria-[current]:active:bg-brand-300 active:bg-gray-200 text-gray-800 text-sm w-8 font-medium h-8 flex items-center justify-center disabled:cursor-not-allowed hover:bg-gray-100 rounded-md",
       className
     )}
     {...props}

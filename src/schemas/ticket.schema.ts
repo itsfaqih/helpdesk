@@ -15,7 +15,7 @@ export type TicketStatus = z.infer<typeof TicketStatusEnum>;
 export const TicketCategorySchema = z.object({
   id: z.string().nonempty(),
   name: z.string().nonempty(),
-  description: z.string().optional(),
+  description: z.string().nullable(),
   is_archived: z.boolean().default(false),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),

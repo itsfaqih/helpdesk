@@ -83,6 +83,17 @@ function loader(queryClient: QueryClient) {
 
 TicketIndexPage.loader = loader;
 
+const ticketStatusOptions = [
+  {
+    label: "All status",
+    value: "",
+  },
+  ...TicketStatusEnum.options.map((status) => ({
+    label: ticketStatusToLabel(status),
+    value: status,
+  })),
+];
+
 export function TicketIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
@@ -131,257 +142,228 @@ export function TicketIndexPage() {
   }, [filtersForm, loaderData.data.request]);
 
   const ticketCategoryIndexQuery = useTicketCategoryIndexQuery({});
-  const ticketCategoryOptions =
-    ticketCategoryIndexQuery.data?.data.map((category) => ({
+
+  const ticketCategoryOptions = [
+    {
+      label: "All category",
+      value: "",
+    },
+    ...(ticketCategoryIndexQuery.data?.data.map((category) => ({
       label: category.name,
       value: category.id,
-    })) ?? [];
+    })) ?? []),
+  ];
 
   return (
-    <>
-      <AppPageContainer title={loaderData.pageTitle} className="pb-5">
-        <AppPageTitle title={loaderData.pageTitle} />
+    <AppPageContainer title={loaderData.pageTitle} className="pb-5">
+      <AppPageTitle title={loaderData.pageTitle} />
 
-        <Controller
-          control={filtersForm.control}
-          name="is_archived"
-          render={({ field }) => (
-            <Tabs
-              value={field.value ?? "0"}
-              onChange={({ value }) => {
-                if (value && (value === "1" || value === "0")) {
-                  field.onChange(value);
-                }
-              }}
-              className="mt-5"
-            >
-              <TabList>
-                <TabTrigger value="0">Available</TabTrigger>
-                <TabTrigger value="1">Archived</TabTrigger>
-                <TabIndicator />
-              </TabList>
-            </Tabs>
-          )}
-        />
-        <div className="mt-5">
-          <div className="flex flex-wrap gap-3 sm:items-center">
-            <Input
-              name="search"
-              onChange={(e) => setSearch(e.target.value)}
-              value={search ?? ""}
-              type="search"
-              placeholder="Search by title"
-              className="flex-1 min-w-[20rem]"
-            />
+      <Controller
+        control={filtersForm.control}
+        name="is_archived"
+        render={({ field }) => (
+          <Tabs
+            value={field.value ?? "0"}
+            onChange={({ value }) => {
+              if (value && (value === "1" || value === "0")) {
+                field.onChange(value);
+              }
+            }}
+            className="mt-5"
+          >
+            <TabList>
+              <TabTrigger value="0">Available</TabTrigger>
+              <TabTrigger value="1">Archived</TabTrigger>
+              <TabIndicator />
+            </TabList>
+          </Tabs>
+        )}
+      />
+      <div className="mt-5">
+        <div className="flex flex-wrap gap-3 sm:items-center">
+          <Input
+            name="search"
+            onChange={(e) => setSearch(e.target.value)}
+            value={search ?? ""}
+            type="search"
+            placeholder="Search by title"
+            className="flex-1 min-w-[20rem]"
+          />
 
-            <Controller
-              control={filtersForm.control}
-              name="status"
-              render={({ field }) => (
-                <Select
-                  name={field.name}
-                  selectedOption={{
-                    label: ticketStatusToLabel(field.value ?? ""),
-                    value: field.value ?? "",
-                  }}
-                  onChange={(selectedOption) => {
-                    const value = selectedOption?.value;
+          <Controller
+            control={filtersForm.control}
+            name="status"
+            render={({ field }) => (
+              <Select
+                name={field.name}
+                items={ticketStatusOptions}
+                onChange={(e) => {
+                  const value = e?.value[0];
 
-                    if (
-                      value === "" ||
-                      value === "open" ||
-                      value === "in_progress" ||
-                      value === "resolved" ||
-                      value === "unresolved"
-                    ) {
-                      field.onChange(value);
-                    }
-                  }}
-                >
-                  {({ selectedOption }) => (
-                    <>
-                      <SelectLabel className="sr-only">Status</SelectLabel>
-                      <SelectTrigger className="w-48">
-                        {(selectedOption as { label?: string })?.label ??
-                          "Select status"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectOption value="" label="All status" />
-                        {TicketStatusEnum.options.map((status) => (
-                          <SelectOption
-                            key={status}
-                            value={status}
-                            label={ticketStatusToLabel(status)}
-                          />
-                        ))}
-                      </SelectContent>
-                    </>
-                  )}
-                </Select>
-              )}
-            />
-
-            <Controller
-              control={filtersForm.control}
-              name="category_id"
-              render={({ field }) => (
-                <Select
-                  name={field.name}
-                  selectedOption={
-                    ticketCategoryOptions.find(
-                      (option) => option.value === field.value
-                    ) ?? { label: "All category", value: "" }
-                  }
-                  onChange={(selectedOption) => {
-                    const value = selectedOption?.value;
-
+                  if (
+                    value === "" ||
+                    value === "open" ||
+                    value === "in_progress" ||
+                    value === "resolved" ||
+                    value === "unresolved"
+                  ) {
                     field.onChange(value);
-                  }}
-                >
-                  {({ selectedOption }) => (
-                    <>
-                      <SelectLabel className="sr-only">Category</SelectLabel>
-                      <SelectTrigger className="w-48">
-                        {(selectedOption as { label?: string })?.label ??
-                          "Select category"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectOption value="" label="All category" />
-                        {ticketCategoryOptions.map((option) => (
-                          <SelectOption
-                            key={option.value}
-                            value={option.value}
-                            label={option.label}
-                          />
-                        ))}
-                      </SelectContent>
-                    </>
-                  )}
-                </Select>
-              )}
-            />
+                  }
+                }}
+              >
+                <SelectLabel className="sr-only">Status</SelectLabel>
+                <SelectTrigger placeholder="Select status" className="w-48" />
+                <SelectContent>
+                  {ticketStatusOptions.map((option) => (
+                    <SelectOption key={option.value} item={option} />
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
 
-            <AppPageResetButton
-              to={{
-                pathname: "/tickets",
-                search: loaderData.data.request.is_archived
-                  ? `is_archived=${loaderData.data.request.is_archived}`
-                  : undefined,
-              }}
-              onClick={() => setSearch(null)}
-              className="ml-auto"
-            />
-          </div>
+          <Controller
+            control={filtersForm.control}
+            name="category_id"
+            render={({ field }) => (
+              <Select
+                name={field.name}
+                items={ticketCategoryOptions}
+                onChange={(e) => {
+                  const value = e?.value[0];
+
+                  field.onChange(value);
+                }}
+                
+              >
+                <SelectLabel className="sr-only">Category</SelectLabel>
+                <SelectTrigger placeholder="Select category" className="w-48" />
+                <SelectContent>
+                  {ticketCategoryOptions.map((option) => (
+                    <SelectOption key={option.value} item={option} />
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+
+          <AppPageResetButton
+            to={{
+              pathname: "/tickets",
+              search: loaderData.data.request.is_archived
+                ? `is_archived=${loaderData.data.request.is_archived}`
+                : undefined,
+            }}
+            onClick={() => setSearch(null)}
+            className="ml-auto"
+          />
         </div>
-        <Table
-          id="tickets"
-          loading={ticketIndexQuery.isLoading}
-          error={ticketIndexQuery.isError}
-          errorMessage={
-            (typeof ticketIndexQuery.error === "object" &&
-              ticketIndexQuery.error instanceof Error &&
-              ticketIndexQuery.error.message) ||
-            undefined
-          }
-          refetch={ticketIndexQuery.refetch}
-          headings={[
-            "Title",
-            "Client",
-            "Category",
-            "Assignees",
-            "Status",
-            "Last updated",
-          ]}
-          rows={ticketIndexQuery.data?.data.map((ticket) => [
-            ticket.title,
-            ticket.client.full_name,
-            ticket.category.name,
-            <div className="flex items-center justify-start -space-x-2">
-              {ticket.assignments.length === 0 && (
-                <span className="text-gray-500">-</span>
-              )}
-              {ticket.assignments.map((assignment) => (
-                <Tooltip key={assignment.id} positioning={{ placement: "top" }}>
-                  <TooltipTrigger className="cursor-default">
-                    <Avatar className="w-8 h-8 hover:relative">
-                      <AvatarImage src={undefined} />
-                      <AvatarFallback>
-                        {assignment.admin.full_name
-                          ? getInitials(assignment.admin.full_name)
-                          : ""}
-                      </AvatarFallback>
-                    </Avatar>
-                  </TooltipTrigger>
-                  <TooltipContent>{assignment.admin.full_name}</TooltipContent>
-                </Tooltip>
-              ))}
-            </div>,
-            <Badge color={ticketStatusToBadgeColor(ticket.status)}>
-              {ticketStatusToLabel(ticket.status)}
-            </Badge>,
-            formatDateTime(ticket.updated_at),
-            <div className="flex items-center justify-end gap-x-1">
-              <IconButton
-                as={Link}
-                to={`/tickets/${ticket.id}`}
-                icon={(props) => <CaretRight {...props} />}
-                label="View"
-              />
-            </div>,
-          ])}
-          className="mt-5"
-        />
-        {ticketIndexQuery.isSuccess &&
-          ticketIndexQuery.data.data.length > 0 && (
-            <div className="mt-5">
-              <Controller
-                control={filtersForm.control}
-                name="page"
-                render={({ field }) => (
-                  <Pagination
-                    page={field.value ?? 1}
-                    count={ticketIndexQuery.data.meta?.pagination?.total ?? 1}
-                    pageSize={
-                      ticketIndexQuery.data.meta?.pagination?.per_page ?? 1
-                    }
-                    onChange={({ page }) => {
-                      field.onChange(page);
-                    }}
-                    className="justify-center"
-                  >
-                    {({ pages }) => (
-                      <PaginationList>
-                        <PaginationListItem>
-                          <PaginationPrevPageTrigger />
-                        </PaginationListItem>
-                        {/* temporarily cast type until it's properly typed */}
-                        {(pages as { type: "page"; value: number }[]).map(
-                          (page, index) =>
-                            page.type === "page" ? (
-                              <PaginationListItem key={index}>
-                                <PaginationPageTrigger {...page}>
-                                  {page.value}
-                                </PaginationPageTrigger>
-                              </PaginationListItem>
-                            ) : (
-                              <PaginationListItem key={index}>
-                                <PaginationEllipsis index={index}>
-                                  &#8230;
-                                </PaginationEllipsis>
-                              </PaginationListItem>
-                            )
-                        )}
-                        <PaginationListItem>
-                          <PaginationNextPageTrigger />
-                        </PaginationListItem>
-                      </PaginationList>
+      </div>
+      <Table
+        id="tickets"
+        loading={ticketIndexQuery.isLoading}
+        error={ticketIndexQuery.isError}
+        errorMessage={
+          (typeof ticketIndexQuery.error === "object" &&
+            ticketIndexQuery.error instanceof Error &&
+            ticketIndexQuery.error.message) ||
+          undefined
+        }
+        refetch={ticketIndexQuery.refetch}
+        headings={[
+          "Title",
+          "Client",
+          "Category",
+          "Assignees",
+          "Status",
+          "Last updated",
+        ]}
+        rows={ticketIndexQuery.data?.data.map((ticket) => [
+          ticket.title,
+          ticket.client.full_name,
+          ticket.category.name,
+          <div className="flex items-center justify-start -space-x-2">
+            {ticket.assignments.length === 0 && (
+              <span className="text-gray-500">-</span>
+            )}
+            {ticket.assignments.map((assignment) => (
+              <Tooltip key={assignment.id} positioning={{ placement: "top" }}>
+                <TooltipTrigger className="cursor-default">
+                  <Avatar className="w-8 h-8 hover:relative">
+                    <AvatarImage src={undefined} />
+                    <AvatarFallback>
+                      {assignment.admin.full_name
+                        ? getInitials(assignment.admin.full_name)
+                        : ""}
+                    </AvatarFallback>
+                  </Avatar>
+                </TooltipTrigger>
+                <TooltipContent>{assignment.admin.full_name}</TooltipContent>
+              </Tooltip>
+            ))}
+          </div>,
+          <Badge color={ticketStatusToBadgeColor(ticket.status)}>
+            {ticketStatusToLabel(ticket.status)}
+          </Badge>,
+          formatDateTime(ticket.updated_at),
+          <div className="flex items-center justify-end gap-x-1">
+            <IconButton
+              as={Link}
+              to={`/tickets/${ticket.id}`}
+              icon={(props) => <CaretRight {...props} />}
+              label="View"
+            />
+          </div>,
+        ])}
+        className="mt-5"
+      />
+      {ticketIndexQuery.isSuccess && ticketIndexQuery.data.data.length > 0 && (
+        <div className="mt-5">
+          <Controller
+            control={filtersForm.control}
+            name="page"
+            render={({ field }) => (
+              <Pagination
+                page={field.value ?? 1}
+                count={ticketIndexQuery.data.meta?.pagination?.total ?? 1}
+                pageSize={ticketIndexQuery.data.meta?.pagination?.per_page ?? 1}
+                onChange={({ page }) => {
+                  field.onChange(page);
+                }}
+                className="justify-center"
+              >
+                {({ pages }) => (
+                  <PaginationList>
+                    <PaginationListItem>
+                      <PaginationPrevPageTrigger />
+                    </PaginationListItem>
+                    {/* temporarily cast type until it's properly typed */}
+                    {(pages as { type: "page"; value: number }[]).map(
+                      (page, index) =>
+                        page.type === "page" ? (
+                          <PaginationListItem key={index}>
+                            <PaginationPageTrigger {...page}>
+                              {page.value}
+                            </PaginationPageTrigger>
+                          </PaginationListItem>
+                        ) : (
+                          <PaginationListItem key={index}>
+                            <PaginationEllipsis index={index}>
+                              &#8230;
+                            </PaginationEllipsis>
+                          </PaginationListItem>
+                        )
                     )}
-                  </Pagination>
+                    <PaginationListItem>
+                      <PaginationNextPageTrigger />
+                    </PaginationListItem>
+                  </PaginationList>
                 )}
-              />
-            </div>
-          )}
-      </AppPageContainer>
-    </>
+              </Pagination>
+            )}
+          />
+        </div>
+      )}
+    </AppPageContainer>
   );
 }

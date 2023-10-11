@@ -1,5 +1,4 @@
 import { Button } from "@/components/base/button";
-import { cn } from "@/libs/cn.lib";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -12,8 +11,8 @@ export const AppPageResetButton = React.forwardRef<
       as={Link}
       ref={ref}
       role="button"
-      variant="transparent"
-      className={cn("text-red-500", className)}
+      variant="danger-transparent"
+      className={className}
       {...props}
       data-testid="btn-reset"
     >

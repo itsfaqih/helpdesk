@@ -30,7 +30,7 @@ export function RestoreChannelDialog({
     channel will be listed in the channel list"
       isLoading={restoreChannelMutation.isLoading}
       isSuccess={restoreChannelMutation.isSuccess}
-      buttonLabel="Restore Channel"
+      buttonLabel="Restore"
       buttonOnClick={() => restoreChannelMutation.mutate()}
       trigger={trigger}
       onSuccess={() => {

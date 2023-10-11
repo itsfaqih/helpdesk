@@ -30,6 +30,8 @@ import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
 import { RestoreClientDialog } from "./_components/restore-client-dialog";
 import { ArchiveClientDialog } from "./_components/archive-client-dialog";
+import { SaveButton } from "@/components/derived/save-button";
+import { ArchiveButton } from "@/components/derived/archive-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -100,13 +102,10 @@ export function ClientShowPage() {
               <ArchiveClientDialog
                 clientId={client.id}
                 trigger={
-                  <Button
+                  <ArchiveButton
                     type="button"
-                    variant="danger"
                     data-testid="btn-archive-client"
-                  >
-                    Archive Client
-                  </Button>
+                  />
                 }
               />
             ))}
@@ -138,19 +137,16 @@ export function ClientShowPage() {
           </div>
           {!client?.is_archived && (
             <div className="flex justify-end">
-              <Button
+              <SaveButton
                 form="update-client-form"
                 type="submit"
-                variant="primary"
                 loading={updateClientMutation.isLoading}
                 success={
                   updateClientMutation.isSuccess &&
                   !updateClientForm.formState.isDirty
                 }
                 data-testid="btn-update-client"
-              >
-                Update Client
-              </Button>
+              />
             </div>
           )}
         </form>

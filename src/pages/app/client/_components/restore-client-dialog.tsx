@@ -29,7 +29,7 @@ export function RestoreClientDialog({
       client will be listed in the client list"
       isLoading={restoreClientMutation.isLoading}
       isSuccess={restoreClientMutation.isSuccess}
-      buttonLabel="Restore Client"
+      buttonLabel="Restore"
       buttonOnClick={() => restoreClientMutation.mutate()}
       trigger={trigger}
       onSuccess={() => {

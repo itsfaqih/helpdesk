@@ -166,11 +166,11 @@ export function TicketCategoryIndexPage() {
                 as={Link}
                 to="/ticket-categories/create"
                 variant="primary"
-                leading={(props) => <Plus {...props} />}
+                leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-ticket-category"
               >
-                New Category
+                Add Category
               </Button>
             )
           }

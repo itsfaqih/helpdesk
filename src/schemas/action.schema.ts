@@ -1,14 +1,17 @@
 import { z } from "zod";
-import { ChannelSchema } from "./channel.schema";
 
 export const ActionSchema = z.object({
   id: z.string().nonempty(),
-  cta_icon_url: z.string().nullable(),
+  cta_icon_type: z.enum(["emoji", "image"]),
+  cta_icon_value: z.string(),
   cta_label: z.string().nonempty("CTA label should not be empty"),
-  channel_id: ChannelSchema.shape.id,
+  description: z.string().nullable(),
+  is_archived: z.boolean().default(false),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
 });
 
-export type ActionResponse = z.infer<typeof ActionSchema>;
+export type Action = z.infer<typeof ActionSchema>;
 
 export const ActionFieldSchema = z.object({
   id: z.string().nonempty(),
@@ -25,3 +28,21 @@ export const ActionFieldSchema = z.object({
 });
 
 export type ActionField = z.infer<typeof ActionFieldSchema>;
+
+export const CreateActionSchema = ActionSchema.pick({
+  cta_icon_type: true,
+  cta_icon_value: true,
+  cta_label: true,
+  description: true,
+});
+
+export type CreateActionSchema = z.infer<typeof CreateActionSchema>;
+
+export const UpdateActionSchema = ActionSchema.pick({
+  cta_icon_type: true,
+  cta_icon_value: true,
+  cta_label: true,
+  description: true,
+});
+
+export type UpdateActionSchema = z.infer<typeof UpdateActionSchema>;

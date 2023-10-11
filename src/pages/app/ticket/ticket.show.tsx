@@ -59,8 +59,8 @@ import {
   MenuItem,
   MenuTrigger,
 } from "@/components/base/menu";
-import { useChannelTicketResponseIndexQuery } from "@/queries/action.query";
-import { ActionResponse, ActionField } from "@/schemas/action.schema";
+import { useActionIndexQuery } from "@/queries/action.query";
+import { Action, ActionField } from "@/schemas/action.schema";
 import { useChannelTicketResponseFieldIndexQuery } from "@/queries/action-field.query";
 import { Textbox } from "@/components/derived/textbox";
 import { TextAreabox } from "@/components/derived/textareabox";
@@ -106,12 +106,12 @@ export function TicketShowPage() {
   const [channelTicketResponseSearch, setChannelTicketResponseSearch] =
     React.useState("");
 
-  const channelTicketResponseIndexQuery = useChannelTicketResponseIndexQuery({
+  const channelTicketResponseIndexQuery = useActionIndexQuery({
     search: channelTicketResponseSearch,
   });
 
   const [ticketResponseFormState, setTicketResponseFormState] = React.useState<{
-    channelTicketResponse: ActionResponse;
+    channelTicketResponse: Action;
   } | null>(null);
 
   return (
@@ -119,7 +119,7 @@ export function TicketShowPage() {
       <AppPageBackLink to="/tickets" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <div className="flex flex-col gap-5 xl:flex-row mt-7">
-        <Card className="p-4.5 xl:hidden sm:mx-0 -mx-6 sm:rounded-md rounded-none block">
+        <Card className="px-4.5 py-4 xl:hidden sm:mx-0 -mx-6 sm:rounded-md rounded-none block">
           <div className="grid text-sm sm:grid-cols-2 gap-y-5 gap-x-8">
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Status</span>
@@ -193,7 +193,7 @@ export function TicketShowPage() {
             </div>
           </div>
         </Card>
-        <Card className="p-4.5 xl:hidden sm:mx-0 -mx-6 sm:rounded-md rounded-none block">
+        <Card className="px-4.5 py-4 xl:hidden sm:mx-0 -mx-6 sm:rounded-md rounded-none block">
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <span className="font-medium text-gray-600">Assigned agents</span>
@@ -203,7 +203,7 @@ export function TicketShowPage() {
                   ticketId={ticket.id}
                   trigger={
                     <IconButton
-                      icon={(props) => <Plus {...props} />}
+                      icon={(props) => <Plus weight="bold" {...props} />}
                       label="Add agent"
                     />
                   }
@@ -241,7 +241,7 @@ export function TicketShowPage() {
           </div>
         </Card>
         <div className="flex flex-col flex-1 gap-5">
-          <Card className="px-4.5 py-5 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
+          <Card className="px-4.5 py-4 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
             <h2 className="font-semibold text-gray-800">
               {ticketShowQuery.isLoading && <Skeleton className="w-40" />}
               {ticket && <span>{ticket.title}</span>}
@@ -360,7 +360,9 @@ export function TicketShowPage() {
                           ticketId={ticket.id}
                           trigger={
                             <IconButton
-                              icon={(props) => <Plus {...props} />}
+                              icon={(props) => (
+                                <Plus weight="bold" {...props} />
+                              )}
                               label="Add agent"
                             />
                           }
@@ -416,13 +418,13 @@ export function TicketShowPage() {
                 <PopoverTrigger asChild>
                   {ticketResponseFormState?.channelTicketResponse ? (
                     <Button
-                      leading={(props) => (
-                        <img
-                          src={
+                      leading={() => (
+                        <em-emoji
+                          id={
                             ticketResponseFormState.channelTicketResponse
-                              .cta_icon_url ?? "https://placehold.co/18"
+                              .cta_icon_value
                           }
-                          {...props}
+                          class="mr-1.5"
                         />
                       )}
                       variant="transparent"
@@ -457,12 +459,9 @@ export function TicketShowPage() {
                                 }}
                                 className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800"
                               >
-                                <img
-                                  src={
-                                    channelTicketResponse.cta_icon_url ??
-                                    "https://placehold.co/18"
-                                  }
-                                  className="flex-shrink-0 w-4.5 h-4.5 object-cover"
+                                <em-emoji
+                                  id={channelTicketResponse.cta_icon_value}
+                                  className="flex-shrink-0"
                                 />
                                 <span className="flex-1 text-left">
                                   {channelTicketResponse.cta_label}
@@ -711,7 +710,7 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
 }
 
 type TicketResponseFormContainerProps = {
-  channelTicketResponseId: ActionResponse["id"];
+  channelTicketResponseId: Action["id"];
   onCancel: () => void;
 };
 

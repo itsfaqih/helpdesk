@@ -16,7 +16,7 @@ import {
   handleResponseError,
   successResponse,
 } from "../mock-utils";
-import { ConflictError, NotFoundError } from "@/utils/error.util";
+import { NotFoundError, UnprocessableEntityError } from "@/utils/error.util";
 import { getAdmins } from "../records/admin.record";
 import { getTicketAssignmentsWithRelationsByTicketId } from "../records/ticket-assignment.record";
 import { TicketAssignmentWithRelations } from "@/schemas/ticket.schema";
@@ -36,7 +36,7 @@ export const adminHandlers = [
       );
 
       if (isAdminExisted) {
-        throw new ConflictError("Email is already registered");
+        throw new UnprocessableEntityError("Email is already registered");
       }
 
       const newAdmin: Admin = {

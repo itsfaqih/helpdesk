@@ -1,5 +1,5 @@
 import {
-  ActionResponse,
+  Action,
   ActionField,
   ActionFieldSchema,
   ActionSchema,
@@ -46,7 +46,7 @@ export function mockActionFieldRecords(): ActionField[] {
 }
 
 export async function getActionFieldsByActionId(
-  actionId: ActionResponse["id"]
+  actionId: Action["id"]
 ) {
   const unparsedStoredActions = await localforage.getItem("actions");
 

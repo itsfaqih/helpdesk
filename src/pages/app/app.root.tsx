@@ -12,6 +12,7 @@ import { cn } from "@/libs/cn.lib";
 import {
   AddressBook,
   AppWindow,
+  Function,
   House,
   List,
   Tag,
@@ -49,6 +50,11 @@ const mainMenus = [
     to: "/channels",
     icon: AppWindow,
     label: "Channels",
+  },
+  {
+    to: "/actions",
+    icon: Function,
+    label: "Actions",
   },
   {
     to: "/admins",
@@ -138,7 +144,7 @@ export function AppRoot() {
       </FadeInContainer>
       <main className="lg:pl-64">
         <FadeInContainer from="top">
-          <nav className="py-2.5 px-6 border-b border-gray-300">
+          <nav className="py-1.5 px-6 border-b border-gray-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <IconButton
@@ -168,7 +174,7 @@ export function AppRoot() {
                       <span className="text-sm font-medium text-gray-800 truncate">
                         {loggedInAdmin?.full_name}
                       </span>
-                      <span className="text-sm text-gray-600 truncate">
+                      <span className="text-xs text-gray-600 truncate">
                         {loggedInAdmin?.email}
                       </span>
                     </div>
@@ -210,7 +216,7 @@ function MainMenuItem({
     <NavLink
       className={({ isActive, isPending }) =>
         cn(
-          "px-3 py-2.5 rounded-md w-full flex gap-x-2.5 items-center font-medium text-sm",
+          "px-3 py-1.5 rounded-md w-full flex gap-x-2.5 items-center font-medium text-sm",
           {
             "text-gray-500 hover:shadow-haptic-gray-300 hover:text-gray-600 active:bg-gray-50 active:shadow-haptic-gray-400":
               !isActive,

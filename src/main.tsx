@@ -2,6 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import localforage from "localforage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import data from "@emoji-mart/data";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { init as initEmoji } from "emoji-mart";
 import "./index.css";
 import {
   createBrowserRouter,
@@ -46,15 +50,20 @@ import { ChannelShowPage } from "./pages/app/channel/channel.show";
 import { loggedInAdminQuery } from "./queries/logged-in-admin.query";
 import { mockTicketAssignments } from "./mocks/records/ticket-assignment.record";
 import {
-  ActionResponse,
+  Action,
   ActionField,
   ActionFieldSchema,
   ActionSchema,
 } from "./schemas/action.schema";
 import { mockActionRecords } from "./mocks/records/action.record";
 import { mockActionFieldRecords } from "./mocks/records/action-field.record";
+import { ActionIndexPage } from "./pages/app/action/action.index";
+import { ActionCreatePage } from "./pages/app/action/action.create";
+import { ActionShowPage } from "./pages/app/action/action.show";
 
 async function prepare() {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  await initEmoji({ data });
   const { worker } = await import("./mocks/browser");
   await worker.start();
 
@@ -143,7 +152,7 @@ async function prepare() {
     existingTicketAssignments = existingTicketAssignmentsParsing.data;
   }
 
-  let existingActions: ActionResponse[] = [];
+  let existingActions: Action[] = [];
   const unparsedExistingActions = await localforage.getItem("actions");
 
   const actionsParsing = ActionSchema.array().safeParse(
@@ -223,6 +232,26 @@ prepare()
             element: <DashboardPage />,
             loader: DashboardPage.loader(),
             index: true,
+          },
+          {
+            path: "actions",
+            children: [
+              {
+                element: <ActionIndexPage />,
+                loader: ActionIndexPage.loader(queryClient),
+                index: true,
+              },
+              {
+                path: ":id",
+                element: <ActionShowPage />,
+                loader: ActionShowPage.loader(queryClient),
+              },
+              {
+                path: "create",
+                element: <ActionCreatePage />,
+                loader: ActionCreatePage.loader(),
+              },
+            ],
           },
           {
             path: "admins",

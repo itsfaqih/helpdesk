@@ -15,7 +15,7 @@ import {
   handleResponseError,
   successResponse,
 } from "../mock-utils";
-import { ConflictError, NotFoundError } from "@/utils/error.util";
+import { NotFoundError, UnprocessableEntityError } from "@/utils/error.util";
 
 export const clientHandlers = [
   rest.post("/api/clients", async (req) => {
@@ -32,7 +32,7 @@ export const clientHandlers = [
       );
 
       if (isClientExisted) {
-        throw new ConflictError(
+        throw new UnprocessableEntityError(
           "Client with the same name is already registered"
         );
       }
@@ -144,10 +144,7 @@ export const clientHandlers = [
 
       const page = filters.page ?? 1;
 
-      const paginatedClients = sortedClients.slice(
-        (page - 1) * 10,
-        page * 10
-      );
+      const paginatedClients = sortedClients.slice((page - 1) * 10, page * 10);
 
       return successResponse({
         data: paginatedClients,

@@ -22,7 +22,6 @@ import {
 } from "@/queries/ticket.query";
 import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
 import { Textbox } from "@/components/derived/textbox";
-import { Button } from "@/components/base/button";
 import { Label } from "@/components/base/label";
 import { Card } from "@/components/base/card";
 import { Skeleton } from "@/components/base/skeleton";
@@ -31,6 +30,9 @@ import { AppPageContainer } from "@/components/derived/app-page-container";
 import { AppPageBackLink } from "../_components/page-back-link";
 import { RestoreTicketCategoryDialog } from "./_components/restore-ticket-category-dialog";
 import { ArchiveTicketCategoryDialog } from "./_components/archive-ticket-category-dialog";
+import { ArchiveButton } from "@/components/derived/archive-button";
+import { SaveButton } from "@/components/derived/save-button";
+import { RestoreButton } from "@/components/derived/restore-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -89,26 +91,20 @@ export function TicketCategoryShowPage() {
               <RestoreTicketCategoryDialog
                 ticketCategoryId={ticketCategory.id}
                 trigger={
-                  <Button
+                  <RestoreButton
                     type="button"
-                    variant="plain"
                     data-testid="btn-restore-ticket-category"
-                  >
-                    Restore Category
-                  </Button>
+                  />
                 }
               />
             ) : (
               <ArchiveTicketCategoryDialog
                 ticketCategoryId={ticketCategory.id}
                 trigger={
-                  <Button
+                  <ArchiveButton
                     type="button"
-                    variant="danger"
                     data-testid="btn-archive-ticket-category"
-                  >
-                    Archive Category
-                  </Button>
+                  />
                 }
               />
             ))}
@@ -161,6 +157,7 @@ export function TicketCategoryShowPage() {
                   }
                   readOnly={ticketCategory?.is_archived}
                   srOnlyLabel
+                  rows={3}
                   data-testid="textbox-description"
                 />
               )}
@@ -168,19 +165,16 @@ export function TicketCategoryShowPage() {
           </div>
           {!ticketCategory?.is_archived && (
             <div className="flex justify-end">
-              <Button
+              <SaveButton
                 form="update-ticket-category-form"
                 type="submit"
-                variant="primary"
                 loading={updateTicketCategoryMutation.isLoading}
                 success={
                   updateTicketCategoryMutation.isSuccess &&
                   !updateTicketCategoryForm.formState.isDirty
                 }
                 data-testid="btn-update-ticket-category"
-              >
-                Update Category
-              </Button>
+              />
             </div>
           )}
         </form>
@@ -219,6 +213,11 @@ function useUpdateTicketCategoryMutation({
     },
     async onSuccess() {
       await queryClient.invalidateQueries(["ticket-category", "index"]);
+      await queryClient.invalidateQueries([
+        "ticket-category",
+        "show",
+        ticketCategoryId,
+      ]);
     },
   });
 }

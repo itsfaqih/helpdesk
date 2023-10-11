@@ -163,11 +163,11 @@ export function ClientIndexPage() {
                 as={Link}
                 to="/clients/create"
                 variant="primary"
-                leading={(props) => <Plus {...props} />}
+                leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-client"
               >
-                New Client
+                Add Client
               </Button>
             )
           }
