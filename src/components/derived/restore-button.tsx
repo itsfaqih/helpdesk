@@ -2,14 +2,14 @@ import React from "react";
 import { Button } from "../base/button";
 import { ArrowCounterClockwise } from "@phosphor-icons/react";
 
-type ArchiveButtonProps = Omit<
+type RestoreButtonProps = Omit<
   React.ComponentPropsWithoutRef<typeof Button>,
   "children" | "variant" | "leading"
 >;
 
 export const RestoreButton = React.forwardRef<
   React.ElementRef<typeof Button>,
-  ArchiveButtonProps
+  RestoreButtonProps
 >((props, ref) => {
   return (
     <Button

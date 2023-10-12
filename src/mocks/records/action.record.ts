@@ -14,6 +14,7 @@ export const mockActionRecords: Action[] = [
     updated_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
     is_archived: false,
+    is_active: true,
   },
 ];
 

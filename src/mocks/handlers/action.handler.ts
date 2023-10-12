@@ -129,6 +129,7 @@ export const actionHandlers = [
         cta_label: data.cta_label,
         description: data.description,
         is_archived: false,
+        is_active: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -180,6 +181,82 @@ export const actionHandlers = [
       return successResponse({
         data: updatedAction,
         message: "Successfully updated action",
+      });
+    } catch (error) {
+      return handleResponseError(error);
+    }
+  }),
+
+  rest.put("/api/actions/:actionId/archive", async (req) => {
+    try {
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+
+      const unparsedStoredAction = (await localforage.getItem("actions")) ?? [];
+      const storedActions = ActionSchema.array().parse(unparsedStoredAction);
+
+      const actionId = req.params.actionId;
+
+      const actionToUpdate = storedActions.find(
+        (action) => action.id === actionId
+      );
+
+      if (!actionToUpdate) {
+        throw new NotFoundError("Action is not found");
+      }
+
+      const updatedAction: Action = {
+        ...actionToUpdate,
+        is_archived: true,
+        updated_at: new Date().toISOString(),
+      };
+
+      const newActions = storedActions.map((action) =>
+        action.id === actionId ? updatedAction : action
+      );
+
+      await localforage.setItem("actions", newActions);
+
+      return successResponse({
+        data: updatedAction,
+        message: "Successfully archived action",
+      });
+    } catch (error) {
+      return handleResponseError(error);
+    }
+  }),
+  rest.put("/api/actions/:actionId/restore", async (req) => {
+    try {
+      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+
+      const unparsedStoredActions =
+        (await localforage.getItem("actions")) ?? [];
+      const storedActions = ActionSchema.array().parse(unparsedStoredActions);
+
+      const actionId = req.params.actionId;
+
+      const actionToUpdate = storedActions.find(
+        (action) => action.id === actionId
+      );
+
+      if (!actionToUpdate) {
+        throw new NotFoundError("Action is not found");
+      }
+
+      const updatedAction: Action = {
+        ...actionToUpdate,
+        is_archived: false,
+        updated_at: new Date().toISOString(),
+      };
+
+      const newActions = storedActions.map((action) =>
+        action.id === actionId ? updatedAction : action
+      );
+
+      await localforage.setItem("actions", newActions);
+
+      return successResponse({
+        data: updatedAction,
+        message: "Successfully activated action",
       });
     } catch (error) {
       return handleResponseError(error);

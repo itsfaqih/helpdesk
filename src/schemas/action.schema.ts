@@ -7,6 +7,7 @@ export const ActionSchema = z.object({
   cta_label: z.string().nonempty("CTA label should not be empty"),
   description: z.string().nullable(),
   is_archived: z.boolean().default(false),
+  is_active: z.boolean().default(false),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });

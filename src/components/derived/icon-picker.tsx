@@ -45,18 +45,20 @@ export const IconPicker = React.forwardRef<
         onClose={() => setIsPopoverOpen(false)}
         closeOnInteractOutside={false}
       >
-        <PopoverTrigger>
-          <IconButton
-            id={id}
-            as="div"
-            variant="plain"
-            icon={() => {
-              if (selectedEmojiId) {
-                return <em-emoji id={finalEmojiId}></em-emoji>;
-              }
-            }}
-            label="Select Icon"
-          />
+        <PopoverTrigger asChild>
+          <div>
+            <IconButton
+              id={id}
+              type="button"
+              variant="plain"
+              icon={() => {
+                if (selectedEmojiId) {
+                  return <em-emoji id={finalEmojiId}></em-emoji>;
+                }
+              }}
+              label="Select Icon"
+            />
+          </div>
         </PopoverTrigger>
         <Portal>
           <PopoverContent className="p-0">

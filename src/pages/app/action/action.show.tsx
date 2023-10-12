@@ -30,6 +30,10 @@ import {
   fetchActionShowQuery,
   useActionShowQuery,
 } from "@/queries/action.query";
+import { ArchiveActionDialog } from "./_components/archive-action-dialog";
+import { RestoreActionDialog } from "./_components/restore-action-dialog";
+import { ArchiveButton } from "@/components/derived/archive-button";
+import { RestoreButton } from "@/components/derived/restore-button";
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -78,7 +82,26 @@ export function ActionShowPage() {
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <AppPageBackLink to="/actions" />
-      <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
+      <div className="flex justify-between items-center mt-4">
+        <AppPageTitle title={loaderData.pageTitle} />
+        {action &&
+          (action.is_archived ? (
+            <RestoreActionDialog
+              actionId={action.id}
+              trigger={<RestoreButton type="button" />}
+            />
+          ) : (
+            <ArchiveActionDialog
+              actionId={action.id}
+              trigger={
+                <ArchiveButton
+                  type="button"
+                  data-testid="btn-archive-channel"
+                />
+              }
+            />
+          ))}
+      </div>
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="create-action-form"
