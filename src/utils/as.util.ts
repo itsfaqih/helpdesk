@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 // --------------------
 // GENERIC TYPES
@@ -15,7 +15,7 @@ type As<Props = any> = React.ElementType<Props>;
  * Props object that includes the "as" prop.
  */
 export type PropsWithAs<Props = {}, Type extends As = As> = Props &
-  Omit<React.ComponentProps<Type>, "as" | keyof Props> & {
+  Omit<React.ComponentProps<Type>, 'as' | keyof Props> & {
     as?: Type;
   };
 // tests (uncomment to see the outputs)
@@ -29,9 +29,7 @@ export type PropsWithAs<Props = {}, Type extends As = As> = Props &
  * A component with the "as" prop.
  */
 type ComponentWithAs<Props, DefaultType extends As> = {
-  <Type extends As>(
-    props: PropsWithAs<Props, Type> & { as: Type }
-  ): JSX.Element;
+  <Type extends As>(props: PropsWithAs<Props, Type> & { as: Type }): JSX.Element;
   (props: PropsWithAs<Props, DefaultType>): JSX.Element;
 };
 // tests (uncomment to see the outputs)
@@ -42,10 +40,7 @@ type ComponentWithAs<Props, DefaultType extends As> = {
 // --------------------
 
 export function forwardRefWithAs<Props, DefaultType extends As>(
-  component: React.ForwardRefRenderFunction<any>
+  component: React.ForwardRefRenderFunction<any>,
 ) {
-  return React.forwardRef(component) as unknown as ComponentWithAs<
-    Props,
-    DefaultType
-  >;
+  return React.forwardRef(component) as unknown as ComponentWithAs<Props, DefaultType>;
 }

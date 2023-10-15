@@ -1,14 +1,14 @@
-import { api } from "@/libs/api.lib";
-import { ClientSchema } from "@/schemas/client.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { UserError } from "@/utils/error.util";
-import { QueryClient, useQuery } from "@tanstack/react-query";
-import qs from "qs";
-import { z } from "zod";
+import { api } from '@/libs/api.lib';
+import { ClientSchema } from '@/schemas/client.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { UserError } from '@/utils/error.util';
+import { QueryClient, useQuery } from '@tanstack/react-query';
+import qs from 'qs';
+import { z } from 'zod';
 
 export const ClientIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
-  is_archived: z.enum(["1", "0"]).optional().catch(undefined),
+  is_archived: z.enum(['1', '0']).optional().catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });
 
@@ -20,7 +20,7 @@ const ClientIndexResponseSchema = APIResponseSchema({
 
 export function clientIndexQuery(request: ClientIndexRequest = {}) {
   return {
-    queryKey: ["client", "index", request],
+    queryKey: ['client', 'index', request],
     async queryFn() {
       const queryStrings = qs.stringify(request);
       const res = await api.get(`/clients?${queryStrings}`);
@@ -67,7 +67,7 @@ export function clientShowQuery(request: ClientShowRequest) {
   const { id, ...requestWithoutId } = request;
 
   return {
-    queryKey: ["client", "show", id, requestWithoutId],
+    queryKey: ['client', 'show', id, requestWithoutId],
     async queryFn() {
       const res = await api.get(`/clients/${id}`);
 
@@ -85,10 +85,7 @@ type FetchClientShowQueryParams = {
   request: ClientShowRequest;
 };
 
-export async function fetchClientShowQuery({
-  queryClient,
-  request,
-}: FetchClientShowQueryParams) {
+export async function fetchClientShowQuery({ queryClient, request }: FetchClientShowQueryParams) {
   const clientShowQueryOpt = clientShowQuery(request);
 
   queryClient.getQueryData(clientShowQueryOpt.queryKey) ??

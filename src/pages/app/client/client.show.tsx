@@ -1,50 +1,40 @@
-import React from "react";
-import { AppPageTitle } from "../_components/page-title.app";
-import {
-  Client,
-  ClientSchema,
-  UpdateClientSchema,
-} from "@/schemas/client.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import {
-  QueryClient,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { api } from "@/libs/api.lib";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import React from 'react';
+import { AppPageTitle } from '../_components/page-title.app';
+import { Client, ClientSchema, UpdateClientSchema } from '@/schemas/client.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { api } from '@/libs/api.lib';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import {
   ClientShowRequestSchema,
   fetchClientShowQuery,
   useClientShowQuery,
-} from "@/queries/client.query";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { Textbox } from "@/components/derived/textbox";
-import { Button } from "@/components/base/button";
-import { Label } from "@/components/base/label";
-import { Card } from "@/components/base/card";
-import { Skeleton } from "@/components/base/skeleton";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageBackLink } from "../_components/page-back-link";
-import { RestoreClientDialog } from "./_components/restore-client-dialog";
-import { ArchiveClientDialog } from "./_components/archive-client-dialog";
-import { SaveButton } from "@/components/derived/save-button";
-import { ArchiveButton } from "@/components/derived/archive-button";
+} from '@/queries/client.query';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
+import { Textbox } from '@/components/derived/textbox';
+import { Button } from '@/components/base/button';
+import { Label } from '@/components/base/label';
+import { Card } from '@/components/base/card';
+import { Skeleton } from '@/components/base/skeleton';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageBackLink } from '../_components/page-back-link';
+import { RestoreClientDialog } from './_components/restore-client-dialog';
+import { ArchiveClientDialog } from './_components/archive-client-dialog';
+import { SaveButton } from '@/components/derived/save-button';
+import { ArchiveButton } from '@/components/derived/archive-button';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
     const requestData = ClientShowRequestSchema.parse(params);
 
-    await fetchClientShowQuery({ queryClient, request: requestData }).catch(
-      (err) => {
-        console.error(err);
-      }
-    );
+    await fetchClientShowQuery({ queryClient, request: requestData }).catch((err) => {
+      console.error(err);
+    });
 
     return loaderResponse({
-      pageTitle: "Edit Client",
+      pageTitle: 'Edit Client',
       data: { request: requestData },
     });
   };
@@ -89,11 +79,7 @@ export function ClientShowPage() {
               <RestoreClientDialog
                 clientId={client.id}
                 trigger={
-                  <Button
-                    type="button"
-                    variant="plain"
-                    data-testid="btn-restore-client"
-                  >
+                  <Button type="button" variant="plain" data-testid="btn-restore-client">
                     Restore Client
                   </Button>
                 }
@@ -101,29 +87,20 @@ export function ClientShowPage() {
             ) : (
               <ArchiveClientDialog
                 clientId={client.id}
-                trigger={
-                  <ArchiveButton
-                    type="button"
-                    data-testid="btn-archive-client"
-                  />
-                }
+                trigger={<ArchiveButton type="button" data-testid="btn-archive-client" />}
               />
             ))}
         </div>
       </div>
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
-        <form
-          id="update-client-form"
-          onSubmit={onSubmit}
-          className="flex flex-col gap-y-4"
-        >
+        <form id="update-client-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="full_name">Full Name</Label>
             <div className="col-span-3">
               {clientShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
               {clientShowQuery.isSuccess && (
                 <Textbox
-                  {...updateClientForm.register("full_name")}
+                  {...updateClientForm.register('full_name')}
                   label="Full Name"
                   placeholder="Enter Full Name"
                   disabled={updateClientMutation.isLoading}
@@ -141,10 +118,7 @@ export function ClientShowPage() {
                 form="update-client-form"
                 type="submit"
                 loading={updateClientMutation.isLoading}
-                success={
-                  updateClientMutation.isSuccess &&
-                  !updateClientForm.formState.isDirty
-                }
+                success={updateClientMutation.isSuccess && !updateClientForm.formState.isDirty}
                 data-testid="btn-update-client"
               />
             </div>
@@ -166,7 +140,7 @@ const UpdateClientResponseSchema = APIResponseSchema({
 });
 
 type UseUpdateClientMutationParams = {
-  clientId: Client["id"];
+  clientId: Client['id'];
 };
 
 function useUpdateClientMutation({ clientId }: UseUpdateClientMutationParams) {
@@ -179,13 +153,11 @@ function useUpdateClientMutation({ clientId }: UseUpdateClientMutationParams) {
 
         return UpdateClientResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["client", "index"]);
+      await queryClient.invalidateQueries(['client', 'index']);
     },
   });
 }

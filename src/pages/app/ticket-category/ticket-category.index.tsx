@@ -1,35 +1,25 @@
-import React from "react";
+import React from 'react';
 import {
   Archive,
   ArrowCounterClockwise,
   CaretRight,
   PencilSimple,
   Plus,
-} from "@phosphor-icons/react";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import qs from "qs";
-import { Button, IconButton } from "@/components/base/button";
-import {
-  TabIndicator,
-  TabList,
-  TabTrigger,
-  Tabs,
-} from "@/components/base/tabs";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { QueryClient } from "@tanstack/react-query";
+} from '@phosphor-icons/react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import qs from 'qs';
+import { Button, IconButton } from '@/components/base/button';
+import { TabIndicator, TabList, TabTrigger, Tabs } from '@/components/base/tabs';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { QueryClient } from '@tanstack/react-query';
 import {
   TicketCategoryIndexRequestSchema,
   TicketCategoryIndexRequest,
   fetchTicketCategoryIndexQuery,
   useTicketCategoryIndexQuery,
-} from "@/queries/ticket.query";
-import {
-  Link,
-  LoaderFunctionArgs,
-  useLoaderData,
-  useSearchParams,
-} from "react-router-dom";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
+} from '@/queries/ticket.query';
+import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import {
   Pagination,
   PaginationEllipsis,
@@ -38,32 +28,30 @@ import {
   PaginationNextPageTrigger,
   PaginationPageTrigger,
   PaginationPrevPageTrigger,
-} from "@/components/base/pagination";
-import { useDebounce } from "@/hooks/use-debounce";
-import { AppPageTitle } from "../_components/page-title.app";
-import { Table } from "@/components/base/table";
-import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
-import { formatDateTime } from "@/utils/date";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageResetButton } from "../_components/page-reset-button";
-import { AppPageSearchBox } from "../_components/page-search-box";
-import { RestoreTicketCategoryDialog } from "./_components/restore-ticket-category-dialog";
-import { ArchiveTicketCategoryDialog } from "./_components/archive-ticket-category-dialog";
+} from '@/components/base/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
+import { AppPageTitle } from '../_components/page-title.app';
+import { Table } from '@/components/base/table';
+import { useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { formatDateTime } from '@/utils/date';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageResetButton } from '../_components/page-reset-button';
+import { AppPageSearchBox } from '../_components/page-search-box';
+import { RestoreTicketCategoryDialog } from './_components/restore-ticket-category-dialog';
+import { ArchiveTicketCategoryDialog } from './_components/archive-ticket-category-dialog';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
     const requestData = TicketCategoryIndexRequestSchema.parse(
-      Object.fromEntries(new URL(request.url).searchParams)
+      Object.fromEntries(new URL(request.url).searchParams),
     );
 
-    fetchTicketCategoryIndexQuery({ queryClient, request: requestData }).catch(
-      (err) => {
-        console.error(err);
-      }
-    );
+    fetchTicketCategoryIndexQuery({ queryClient, request: requestData }).catch((err) => {
+      console.error(err);
+    });
 
     return loaderResponse({
-      pageTitle: "Ticket Categories",
+      pageTitle: 'Ticket Categories',
       data: { request: requestData },
     });
   };
@@ -76,7 +64,7 @@ export function TicketCategoryIndexPage() {
   const [_, setSearchParams] = useSearchParams();
   const [actionDialogState, setActionDialogState] = React.useState<{
     ticketCategoryId: string | null;
-    action: "archive" | "restore" | null;
+    action: 'archive' | 'restore' | null;
   }>({
     ticketCategoryId: null,
     action: null,
@@ -85,14 +73,12 @@ export function TicketCategoryIndexPage() {
   const loggedInAdminQuery = useLoggedInAdminQuery();
   const loggedInAdmin = loggedInAdminQuery.data?.data;
 
-  const ticketCategoryQuery = useTicketCategoryIndexQuery(
-    loaderData.data.request
-  );
+  const ticketCategoryQuery = useTicketCategoryIndexQuery(loaderData.data.request);
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
     if (search === null) return;
-    filtersForm.setValue("search", search);
+    filtersForm.setValue('search', search);
   }, 500);
 
   const filtersForm = useForm<TicketCategoryIndexRequest>({
@@ -108,47 +94,38 @@ export function TicketCategoryIndexPage() {
   }, [watchedFiltersForm, setSearchParams]);
 
   React.useEffect(() => {
-    if (
-      filtersForm.getValues("is_archived") !==
-      loaderData.data.request.is_archived
-    ) {
-      filtersForm.setValue("is_archived", loaderData.data.request.is_archived);
+    if (filtersForm.getValues('is_archived') !== loaderData.data.request.is_archived) {
+      filtersForm.setValue('is_archived', loaderData.data.request.is_archived);
     }
-    if (filtersForm.getValues("search") !== loaderData.data.request.search) {
-      filtersForm.setValue("search", loaderData.data.request.search);
+    if (filtersForm.getValues('search') !== loaderData.data.request.search) {
+      filtersForm.setValue('search', loaderData.data.request.search);
     }
-    if (filtersForm.getValues("page") !== loaderData.data.request.page) {
-      filtersForm.setValue("page", loaderData.data.request.page);
+    if (filtersForm.getValues('page') !== loaderData.data.request.page) {
+      filtersForm.setValue('page', loaderData.data.request.page);
     }
   }, [filtersForm, loaderData.data.request]);
 
-  const archiveTicketCategory = React.useCallback(
-    (ticketCategoryId: string) => {
-      return () =>
-        setActionDialogState((prev) => ({
-          ...prev,
-          ticketCategoryId,
-          action: "archive",
-        }));
-    },
-    []
-  );
+  const archiveTicketCategory = React.useCallback((ticketCategoryId: string) => {
+    return () =>
+      setActionDialogState((prev) => ({
+        ...prev,
+        ticketCategoryId,
+        action: 'archive',
+      }));
+  }, []);
 
-  const restoreTicketCategory = React.useCallback(
-    (ticketCategoryId: string) => {
-      return () =>
-        setActionDialogState((prev) => ({
-          ...prev,
-          ticketCategoryId,
-          action: "restore",
-        }));
-    },
-    []
-  );
+  const restoreTicketCategory = React.useCallback((ticketCategoryId: string) => {
+    return () =>
+      setActionDialogState((prev) => ({
+        ...prev,
+        ticketCategoryId,
+        action: 'restore',
+      }));
+  }, []);
 
   return (
     <>
-      {loggedInAdmin?.role === "super_admin" && (
+      {loggedInAdmin?.role === 'super_admin' && (
         <Link
           to="/ticket-categories/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
@@ -161,7 +138,7 @@ export function TicketCategoryIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            loggedInAdmin?.role === "super_admin" && (
+            loggedInAdmin?.role === 'super_admin' && (
               <Button
                 as={Link}
                 to="/ticket-categories/create"
@@ -181,12 +158,12 @@ export function TicketCategoryIndexPage() {
           name="is_archived"
           render={({ field }) => (
             <Tabs
-              value={field.value ?? "0"}
+              value={field.value ?? '0'}
               onChange={({ value }) => {
-                if (value && (value === "1" || value === "0")) {
+                if (value && (value === '1' || value === '0')) {
                   field.onChange(value);
-                  filtersForm.setValue("page", undefined);
-                  filtersForm.setValue("search", undefined);
+                  filtersForm.setValue('page', undefined);
+                  filtersForm.setValue('search', undefined);
                   setSearch(null);
                 }
               }}
@@ -210,13 +187,13 @@ export function TicketCategoryIndexPage() {
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
-              value={search ?? ""}
+              value={search ?? ''}
               placeholder="Search by name"
             />
 
             <AppPageResetButton
               to={{
-                pathname: "/ticket-categories",
+                pathname: '/ticket-categories',
                 search: loaderData.data.request.is_archived
                   ? `is_archived=${loaderData.data.request.is_archived}`
                   : undefined,
@@ -231,13 +208,13 @@ export function TicketCategoryIndexPage() {
           loading={ticketCategoryQuery.isLoading}
           error={ticketCategoryQuery.isError}
           errorMessage={
-            (typeof ticketCategoryQuery.error === "object" &&
+            (typeof ticketCategoryQuery.error === 'object' &&
               ticketCategoryQuery.error instanceof Error &&
               ticketCategoryQuery.error.message) ||
             undefined
           }
           refetch={ticketCategoryQuery.refetch}
-          headings={["Name", "Date created"]}
+          headings={['Name', 'Date created']}
           rows={ticketCategoryQuery.data?.data.map((category, index) => [
             category.name,
             formatDateTime(category.created_at),
@@ -273,7 +250,7 @@ export function TicketCategoryIndexPage() {
                     icon={(props) => <ArrowCounterClockwise {...props} />}
                     label="Restore"
                     onClick={restoreTicketCategory(category.id)}
-                    className="text-green-600"
+                    className="text-brand-600"
                     data-testid={`btn-restore-ticket-category-${index}`}
                   />
                 </>
@@ -282,78 +259,68 @@ export function TicketCategoryIndexPage() {
           ])}
           className="mt-5"
         />
-        {ticketCategoryQuery.isSuccess &&
-          ticketCategoryQuery.data.data.length > 0 && (
-            <div className="mt-5">
-              <Controller
-                control={filtersForm.control}
-                name="page"
-                render={({ field }) => (
-                  <Pagination
-                    page={field.value ?? 1}
-                    count={
-                      ticketCategoryQuery.data.meta?.pagination?.total ?? 1
-                    }
-                    pageSize={
-                      ticketCategoryQuery.data.meta?.pagination?.per_page ?? 1
-                    }
-                    onChange={({ page }) => {
-                      field.onChange(page);
-                    }}
-                    className="justify-center"
-                  >
-                    {({ pages }) => (
-                      <PaginationList>
-                        <PaginationListItem>
-                          <PaginationPrevPageTrigger />
-                        </PaginationListItem>
-                        {/* temporarily cast type until it's properly typed */}
-                        {(pages as { type: "page"; value: number }[]).map(
-                          (page, index) =>
-                            page.type === "page" ? (
-                              <PaginationListItem key={index}>
-                                <PaginationPageTrigger {...page}>
-                                  {page.value}
-                                </PaginationPageTrigger>
-                              </PaginationListItem>
-                            ) : (
-                              <PaginationListItem key={index}>
-                                <PaginationEllipsis index={index}>
-                                  &#8230;
-                                </PaginationEllipsis>
-                              </PaginationListItem>
-                            )
-                        )}
-                        <PaginationListItem>
-                          <PaginationNextPageTrigger />
-                        </PaginationListItem>
-                      </PaginationList>
-                    )}
-                  </Pagination>
-                )}
-              />
-            </div>
-          )}
+        {ticketCategoryQuery.isSuccess && ticketCategoryQuery.data.data.length > 0 && (
+          <div className="mt-5">
+            <Controller
+              control={filtersForm.control}
+              name="page"
+              render={({ field }) => (
+                <Pagination
+                  page={field.value ?? 1}
+                  count={ticketCategoryQuery.data.meta?.pagination?.total ?? 1}
+                  pageSize={ticketCategoryQuery.data.meta?.pagination?.per_page ?? 1}
+                  onChange={({ page }) => {
+                    field.onChange(page);
+                  }}
+                  className="justify-center"
+                >
+                  {({ pages }) => (
+                    <PaginationList>
+                      <PaginationListItem>
+                        <PaginationPrevPageTrigger />
+                      </PaginationListItem>
+                      {/* temporarily cast type until it's properly typed */}
+                      {(pages as { type: 'page'; value: number }[]).map((page, index) =>
+                        page.type === 'page' ? (
+                          <PaginationListItem key={index}>
+                            <PaginationPageTrigger {...page}>{page.value}</PaginationPageTrigger>
+                          </PaginationListItem>
+                        ) : (
+                          <PaginationListItem key={index}>
+                            <PaginationEllipsis index={index}>&#8230;</PaginationEllipsis>
+                          </PaginationListItem>
+                        ),
+                      )}
+                      <PaginationListItem>
+                        <PaginationNextPageTrigger />
+                      </PaginationListItem>
+                    </PaginationList>
+                  )}
+                </Pagination>
+              )}
+            />
+          </div>
+        )}
       </AppPageContainer>
       <ArchiveTicketCategoryDialog
-        key={`archive-${actionDialogState.ticketCategoryId ?? "null"}`}
-        ticketCategoryId={actionDialogState.ticketCategoryId ?? ""}
-        isOpen={actionDialogState.action === "archive"}
+        key={`archive-${actionDialogState.ticketCategoryId ?? 'null'}`}
+        ticketCategoryId={actionDialogState.ticketCategoryId ?? ''}
+        isOpen={actionDialogState.action === 'archive'}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
             ticketCategoryId: open ? prev.ticketCategoryId : null,
-            action: open ? "archive" : null,
+            action: open ? 'archive' : null,
           }));
         }}
       />
       <RestoreTicketCategoryDialog
-        key={`restore-${actionDialogState.ticketCategoryId ?? "null"}`}
-        ticketCategoryId={actionDialogState.ticketCategoryId ?? ""}
-        isOpen={actionDialogState.action === "restore"}
+        key={`restore-${actionDialogState.ticketCategoryId ?? 'null'}`}
+        ticketCategoryId={actionDialogState.ticketCategoryId ?? ''}
+        isOpen={actionDialogState.action === 'restore'}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
             ticketCategoryId: open ? prev.ticketCategoryId : null,
-            action: open ? "restore" : null,
+            action: open ? 'restore' : null,
           }));
         }}
       />

@@ -1,11 +1,12 @@
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
-import { api } from "@/libs/api.lib";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { Client, ClientSchema } from "@/schemas/client.schema";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
+import { api } from '@/libs/api.lib';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { Client, ClientSchema } from '@/schemas/client.schema';
+import { Archive } from '@phosphor-icons/react';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 type ArchiveClientDialogProps = {
-  clientId: Client["id"];
+  clientId: Client['id'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -32,6 +33,7 @@ export function ArchiveClientDialog({
       isSuccess={archiveClientMutation.isSuccess}
       buttonLabel="Archive"
       buttonOnClick={() => archiveClientMutation.mutate()}
+      buttonLeadingIcon={(props) => <Archive {...props} />}
       trigger={trigger}
       onSuccess={() => {
         onOpenChange?.(false);
@@ -48,12 +50,10 @@ const ArchiveClientResponseSchema = APIResponseSchema({
 });
 
 type UseArchiveClientMutationParams = {
-  clientId: Client["id"];
+  clientId: Client['id'];
 };
 
-function useArchiveClientMutation({
-  clientId,
-}: UseArchiveClientMutationParams) {
+function useArchiveClientMutation({ clientId }: UseArchiveClientMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -63,14 +63,12 @@ function useArchiveClientMutation({
 
         return ArchiveClientResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["client", "index"]);
-      await queryClient.invalidateQueries(["client", "show", clientId]);
+      await queryClient.invalidateQueries(['client', 'index']);
+      await queryClient.invalidateQueries(['client', 'show', clientId]);
     },
   });
 }

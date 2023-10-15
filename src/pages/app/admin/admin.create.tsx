@@ -1,33 +1,33 @@
-import { AppPageTitle } from "../_components/page-title.app";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { AdminSchema, CreateAdminSchema } from "@/schemas/admin.schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { UnprocessableEntityError } from "@/utils/error.util";
-import { api } from "@/libs/api.lib";
+import { AppPageTitle } from '../_components/page-title.app';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { AdminSchema, CreateAdminSchema } from '@/schemas/admin.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { UnprocessableEntityError } from '@/utils/error.util';
+import { api } from '@/libs/api.lib';
 import {
   Select,
   SelectLabel,
   SelectTrigger,
   SelectContent,
   SelectOption,
-} from "@/components/base/select";
-import { Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Textbox } from "@/components/derived/textbox";
-import { adminRoleOptions } from "@/utils/admin.util";
-import { Label } from "@/components/base/label";
-import { Card } from "@/components/base/card";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageBackLink } from "../_components/page-back-link";
-import { SaveButton } from "@/components/derived/save-button";
+} from '@/components/base/select';
+import { Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Textbox } from '@/components/derived/textbox';
+import { adminRoleOptions } from '@/utils/admin.util';
+import { Label } from '@/components/base/label';
+import { Card } from '@/components/base/card';
+import { useLoaderData, useNavigate } from 'react-router-dom';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageBackLink } from '../_components/page-back-link';
+import { SaveButton } from '@/components/derived/save-button';
 
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: "Create Administrator",
+      pageTitle: 'Create Administrator',
     });
   };
 }
@@ -57,16 +57,12 @@ export function AdminCreatePage() {
       <AppPageBackLink to="/admins" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
-        <form
-          id="create-admin-form"
-          onSubmit={onSubmit}
-          className="flex flex-col gap-y-4"
-        >
+        <form id="create-admin-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="full_name">Full Name</Label>
             <div className="col-span-3">
               <Textbox
-                {...createAdminForm.register("full_name")}
+                {...createAdminForm.register('full_name')}
                 label="Full Name"
                 placeholder="Enter Full Name"
                 disabled={createAdminMutation.isLoading}
@@ -80,7 +76,7 @@ export function AdminCreatePage() {
             <Label htmlFor="email">Email</Label>
             <div className="col-span-3">
               <Textbox
-                {...createAdminForm.register("email")}
+                {...createAdminForm.register('email')}
                 label="Email"
                 type="email"
                 placeholder="Enter Email"
@@ -95,7 +91,7 @@ export function AdminCreatePage() {
             <Label htmlFor="password">Password</Label>
             <div className="col-span-3">
               <Textbox
-                {...createAdminForm.register("password")}
+                {...createAdminForm.register('password')}
                 label="Password"
                 type="password"
                 placeholder="Enter Password"
@@ -120,7 +116,7 @@ export function AdminCreatePage() {
                     onChange={(e) => {
                       const value = e.value[0];
 
-                      if (value === "super_admin" || value === "operator") {
+                      if (value === 'super_admin' || value === 'operator') {
                         field.onChange(value);
                       }
                     }}
@@ -180,21 +176,19 @@ function useCreateAdminMutation() {
   return useMutation({
     async mutationFn(data: CreateAdminSchema) {
       try {
-        const res = await api.post(data, "/admins");
+        const res = await api.post(data, '/admins');
 
         return CreateAdminResponseSchema.parse(res);
       } catch (error) {
         if (error instanceof UnprocessableEntityError) {
-          throw new Error("Email is already registered");
+          throw new Error('Email is already registered');
         }
 
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["admin", "index"]);
+      await queryClient.invalidateQueries(['admin', 'index']);
     },
   });
 }

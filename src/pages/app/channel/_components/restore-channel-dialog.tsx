@@ -1,12 +1,13 @@
-import { api } from "@/libs/api.lib";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { Channel, ChannelSchema } from "@/schemas/channel.schema";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import React from "react";
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
+import { api } from '@/libs/api.lib';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { Channel, ChannelSchema } from '@/schemas/channel.schema';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+import React from 'react';
+import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
+import { ArrowCounterClockwise } from '@phosphor-icons/react';
 
 type RestoreChannelDialogProps = {
-  channelId: Channel["id"];
+  channelId: Channel['id'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -32,6 +33,7 @@ export function RestoreChannelDialog({
       isSuccess={restoreChannelMutation.isSuccess}
       buttonLabel="Restore"
       buttonOnClick={() => restoreChannelMutation.mutate()}
+      buttonLeadingIcon={(props) => <ArrowCounterClockwise {...props} />}
       trigger={trigger}
       onSuccess={() => {
         onOpenChange?.(false);
@@ -48,12 +50,10 @@ const RestoreChannelResponseSchema = APIResponseSchema({
 });
 
 type UseRestoreChannelMutationParams = {
-  channelId: Channel["id"];
+  channelId: Channel['id'];
 };
 
-function useRestoreChannelMutation({
-  channelId,
-}: UseRestoreChannelMutationParams) {
+function useRestoreChannelMutation({ channelId }: UseRestoreChannelMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -63,14 +63,12 @@ function useRestoreChannelMutation({
 
         return RestoreChannelResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["channel", "index"]);
-      await queryClient.invalidateQueries(["channel", "show", channelId]);
+      await queryClient.invalidateQueries(['channel', 'index']);
+      await queryClient.invalidateQueries(['channel', 'show', channelId]);
     },
   });
 }

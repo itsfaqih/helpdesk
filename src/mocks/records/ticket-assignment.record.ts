@@ -2,11 +2,11 @@ import {
   Ticket,
   TicketAssignmentSchema,
   TicketAssignmentWithRelations,
-} from "@/schemas/ticket.schema";
-import { nanoid } from "nanoid";
-import { getTicketById, mockTicketRecords } from "./ticket.record";
-import { getAdminById, mockAdminRecords } from "./admin.record";
-import localforage from "localforage";
+} from '@/schemas/ticket.schema';
+import { nanoid } from 'nanoid';
+import { getTicketById, mockTicketRecords } from './ticket.record';
+import { getAdminById, mockAdminRecords } from './admin.record';
+import localforage from 'localforage';
 
 export function mockTicketAssignments() {
   return [
@@ -26,46 +26,41 @@ export function mockTicketAssignments() {
 }
 
 type GetTicketAssignmentsWithRelationsByTicketIdOptions = {
-  ticketId: Ticket["id"];
+  ticketId: Ticket['id'];
   withTrash?: boolean;
 };
 
 export async function getTicketAssignmentsWithRelationsByTicketId(
-  options: GetTicketAssignmentsWithRelationsByTicketIdOptions
+  options: GetTicketAssignmentsWithRelationsByTicketIdOptions,
 ): Promise<TicketAssignmentWithRelations[]> {
-  const unparsedStoredTicketAssignments = await localforage.getItem(
-    "ticket_assignments"
-  );
+  const unparsedStoredTicketAssignments = await localforage.getItem('ticket_assignments');
   const storedTicketAssignments = TicketAssignmentSchema.array().parse(
-    unparsedStoredTicketAssignments
+    unparsedStoredTicketAssignments,
   );
 
-  const filteredTicketAssignments = storedTicketAssignments.filter(
-    (ticketAssignment) => {
-      if (ticketAssignment.ticket_id !== options.ticketId) {
-        return false;
-      }
-
-      if (options.withTrash) {
-        return true;
-      } else {
-        return !ticketAssignment.deleted_at;
-      }
+  const filteredTicketAssignments = storedTicketAssignments.filter((ticketAssignment) => {
+    if (ticketAssignment.ticket_id !== options.ticketId) {
+      return false;
     }
+
+    if (options.withTrash) {
+      return true;
+    } else {
+      return !ticketAssignment.deleted_at;
+    }
+  });
+
+  const ticketAssignmentsWithRelations: TicketAssignmentWithRelations[] = await Promise.all(
+    filteredTicketAssignments.map(async (ticketAssignment) => {
+      const ticketAssignmentWithRelations: TicketAssignmentWithRelations = {
+        ...ticketAssignment,
+        admin: await getAdminById(ticketAssignment.admin_id),
+        ticket: await getTicketById(ticketAssignment.ticket_id),
+      };
+
+      return ticketAssignmentWithRelations;
+    }),
   );
-
-  const ticketAssignmentsWithRelations: TicketAssignmentWithRelations[] =
-    await Promise.all(
-      filteredTicketAssignments.map(async (ticketAssignment) => {
-        const ticketAssignmentWithRelations: TicketAssignmentWithRelations = {
-          ...ticketAssignment,
-          admin: await getAdminById(ticketAssignment.admin_id),
-          ticket: await getTicketById(ticketAssignment.ticket_id),
-        };
-
-        return ticketAssignmentWithRelations;
-      })
-    );
 
   return ticketAssignmentsWithRelations;
 }

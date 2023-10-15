@@ -1,31 +1,21 @@
-import React from "react";
-import { CaretRight } from "@phosphor-icons/react";
-import { Controller, useForm } from "react-hook-form";
-import qs from "qs";
-import { IconButton } from "@/components/base/button";
-import { Input } from "@/components/base/input";
-import {
-  TabIndicator,
-  TabList,
-  TabTrigger,
-  Tabs,
-} from "@/components/base/tabs";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { QueryClient } from "@tanstack/react-query";
+import React from 'react';
+import { CaretRight } from '@phosphor-icons/react';
+import { Controller, useForm } from 'react-hook-form';
+import qs from 'qs';
+import { IconButton } from '@/components/base/button';
+import { Input } from '@/components/base/input';
+import { TabIndicator, TabList, TabTrigger, Tabs } from '@/components/base/tabs';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { QueryClient } from '@tanstack/react-query';
 import {
   TicketIndexRequest,
   TicketIndexRequestSchema,
   fetchTicketIndexQuery,
   useTicketCategoryIndexQuery,
   useTicketIndexQuery,
-} from "@/queries/ticket.query";
-import {
-  Link,
-  LoaderFunctionArgs,
-  useLoaderData,
-  useSearchParams,
-} from "react-router-dom";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
+} from '@/queries/ticket.query';
+import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import {
   Pagination,
   PaginationEllipsis,
@@ -34,48 +24,39 @@ import {
   PaginationNextPageTrigger,
   PaginationPageTrigger,
   PaginationPrevPageTrigger,
-} from "@/components/base/pagination";
-import { useDebounce } from "@/hooks/use-debounce";
-import { AppPageTitle } from "../_components/page-title.app";
-import { Table } from "@/components/base/table";
-import { Badge } from "@/components/base/badge";
-import {
-  ticketStatusToBadgeColor,
-  ticketStatusToLabel,
-} from "@/utils/ticket.util";
+} from '@/components/base/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
+import { AppPageTitle } from '../_components/page-title.app';
+import { Table } from '@/components/base/table';
+import { Badge } from '@/components/base/badge';
+import { ticketStatusToBadgeColor, ticketStatusToLabel } from '@/utils/ticket.util';
 import {
   Select,
   SelectContent,
   SelectLabel,
   SelectOption,
   SelectTrigger,
-} from "@/components/base/select";
-import { TicketStatusEnum } from "@/schemas/ticket.schema";
-import { formatDateTime } from "@/utils/date";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageResetButton } from "../_components/page-reset-button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/base/avatar";
-import { getInitials } from "@/utils/text.util";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/base/tooltip";
+} from '@/components/base/select';
+import { TicketStatusEnum } from '@/schemas/ticket.schema';
+import { formatDateTime } from '@/utils/date';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageResetButton } from '../_components/page-reset-button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/base/avatar';
+import { getInitials } from '@/utils/text.util';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/base/tooltip';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
     const requestData = TicketIndexRequestSchema.parse(
-      Object.fromEntries(new URL(request.url).searchParams)
+      Object.fromEntries(new URL(request.url).searchParams),
     );
 
-    fetchTicketIndexQuery({ queryClient, request: requestData }).catch(
-      (err) => {
-        console.error(err);
-      }
-    );
+    fetchTicketIndexQuery({ queryClient, request: requestData }).catch((err) => {
+      console.error(err);
+    });
 
     return loaderResponse({
-      pageTitle: "Tickets",
+      pageTitle: 'Tickets',
       data: { request: requestData },
     });
   };
@@ -85,8 +66,8 @@ TicketIndexPage.loader = loader;
 
 const ticketStatusOptions = [
   {
-    label: "All status",
-    value: "",
+    label: 'All status',
+    value: '',
   },
   ...TicketStatusEnum.options.map((status) => ({
     label: ticketStatusToLabel(status),
@@ -101,7 +82,7 @@ export function TicketIndexPage() {
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
     if (search === null) return;
-    filtersForm.setValue("search", search);
+    filtersForm.setValue('search', search);
   }, 500);
 
   const ticketIndexQuery = useTicketIndexQuery(loaderData.data.request);
@@ -112,11 +93,11 @@ export function TicketIndexPage() {
   });
 
   filtersForm.watch((data, { name }) => {
-    if (name === "is_archived") {
+    if (name === 'is_archived') {
       data.search = undefined;
     }
 
-    if (name !== "page") {
+    if (name !== 'page') {
       data.page = undefined;
     }
 
@@ -127,17 +108,14 @@ export function TicketIndexPage() {
   });
 
   React.useEffect(() => {
-    if (
-      filtersForm.getValues("is_archived") !==
-      loaderData.data.request.is_archived
-    ) {
-      filtersForm.setValue("is_archived", loaderData.data.request.is_archived);
+    if (filtersForm.getValues('is_archived') !== loaderData.data.request.is_archived) {
+      filtersForm.setValue('is_archived', loaderData.data.request.is_archived);
     }
-    if (filtersForm.getValues("search") !== loaderData.data.request.search) {
-      filtersForm.setValue("search", loaderData.data.request.search);
+    if (filtersForm.getValues('search') !== loaderData.data.request.search) {
+      filtersForm.setValue('search', loaderData.data.request.search);
     }
-    if (filtersForm.getValues("page") !== loaderData.data.request.page) {
-      filtersForm.setValue("page", loaderData.data.request.page);
+    if (filtersForm.getValues('page') !== loaderData.data.request.page) {
+      filtersForm.setValue('page', loaderData.data.request.page);
     }
   }, [filtersForm, loaderData.data.request]);
 
@@ -145,8 +123,8 @@ export function TicketIndexPage() {
 
   const ticketCategoryOptions = [
     {
-      label: "All category",
-      value: "",
+      label: 'All category',
+      value: '',
     },
     ...(ticketCategoryIndexQuery.data?.data.map((category) => ({
       label: category.name,
@@ -163,9 +141,9 @@ export function TicketIndexPage() {
         name="is_archived"
         render={({ field }) => (
           <Tabs
-            value={field.value ?? "0"}
+            value={field.value ?? '0'}
             onChange={({ value }) => {
-              if (value && (value === "1" || value === "0")) {
+              if (value && (value === '1' || value === '0')) {
                 field.onChange(value);
               }
             }}
@@ -184,7 +162,7 @@ export function TicketIndexPage() {
           <Input
             name="search"
             onChange={(e) => setSearch(e.target.value)}
-            value={search ?? ""}
+            value={search ?? ''}
             type="search"
             placeholder="Search by title"
             className="flex-1 min-w-[20rem]"
@@ -201,11 +179,11 @@ export function TicketIndexPage() {
                   const value = e?.value[0];
 
                   if (
-                    value === "" ||
-                    value === "open" ||
-                    value === "in_progress" ||
-                    value === "resolved" ||
-                    value === "unresolved"
+                    value === '' ||
+                    value === 'open' ||
+                    value === 'in_progress' ||
+                    value === 'resolved' ||
+                    value === 'unresolved'
                   ) {
                     field.onChange(value);
                   }
@@ -234,7 +212,6 @@ export function TicketIndexPage() {
 
                   field.onChange(value);
                 }}
-                
               >
                 <SelectLabel className="sr-only">Category</SelectLabel>
                 <SelectTrigger placeholder="Select category" className="w-48" />
@@ -249,7 +226,7 @@ export function TicketIndexPage() {
 
           <AppPageResetButton
             to={{
-              pathname: "/tickets",
+              pathname: '/tickets',
               search: loaderData.data.request.is_archived
                 ? `is_archived=${loaderData.data.request.is_archived}`
                 : undefined,
@@ -264,37 +241,26 @@ export function TicketIndexPage() {
         loading={ticketIndexQuery.isLoading}
         error={ticketIndexQuery.isError}
         errorMessage={
-          (typeof ticketIndexQuery.error === "object" &&
+          (typeof ticketIndexQuery.error === 'object' &&
             ticketIndexQuery.error instanceof Error &&
             ticketIndexQuery.error.message) ||
           undefined
         }
         refetch={ticketIndexQuery.refetch}
-        headings={[
-          "Title",
-          "Client",
-          "Category",
-          "Assignees",
-          "Status",
-          "Last updated",
-        ]}
+        headings={['Title', 'Client', 'Category', 'Assignees', 'Status', 'Last updated']}
         rows={ticketIndexQuery.data?.data.map((ticket) => [
           ticket.title,
           ticket.client.full_name,
           ticket.category.name,
           <div className="flex items-center justify-start -space-x-2">
-            {ticket.assignments.length === 0 && (
-              <span className="text-gray-500">-</span>
-            )}
+            {ticket.assignments.length === 0 && <span className="text-gray-500">-</span>}
             {ticket.assignments.map((assignment) => (
-              <Tooltip key={assignment.id} positioning={{ placement: "top" }}>
+              <Tooltip key={assignment.id} positioning={{ placement: 'top' }}>
                 <TooltipTrigger className="cursor-default">
                   <Avatar className="w-8 h-8 hover:relative">
                     <AvatarImage src={undefined} />
                     <AvatarFallback>
-                      {assignment.admin.full_name
-                        ? getInitials(assignment.admin.full_name)
-                        : ""}
+                      {assignment.admin.full_name ? getInitials(assignment.admin.full_name) : ''}
                     </AvatarFallback>
                   </Avatar>
                 </TooltipTrigger>
@@ -338,21 +304,16 @@ export function TicketIndexPage() {
                       <PaginationPrevPageTrigger />
                     </PaginationListItem>
                     {/* temporarily cast type until it's properly typed */}
-                    {(pages as { type: "page"; value: number }[]).map(
-                      (page, index) =>
-                        page.type === "page" ? (
-                          <PaginationListItem key={index}>
-                            <PaginationPageTrigger {...page}>
-                              {page.value}
-                            </PaginationPageTrigger>
-                          </PaginationListItem>
-                        ) : (
-                          <PaginationListItem key={index}>
-                            <PaginationEllipsis index={index}>
-                              &#8230;
-                            </PaginationEllipsis>
-                          </PaginationListItem>
-                        )
+                    {(pages as { type: 'page'; value: number }[]).map((page, index) =>
+                      page.type === 'page' ? (
+                        <PaginationListItem key={index}>
+                          <PaginationPageTrigger {...page}>{page.value}</PaginationPageTrigger>
+                        </PaginationListItem>
+                      ) : (
+                        <PaginationListItem key={index}>
+                          <PaginationEllipsis index={index}>&#8230;</PaginationEllipsis>
+                        </PaginationListItem>
+                      ),
                     )}
                     <PaginationListItem>
                       <PaginationNextPageTrigger />

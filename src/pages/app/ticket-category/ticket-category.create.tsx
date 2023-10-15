@@ -1,28 +1,28 @@
-import { AppPageTitle } from "../_components/page-title.app";
+import { AppPageTitle } from '../_components/page-title.app';
 import {
   CreateTicketCategorySchema,
   TicketCategorySchema,
   UpdateTicketCategorySchema,
-} from "@/schemas/ticket.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { api } from "@/libs/api.lib";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import { Textbox } from "@/components/derived/textbox";
-import { Label } from "@/components/base/label";
-import { Card } from "@/components/base/card";
-import { TextAreabox } from "@/components/derived/textareabox";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageBackLink } from "../_components/page-back-link";
-import { SaveButton } from "@/components/derived/save-button";
+} from '@/schemas/ticket.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { api } from '@/libs/api.lib';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useLoaderData, useNavigate } from 'react-router-dom';
+import { Textbox } from '@/components/derived/textbox';
+import { Label } from '@/components/base/label';
+import { Card } from '@/components/base/card';
+import { TextAreabox } from '@/components/derived/textareabox';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageBackLink } from '../_components/page-back-link';
+import { SaveButton } from '@/components/derived/save-button';
 
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: "Create Ticket Category",
+      pageTitle: 'Create Ticket Category',
     });
   };
 }
@@ -61,7 +61,7 @@ export function TicketCategoryCreatePage() {
             <Label htmlFor="name">Name</Label>
             <div className="col-span-3">
               <Textbox
-                {...createTicketCategoryForm.register("name")}
+                {...createTicketCategoryForm.register('name')}
                 label="Name"
                 placeholder="Enter name"
                 disabled={createTicketCategoryMutation.isLoading}
@@ -75,13 +75,11 @@ export function TicketCategoryCreatePage() {
             <Label htmlFor="description">Description</Label>
             <div className="col-span-3">
               <TextAreabox
-                {...createTicketCategoryForm.register("description")}
+                {...createTicketCategoryForm.register('description')}
                 label="Description"
                 placeholder="Enter description"
                 disabled={createTicketCategoryMutation.isLoading}
-                error={
-                  createTicketCategoryForm.formState.errors.description?.message
-                }
+                error={createTicketCategoryForm.formState.errors.description?.message}
                 srOnlyLabel
                 rows={3}
                 data-testid="textbox-description"
@@ -116,17 +114,15 @@ function useCreateTicketCategoryMutation() {
   return useMutation({
     async mutationFn(data: UpdateTicketCategorySchema) {
       try {
-        const res = await api.post(data, "/ticket-categories");
+        const res = await api.post(data, '/ticket-categories');
 
         return CreateTicketCategoryResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["ticket-category", "index"]);
+      await queryClient.invalidateQueries(['ticket-category', 'index']);
     },
   });
 }

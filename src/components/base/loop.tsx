@@ -1,4 +1,4 @@
-import { cloneElement, ReactNode } from "react";
+import { cloneElement, ReactNode } from 'react';
 
 type LoopProps = {
   amount: number;
@@ -7,7 +7,7 @@ type LoopProps = {
 
 export function Loop({ amount, children }: LoopProps) {
   const components = Array.from(Array(amount).keys()).map((key) =>
-    cloneElement(children as JSX.Element, { key })
+    cloneElement(children as JSX.Element, { key }),
   );
 
   return <>{components}</>;

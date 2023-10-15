@@ -1,14 +1,9 @@
-import { z } from "zod";
-import { ClientSchema } from "./client.schema";
-import { ChannelSchema } from "./channel.schema";
-import { AdminSchema } from "./admin.schema";
+import { z } from 'zod';
+import { ClientSchema } from './client.schema';
+import { ChannelSchema } from './channel.schema';
+import { AdminSchema } from './admin.schema';
 
-export const TicketStatusEnum = z.enum([
-  "open",
-  "in_progress",
-  "resolved",
-  "unresolved",
-]);
+export const TicketStatusEnum = z.enum(['open', 'in_progress', 'resolved', 'unresolved']);
 
 export type TicketStatus = z.infer<typeof TicketStatusEnum>;
 
@@ -28,23 +23,19 @@ export const CreateTicketCategorySchema = TicketCategorySchema.pick({
   description: true,
 });
 
-export type CreateTicketCategorySchema = z.infer<
-  typeof CreateTicketCategorySchema
->;
+export type CreateTicketCategorySchema = z.infer<typeof CreateTicketCategorySchema>;
 
 export const UpdateTicketCategorySchema = TicketCategorySchema.pick({
   description: true,
 });
 
-export type UpdateTicketCategorySchema = z.infer<
-  typeof UpdateTicketCategorySchema
->;
+export type UpdateTicketCategorySchema = z.infer<typeof UpdateTicketCategorySchema>;
 
 export const TicketSchema = z.object({
   id: z.string().nonempty(),
-  title: z.string().nonempty("Title is required"),
+  title: z.string().nonempty('Title is required'),
   description: z.string().optional(),
-  status: TicketStatusEnum.default("open"),
+  status: TicketStatusEnum.default('open'),
   is_archived: z.boolean().default(false),
   category_id: TicketCategorySchema.shape.id,
   channel_id: ChannelSchema.shape.id,
@@ -71,7 +62,7 @@ export const CreateTicketSchema = TicketSchema.pick({
   channel_id: true,
   client_id: true,
 }).extend({
-  initial_message: z.string().nonempty("Initial message is required"),
+  initial_message: z.string().nonempty('Initial message is required'),
 });
 
 export type CreateTicketSchema = z.infer<typeof CreateTicketSchema>;
@@ -91,25 +82,18 @@ export const CreateTicketAssignmentSchema = TicketAssignmentSchema.pick({
   admin_id: true,
 });
 
-export type CreateTicketAssignmentSchema = z.infer<
-  typeof CreateTicketAssignmentSchema
->;
+export type CreateTicketAssignmentSchema = z.infer<typeof CreateTicketAssignmentSchema>;
 
 export const DeleteTicketAssignmentSchema = TicketAssignmentSchema.pick({
   id: true,
   ticket_id: true,
 });
 
-export type DeleteTicketAssignmentSchema = z.infer<
-  typeof DeleteTicketAssignmentSchema
->;
+export type DeleteTicketAssignmentSchema = z.infer<typeof DeleteTicketAssignmentSchema>;
 
-export const TicketAssignmentWithRelationsSchema =
-  TicketAssignmentSchema.extend({
-    ticket: z.lazy(() => TicketSchema),
-    admin: z.lazy(() => AdminSchema),
-  });
+export const TicketAssignmentWithRelationsSchema = TicketAssignmentSchema.extend({
+  ticket: z.lazy(() => TicketSchema),
+  admin: z.lazy(() => AdminSchema),
+});
 
-export type TicketAssignmentWithRelations = z.infer<
-  typeof TicketAssignmentWithRelationsSchema
->;
+export type TicketAssignmentWithRelations = z.infer<typeof TicketAssignmentWithRelationsSchema>;

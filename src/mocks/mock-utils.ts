@@ -1,15 +1,8 @@
-import {
-  AdminSchema,
-  AdminWithoutPasswordSchema,
-} from "@/schemas/admin.schema";
-import {
-  BaseResponseError,
-  ForbiddenError,
-  UnauthorizedError,
-} from "@/utils/error.util";
-import localforage from "localforage";
-import { response, context, ResponseTransformer } from "msw";
-import { z } from "zod";
+import { AdminSchema, AdminWithoutPasswordSchema } from '@/schemas/admin.schema';
+import { BaseResponseError, ForbiddenError, UnauthorizedError } from '@/utils/error.util';
+import localforage from 'localforage';
+import { response, context, ResponseTransformer } from 'msw';
+import { z } from 'zod';
 
 type BaseResponseParams<TData = unknown> = {
   data?: TData;
@@ -47,7 +40,7 @@ export function successResponse<TData>({
       meta,
     }),
     context.status(status),
-    context.delay()
+    context.delay(),
   );
 }
 
@@ -64,7 +57,7 @@ export function errorResponse({
       message,
     }),
     context.status(status),
-    context.delay()
+    context.delay(),
   );
 }
 
@@ -72,10 +65,8 @@ type AllowAuthenticatedOnlyParams = {
   sessionId: string;
 };
 
-export async function allowAuthenticatedOnly({
-  sessionId,
-}: AllowAuthenticatedOnlyParams) {
-  const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+export async function allowAuthenticatedOnly({ sessionId }: AllowAuthenticatedOnlyParams) {
+  const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
   const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
   const loggedInAdmin = storedAdmins.find((admin) => admin.id === sessionId);
@@ -91,14 +82,12 @@ type AllowSuperAdminOnlyParams = {
   sessionId: string;
 };
 
-export async function allowSuperAdminOnly({
-  sessionId,
-}: AllowSuperAdminOnlyParams) {
+export async function allowSuperAdminOnly({ sessionId }: AllowSuperAdminOnlyParams) {
   const unparsedLoggedInAdmin = await allowAuthenticatedOnly({ sessionId });
 
   const loggedInAdmin = AdminWithoutPasswordSchema.parse(unparsedLoggedInAdmin);
 
-  if (loggedInAdmin.role !== "super_admin") {
+  if (loggedInAdmin.role !== 'super_admin') {
     throw new ForbiddenError();
   }
 
@@ -109,7 +98,7 @@ export function handleResponseError(error: unknown) {
   if (error instanceof z.ZodError) {
     return errorResponse({
       data: error.errors,
-      message: "Invalid payload data",
+      message: 'Invalid payload data',
       status: 400,
     });
   }

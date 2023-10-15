@@ -1,6 +1,6 @@
-import { z } from "zod";
-import { ChannelSchema } from "./channel.schema";
-import { ActionSchema } from "./action.schema";
+import { z } from 'zod';
+import { ChannelSchema } from './channel.schema';
+import { ActionSchema } from './action.schema';
 
 export const ActionChannelSchema = z.object({
   id: z.string().nonempty(),

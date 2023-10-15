@@ -1,11 +1,11 @@
-import { TicketCategory, TicketCategorySchema } from "@/schemas/ticket.schema";
-import localforage from "localforage";
-import { nanoid } from "nanoid";
+import { TicketCategory, TicketCategorySchema } from '@/schemas/ticket.schema';
+import localforage from 'localforage';
+import { nanoid } from 'nanoid';
 
 export const mockTicketCategoryRecords: TicketCategory[] = [
   {
     id: nanoid(),
-    name: "Masalah Pelayanan",
+    name: 'Masalah Pelayanan',
     description: null,
     is_archived: false,
     created_at: new Date().toISOString(),
@@ -13,7 +13,7 @@ export const mockTicketCategoryRecords: TicketCategory[] = [
   },
   {
     id: nanoid(),
-    name: "Masalah Menu",
+    name: 'Masalah Menu',
     description: null,
     is_archived: false,
     created_at: new Date().toISOString(),
@@ -21,7 +21,7 @@ export const mockTicketCategoryRecords: TicketCategory[] = [
   },
   {
     id: nanoid(),
-    name: "Saran Menu",
+    name: 'Saran Menu',
     description: null,
     is_archived: false,
     created_at: new Date().toISOString(),
@@ -29,7 +29,7 @@ export const mockTicketCategoryRecords: TicketCategory[] = [
   },
   {
     id: nanoid(),
-    name: "Lainnya",
+    name: 'Lainnya',
     description: null,
     is_archived: false,
     created_at: new Date().toISOString(),
@@ -38,28 +38,20 @@ export const mockTicketCategoryRecords: TicketCategory[] = [
 ];
 
 export async function getTicketCategories(): Promise<TicketCategory[]> {
-  const unparsedStoredTicketCategories = await localforage.getItem(
-    "ticket_categories"
-  );
-  const storedTicketCategories = TicketCategorySchema.array().parse(
-    unparsedStoredTicketCategories
-  );
+  const unparsedStoredTicketCategories = await localforage.getItem('ticket_categories');
+  const storedTicketCategories = TicketCategorySchema.array().parse(unparsedStoredTicketCategories);
 
   return storedTicketCategories;
 }
 
 export async function getTicketCategoryById(
-  ticketCategoryId: TicketCategory["id"]
+  ticketCategoryId: TicketCategory['id'],
 ): Promise<TicketCategory> {
-  const unparsedStoredTicketCategories = await localforage.getItem(
-    "ticket_categories"
-  );
-  const storedTicketCategories = TicketCategorySchema.array().parse(
-    unparsedStoredTicketCategories
-  );
+  const unparsedStoredTicketCategories = await localforage.getItem('ticket_categories');
+  const storedTicketCategories = TicketCategorySchema.array().parse(unparsedStoredTicketCategories);
 
   const ticketCategory = storedTicketCategories.find(
-    (ticketCategory) => ticketCategory.id === ticketCategoryId
+    (ticketCategory) => ticketCategory.id === ticketCategoryId,
   );
 
   if (!ticketCategory) {

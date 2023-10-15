@@ -1,8 +1,8 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const ClientSchema = z.object({
   id: z.string().nonempty(),
-  full_name: z.string().nonempty("Full name is required"),
+  full_name: z.string().nonempty('Full name is required'),
   is_archived: z.boolean().default(false),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),

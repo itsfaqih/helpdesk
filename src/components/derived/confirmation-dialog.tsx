@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "../base/button";
+import React from 'react';
+import { Button } from '../base/button';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../base/dialog";
+} from '../base/dialog';
 
 type ConfirmationDialogProps = {
   title: string;
@@ -17,7 +17,8 @@ type ConfirmationDialogProps = {
   buttonOnClick: () => void;
   isLoading: boolean;
   isSuccess: boolean;
-  id: string
+  id: string;
+  buttonLeadingIcon?: React.ComponentPropsWithoutRef<typeof Button>['leading'];
   destructive?: boolean;
   trigger?: React.ReactNode;
   isOpen?: boolean;
@@ -33,6 +34,7 @@ export function ConfirmationDialog({
   isLoading,
   isSuccess,
   id,
+  buttonLeadingIcon,
   destructive,
   trigger,
   isOpen,
@@ -75,7 +77,8 @@ export function ConfirmationDialog({
         <DialogFooter className="mt-5">
           <Button
             type="button"
-            variant={destructive ? "danger" : "primary"}
+            leading={buttonLeadingIcon}
+            variant={destructive ? 'danger' : 'primary'}
             loading={isLoading}
             success={isSuccess}
             onClick={buttonOnClick}

@@ -1,24 +1,24 @@
-import { Button } from "@/components/base/button";
-import { Link } from "@/components/base/link";
-import { Checkbox } from "@/components/derived/checkbox";
-import { Textbox } from "@/components/derived/textbox";
-import { api } from "@/libs/api.lib";
-import { AuthResponseSchema, LoginSchema } from "@/schemas/auth.schema";
-import { sleep } from "@/utils/delay.util";
-import { UnauthorizedError } from "@/utils/error.util";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import localforage from "localforage";
-import { Controller, useForm } from "react-hook-form";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { mockAdminRecords } from "@/mocks/records/admin.record";
+import { Button } from '@/components/base/button';
+import { Link } from '@/components/base/link';
+import { Checkbox } from '@/components/derived/checkbox';
+import { Textbox } from '@/components/derived/textbox';
+import { api } from '@/libs/api.lib';
+import { AuthResponseSchema, LoginSchema } from '@/schemas/auth.schema';
+import { sleep } from '@/utils/delay.util';
+import { UnauthorizedError } from '@/utils/error.util';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import localforage from 'localforage';
+import { Controller, useForm } from 'react-hook-form';
+import { useLoaderData, useNavigate } from 'react-router-dom';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { mockAdminRecords } from '@/mocks/records/admin.record';
 
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: "Login",
+      pageTitle: 'Login',
     });
   };
 }
@@ -39,15 +39,15 @@ export function LoginPage() {
   const onSubmit = loginForm.handleSubmit((data) => {
     loginMutation.mutate(data, {
       async onSuccess(res) {
-        await localforage.setItem("logged_in_admin", res.data);
+        await localforage.setItem('logged_in_admin', res.data);
 
         await sleep(1000);
-        navigate("/");
+        navigate('/');
       },
       onError(error) {
         if (error instanceof Error) {
-          loginForm.setError("email", {
-            type: "custom",
+          loginForm.setError('email', {
+            type: 'custom',
             message: error.message,
           });
         }
@@ -56,16 +56,11 @@ export function LoginPage() {
   });
 
   return (
-    <AppPageContainer
-      title={loaderData.pageTitle}
-      className="max-w-xs mx-auto mt-32 sm:max-w-sm"
-    >
-      <h1 className="text-2xl font-medium text-center text-gray-800">
-        Helpdesk Management
-      </h1>
+    <AppPageContainer title={loaderData.pageTitle} className="max-w-xs mx-auto mt-32 sm:max-w-sm">
+      <h1 className="text-2xl font-medium text-center text-gray-800">Helpdesk Management</h1>
       <form onSubmit={onSubmit} className="flex flex-col mt-6 gap-y-4.5">
         <Textbox
-          {...loginForm.register("email")}
+          {...loginForm.register('email')}
           label="Email"
           type="email"
           placeholder="Enter your email"
@@ -73,7 +68,7 @@ export function LoginPage() {
           error={loginForm.formState.errors.email?.message}
         />
         <Textbox
-          {...loginForm.register("password")}
+          {...loginForm.register('password')}
           label="Password"
           type="password"
           placeholder="Enter your password"
@@ -91,9 +86,7 @@ export function LoginPage() {
                 name={field.name}
                 onBlur={field.onBlur}
                 onChange={({ checked }) => {
-                  field.onChange(
-                    typeof checked === "boolean" ? checked : false
-                  );
+                  field.onChange(typeof checked === 'boolean' ? checked : false);
                 }}
                 checked={field.value}
                 disabled={loginMutation.isLoading}
@@ -124,17 +117,15 @@ function useLoginMutation() {
   return useMutation({
     async mutationFn(data: LoginSchema) {
       try {
-        const res = await api.post(data, "/login");
+        const res = await api.post(data, '/login');
 
         return AuthResponseSchema.parse(res);
       } catch (error) {
         if (error instanceof UnauthorizedError) {
-          throw new Error("Invalid email or password");
+          throw new Error('Invalid email or password');
         }
 
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
   });

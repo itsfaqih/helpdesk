@@ -1,11 +1,12 @@
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
-import { api } from "@/libs/api.lib";
-import { Admin, AdminSchema } from "@/schemas/admin.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
+import { api } from '@/libs/api.lib';
+import { Admin, AdminSchema } from '@/schemas/admin.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { Power } from '@phosphor-icons/react';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 type DeactivateAdminDialogProps = {
-  adminId: Admin["id"];
+  adminId: Admin['id'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -32,6 +33,7 @@ export function DeactivateAdminDialog({
       isSuccess={deactivateAdminMutation.isSuccess}
       buttonLabel="Deactivate Admin"
       buttonOnClick={() => deactivateAdminMutation.mutate()}
+      buttonLeadingIcon={(props) => <Power {...props} />}
       trigger={trigger}
       onSuccess={() => {
         onOpenChange?.(false);
@@ -51,12 +53,10 @@ const DeactivateAdminResponseSchema = APIResponseSchema({
 });
 
 type UseDeactivateAdminMutationParams = {
-  adminId: Admin["id"];
+  adminId: Admin['id'];
 };
 
-function useDeactivateAdminMutation({
-  adminId,
-}: UseDeactivateAdminMutationParams) {
+function useDeactivateAdminMutation({ adminId }: UseDeactivateAdminMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -66,14 +66,12 @@ function useDeactivateAdminMutation({
 
         return DeactivateAdminResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["admin", "index"]);
-      await queryClient.invalidateQueries(["admin", "show", adminId]);
+      await queryClient.invalidateQueries(['admin', 'index']);
+      await queryClient.invalidateQueries(['admin', 'show', adminId]);
     },
   });
 }

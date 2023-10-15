@@ -1,7 +1,7 @@
-import React from "react";
-import * as Ark from "@ark-ui/react";
-import { cn } from "@/libs/cn.lib";
-import { X } from "@phosphor-icons/react";
+import React from 'react';
+import * as Ark from '@ark-ui/react';
+import { cn } from '@/libs/cn.lib';
+import { X } from '@phosphor-icons/react';
 
 export const Dialog = Ark.Dialog;
 
@@ -16,7 +16,7 @@ export const DialogTitle = React.forwardRef<
   return (
     <Ark.DialogTitle
       ref={ref}
-      className={cn("text-lg font-semibold text-gray-800 pr-8", className)}
+      className={cn('text-lg font-semibold text-gray-800 pr-8', className)}
       {...props}
     />
   );
@@ -31,7 +31,7 @@ export const DialogDescription = React.forwardRef<
   return (
     <Ark.DialogDescription
       ref={ref}
-      className={cn("text-sm text-gray-500", className)}
+      className={cn('text-sm text-gray-500', className)}
       {...props}
     />
   );
@@ -47,19 +47,19 @@ export const DialogContent = React.forwardRef<
     <Ark.Portal>
       <Ark.DialogBackdrop
         className={cn(
-          "fixed inset-0 bg-gray-900/70",
-          "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300",
-          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-300"
+          'fixed inset-0 bg-gray-900/70',
+          'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300',
+          'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-300',
         )}
       />
       <Ark.DialogContainer className="fixed inset-0 [&:not([hidden])]:flex items-center justify-center">
         <Ark.DialogContent
           ref={ref}
           className={cn(
-            "relative flex flex-col py-5 px-6 bg-white rounded-lg shadow-lg",
-            "data-[state=open]:animate-in data-[state=open]:duration-300 data-[state=open]:fade-in data-[state=open]:zoom-in-95",
-            "data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
-            className
+            'relative flex flex-col py-5 px-6 bg-white rounded-lg shadow-lg',
+            'data-[state=open]:animate-in data-[state=open]:duration-300 data-[state=open]:fade-in data-[state=open]:zoom-in-95',
+            'data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+            className,
           )}
           {...props}
         >
@@ -76,18 +76,10 @@ export const DialogContent = React.forwardRef<
 
 DialogContent.displayName = Ark.DialogContent.displayName;
 
-export function DialogHeader({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-col gap-y-1", className)} {...props} />;
+export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn('flex flex-col gap-y-1', className)} {...props} />;
 }
 
-export function DialogFooter({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className={cn("flex gap-x-2.5 justify-end", className)} {...props} />
-  );
+export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn('flex gap-x-2.5 justify-end', className)} {...props} />;
 }

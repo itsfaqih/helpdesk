@@ -1,11 +1,12 @@
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
-import { api } from "@/libs/api.lib";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { TicketCategory, TicketCategorySchema } from "@/schemas/ticket.schema";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
+import { api } from '@/libs/api.lib';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { TicketCategory, TicketCategorySchema } from '@/schemas/ticket.schema';
+import { Archive } from '@phosphor-icons/react';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 type ArchiveTicketCategoryDialogProps = {
-  ticketCategoryId: TicketCategory["id"];
+  ticketCategoryId: TicketCategory['id'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -34,6 +35,7 @@ export function ArchiveTicketCategoryDialog({
       isSuccess={archiveTicketCategoryMutation.isSuccess}
       buttonLabel="Archive"
       buttonOnClick={() => archiveTicketCategoryMutation.mutate()}
+      buttonLeadingIcon={(props) => <Archive {...props} />}
       trigger={trigger}
       onSuccess={() => {
         onOpenChange?.(false);
@@ -51,7 +53,7 @@ const ArchiveTicketCategoryResponseSchema = APIResponseSchema({
 });
 
 type UseArchiveTicketCategoryMutationParams = {
-  ticketCategoryId: TicketCategory["id"];
+  ticketCategoryId: TicketCategory['id'];
 };
 
 function useArchiveTicketCategoryMutation({
@@ -62,21 +64,16 @@ function useArchiveTicketCategoryMutation({
   return useMutation({
     async mutationFn() {
       try {
-        const res = await api.put(
-          undefined,
-          `/ticket-categories/${ticketCategoryId}/archive`
-        );
+        const res = await api.put(undefined, `/ticket-categories/${ticketCategoryId}/archive`);
 
         return ArchiveTicketCategoryResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["ticket-category", "index"]);
-			await queryClient.invalidateQueries(["ticket-category", "show", ticketCategoryId]);
+      await queryClient.invalidateQueries(['ticket-category', 'index']);
+      await queryClient.invalidateQueries(['ticket-category', 'show', ticketCategoryId]);
     },
   });
 }

@@ -1,13 +1,9 @@
-import { rest } from "msw";
-import {
-  allowAuthenticatedOnly,
-  handleResponseError,
-  successResponse,
-} from "../mock-utils";
-import { getActionFieldsByActionId } from "../records/action-field.record";
+import { rest } from 'msw';
+import { allowAuthenticatedOnly, handleResponseError, successResponse } from '../mock-utils';
+import { getActionFieldsByActionId } from '../records/action-field.record';
 
 export const actionFieldHandlers = [
-  rest.get("/api/actions/:actionId/fields", async (req) => {
+  rest.get('/api/actions/:actionId/fields', async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
@@ -17,7 +13,7 @@ export const actionFieldHandlers = [
 
       return successResponse({
         data: storedActionFields,
-        message: "Successfully retrieved action fields",
+        message: 'Successfully retrieved action fields',
       });
     } catch (error) {
       return handleResponseError(error);

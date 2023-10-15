@@ -1,20 +1,20 @@
-import { api } from "@/libs/api.lib";
+import { api } from '@/libs/api.lib';
 import {
   TicketCategorySchema,
   TicketStatusEnum,
   TicketWithRelationsSchema,
-} from "@/schemas/ticket.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { UserError } from "@/utils/error.util";
-import { QueryClient, useQuery } from "@tanstack/react-query";
-import qs from "qs";
-import { z } from "zod";
+} from '@/schemas/ticket.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { UserError } from '@/utils/error.util';
+import { QueryClient, useQuery } from '@tanstack/react-query';
+import qs from 'qs';
+import { z } from 'zod';
 
 export const TicketIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
-  is_archived: z.enum(["1", "0"]).optional().catch(undefined),
+  is_archived: z.enum(['1', '0']).optional().catch(undefined),
   status: z
-    .enum(["", ...TicketStatusEnum.options])
+    .enum(['', ...TicketStatusEnum.options])
     .optional()
     .catch(undefined),
   category_id: z.string().optional().catch(undefined),
@@ -29,7 +29,7 @@ const TicketIndexResponseSchema = APIResponseSchema({
 
 export function ticketIndexQuery(request: TicketIndexRequest = {}) {
   return {
-    queryKey: ["ticket", "index", request],
+    queryKey: ['ticket', 'index', request],
     async queryFn() {
       const queryStrings = qs.stringify(request);
       const res = await api.get(`/tickets?${queryStrings}`);
@@ -76,7 +76,7 @@ export function ticketShowQuery(request: TicketShowRequest) {
   const { id, ...requestWithoutId } = request;
 
   return {
-    queryKey: ["ticket", "show", id, requestWithoutId],
+    queryKey: ['ticket', 'show', id, requestWithoutId],
     async queryFn() {
       const res = await api.get(`/tickets/${id}`);
 
@@ -94,10 +94,7 @@ type FetchTicketShowQueryParams = {
   request: TicketShowRequest;
 };
 
-export async function fetchTicketShowQuery({
-  queryClient,
-  request,
-}: FetchTicketShowQueryParams) {
+export async function fetchTicketShowQuery({ queryClient, request }: FetchTicketShowQueryParams) {
   const ticketShowQueryOpt = ticketShowQuery(request);
 
   queryClient.getQueryData(ticketShowQueryOpt.queryKey) ??
@@ -110,23 +107,19 @@ export async function fetchTicketShowQuery({
 
 export const TicketCategoryIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
-  is_archived: z.enum(["1", "0"]).optional().catch(undefined),
+  is_archived: z.enum(['1', '0']).optional().catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });
 
-export type TicketCategoryIndexRequest = z.infer<
-  typeof TicketCategoryIndexRequestSchema
->;
+export type TicketCategoryIndexRequest = z.infer<typeof TicketCategoryIndexRequestSchema>;
 
 export const TicketCategoryIndexResponseSchema = APIResponseSchema({
   schema: TicketCategorySchema.array(),
 });
 
-export function ticketCategoryIndexQuery(
-  request: TicketCategoryIndexRequest = {}
-) {
+export function ticketCategoryIndexQuery(request: TicketCategoryIndexRequest = {}) {
   return {
-    queryKey: ["ticket-category", "index", request],
+    queryKey: ['ticket-category', 'index', request],
     async queryFn() {
       const queryStrings = qs.stringify(request);
       const res = await api.get(`/ticket-categories?${queryStrings}`);
@@ -136,9 +129,7 @@ export function ticketCategoryIndexQuery(
   };
 }
 
-export function useTicketCategoryIndexQuery(
-  request: TicketCategoryIndexRequest
-) {
+export function useTicketCategoryIndexQuery(request: TicketCategoryIndexRequest) {
   return useQuery(ticketCategoryIndexQuery(request));
 }
 
@@ -154,22 +145,18 @@ export async function fetchTicketCategoryIndexQuery({
   const ticketCategoryIndexQueryOpt = ticketCategoryIndexQuery(request);
 
   queryClient.getQueryData(ticketCategoryIndexQueryOpt.queryKey) ??
-    (await queryClient
-      .fetchQuery(ticketCategoryIndexQueryOpt)
-      .catch((error) => {
-        if (error instanceof UserError) {
-          throw error;
-        }
-      }));
+    (await queryClient.fetchQuery(ticketCategoryIndexQueryOpt).catch((error) => {
+      if (error instanceof UserError) {
+        throw error;
+      }
+    }));
 }
 
 export const TicketCategoryShowRequestSchema = z.object({
   id: z.string(),
 });
 
-export type TicketCategoryShowRequest = z.infer<
-  typeof TicketCategoryShowRequestSchema
->;
+export type TicketCategoryShowRequest = z.infer<typeof TicketCategoryShowRequestSchema>;
 
 export const TicketCategoryShowResponseSchema = APIResponseSchema({
   schema: TicketCategorySchema,
@@ -179,7 +166,7 @@ export function ticketCategoryShowQuery(request: TicketCategoryShowRequest) {
   const { id, ...requestWithoutId } = request;
 
   return {
-    queryKey: ["ticket-category", "show", id, requestWithoutId],
+    queryKey: ['ticket-category', 'show', id, requestWithoutId],
     async queryFn() {
       const res = await api.get(`/ticket-categories/${id}`);
 

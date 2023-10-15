@@ -1,14 +1,14 @@
-import { api } from "@/libs/api.lib";
-import { ChannelSchema } from "@/schemas/channel.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { UserError } from "@/utils/error.util";
-import { QueryClient, useQuery } from "@tanstack/react-query";
-import qs from "qs";
-import { z } from "zod";
+import { api } from '@/libs/api.lib';
+import { ChannelSchema } from '@/schemas/channel.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { UserError } from '@/utils/error.util';
+import { QueryClient, useQuery } from '@tanstack/react-query';
+import qs from 'qs';
+import { z } from 'zod';
 
 export const ChannelIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
-  is_archived: z.enum(["1", "0"]).optional().catch(undefined),
+  is_archived: z.enum(['1', '0']).optional().catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });
 
@@ -20,7 +20,7 @@ const ChannelIndexResponseSchema = APIResponseSchema({
 
 export function channelIndexQuery(request: ChannelIndexRequest = {}) {
   return {
-    queryKey: ["channel", "index", request],
+    queryKey: ['channel', 'index', request],
     async queryFn() {
       const queryStrings = qs.stringify(request);
       const res = await api.get(`/channels?${queryStrings}`);
@@ -67,7 +67,7 @@ export function channelShowQuery(request: ChannelShowRequest) {
   const { id, ...requestWithoutId } = request;
 
   return {
-    queryKey: ["channel", "show", id, requestWithoutId],
+    queryKey: ['channel', 'show', id, requestWithoutId],
     async queryFn() {
       const res = await api.get(`/channels/${id}`);
 
@@ -85,10 +85,7 @@ type FetchChannelShowQueryParams = {
   request: ChannelShowRequest;
 };
 
-export async function fetchChannelShowQuery({
-  queryClient,
-  request,
-}: FetchChannelShowQueryParams) {
+export async function fetchChannelShowQuery({ queryClient, request }: FetchChannelShowQueryParams) {
   const channelShowQueryOpt = channelShowQuery(request);
 
   queryClient.getQueryData(channelShowQueryOpt.queryKey) ??

@@ -1,7 +1,7 @@
-import React from "react";
-import * as Ark from "@ark-ui/react";
+import React from 'react';
+import * as Ark from '@ark-ui/react';
 
-import { cn } from "@/libs/cn.lib";
+import { cn } from '@/libs/cn.lib';
 
 export const Avatar = React.forwardRef<
   React.ElementRef<typeof Ark.Avatar>,
@@ -10,8 +10,8 @@ export const Avatar = React.forwardRef<
   <Ark.Avatar
     ref={ref}
     className={cn(
-      "flex h-10 w-10 shrink-0 overflow-hidden rounded-full shadow-haptic-gray-300",
-      className
+      'flex h-10 w-10 shrink-0 overflow-hidden rounded-full shadow-haptic-gray-300',
+      className,
     )}
     {...props}
   />
@@ -23,11 +23,7 @@ export const AvatarImage = React.forwardRef<
   React.ElementRef<typeof Ark.AvatarImage>,
   React.ComponentPropsWithoutRef<typeof Ark.AvatarImage>
 >(({ className, ...props }, ref) => (
-  <Ark.AvatarImage
-    ref={ref}
-    className={cn("aspect-square h-full w-full", className)}
-    {...props}
-  />
+  <Ark.AvatarImage ref={ref} className={cn('aspect-square h-full w-full', className)} {...props} />
 ));
 
 AvatarImage.displayName = Ark.AvatarImage.displayName;
@@ -39,8 +35,8 @@ export const AvatarFallback = React.forwardRef<
   <Ark.AvatarFallback
     ref={ref}
     className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-white",
-      className
+      'flex h-full w-full items-center justify-center rounded-full bg-white',
+      className,
     )}
     {...props}
   />

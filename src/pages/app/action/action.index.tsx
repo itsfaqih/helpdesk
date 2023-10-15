@@ -1,28 +1,19 @@
-import React from "react";
+import React from 'react';
 import {
   Archive,
   ArrowCounterClockwise,
+  DotsThree,
   PencilSimple,
   Plus,
-} from "@phosphor-icons/react";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import qs from "qs";
-import { Button, IconButton } from "@/components/base/button";
-import {
-  TabIndicator,
-  TabList,
-  TabTrigger,
-  Tabs,
-} from "@/components/base/tabs";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { QueryClient } from "@tanstack/react-query";
-import {
-  Link,
-  LoaderFunctionArgs,
-  useLoaderData,
-  useSearchParams,
-} from "react-router-dom";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
+} from '@phosphor-icons/react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import qs from 'qs';
+import { Button, IconButton } from '@/components/base/button';
+import { TabIndicator, TabList, TabTrigger, Tabs } from '@/components/base/tabs';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { QueryClient } from '@tanstack/react-query';
+import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import {
   Pagination,
   PaginationEllipsis,
@@ -31,38 +22,39 @@ import {
   PaginationNextPageTrigger,
   PaginationPageTrigger,
   PaginationPrevPageTrigger,
-} from "@/components/base/pagination";
-import { useDebounce } from "@/hooks/use-debounce";
-import { AppPageTitle } from "../_components/page-title.app";
-import { Table } from "@/components/base/table";
-import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
-import { formatDateTime } from "@/utils/date";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageSearchBox } from "../_components/page-search-box";
-import { AppPageResetButton } from "../_components/page-reset-button";
+} from '@/components/base/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
+import { AppPageTitle } from '../_components/page-title.app';
+import { Table } from '@/components/base/table';
+import { useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { formatDateTime } from '@/utils/date';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageSearchBox } from '../_components/page-search-box';
+import { AppPageResetButton } from '../_components/page-reset-button';
 import {
   ActionIndexRequest,
   ActionIndexRequestSchema,
   fetchActionIndexQuery,
   useActionIndexQuery,
-} from "@/queries/action.query";
-import { ArchiveActionDialog } from "./_components/archive-action-dialog";
-import { RestoreActionDialog } from "./_components/restore-action-dialog";
+} from '@/queries/action.query';
+import { ArchiveActionDialog } from './_components/archive-action-dialog';
+import { RestoreActionDialog } from './_components/restore-action-dialog';
+import { DisabledBadge } from './_components/disabled-badge';
+import { EnabledBadge } from './_components/enabled-badge';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/base/menu';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
     const requestData = ActionIndexRequestSchema.parse(
-      Object.fromEntries(new URL(request.url).searchParams)
+      Object.fromEntries(new URL(request.url).searchParams),
     );
 
-    fetchActionIndexQuery({ queryClient, request: requestData }).catch(
-      (err) => {
-        console.error(err);
-      }
-    );
+    fetchActionIndexQuery({ queryClient, request: requestData }).catch((err) => {
+      console.error(err);
+    });
 
     return loaderResponse({
-      pageTitle: "Action",
+      pageTitle: 'Action',
       data: { request: requestData },
     });
   };
@@ -75,7 +67,7 @@ export function ActionIndexPage() {
   const [_, setSearchParams] = useSearchParams();
   const [actionDialogState, setActionDialogState] = React.useState<{
     actionId: string | null;
-    action: "archive" | "restore" | null;
+    action: 'archive' | 'restore' | null;
   }>({
     actionId: null,
     action: null,
@@ -92,14 +84,14 @@ export function ActionIndexPage() {
   });
 
   const [search, setSearch] = React.useState<string | null>(
-    filtersForm.getValues("search") ?? null
+    filtersForm.getValues('search') ?? null,
   );
 
   useDebounce(() => {
-    if (search === null || filtersForm.getValues("search") === search) {
+    if (search === null || filtersForm.getValues('search') === search) {
       return;
     }
-    filtersForm.setValue("search", search);
+    filtersForm.setValue('search', search);
   }, 500);
 
   const watchedFiltersForm = useWatch({ control: filtersForm.control });
@@ -110,17 +102,14 @@ export function ActionIndexPage() {
   }, [watchedFiltersForm, setSearchParams]);
 
   React.useEffect(() => {
-    if (
-      filtersForm.getValues("is_archived") !==
-      loaderData.data.request.is_archived
-    ) {
-      filtersForm.setValue("is_archived", loaderData.data.request.is_archived);
+    if (filtersForm.getValues('is_archived') !== loaderData.data.request.is_archived) {
+      filtersForm.setValue('is_archived', loaderData.data.request.is_archived);
     }
-    if (filtersForm.getValues("search") !== loaderData.data.request.search) {
-      filtersForm.setValue("search", loaderData.data.request.search);
+    if (filtersForm.getValues('search') !== loaderData.data.request.search) {
+      filtersForm.setValue('search', loaderData.data.request.search);
     }
-    if (filtersForm.getValues("page") !== loaderData.data.request.page) {
-      filtersForm.setValue("page", loaderData.data.request.page);
+    if (filtersForm.getValues('page') !== loaderData.data.request.page) {
+      filtersForm.setValue('page', loaderData.data.request.page);
     }
   }, [filtersForm, loaderData.data.request]);
 
@@ -129,7 +118,7 @@ export function ActionIndexPage() {
       setActionDialogState((prev) => ({
         ...prev,
         actionId,
-        action: "archive",
+        action: 'archive',
       }));
   }, []);
 
@@ -138,13 +127,13 @@ export function ActionIndexPage() {
       setActionDialogState((prev) => ({
         ...prev,
         actionId,
-        action: "restore",
+        action: 'restore',
       }));
   }, []);
 
   return (
     <>
-      {loggedInAdmin?.role === "super_admin" && (
+      {loggedInAdmin?.role === 'super_admin' && (
         <Link
           to="/actions/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
@@ -157,7 +146,7 @@ export function ActionIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            loggedInAdmin?.role === "super_admin" && (
+            loggedInAdmin?.role === 'super_admin' && (
               <Button
                 as={Link}
                 to="/actions/create"
@@ -177,12 +166,12 @@ export function ActionIndexPage() {
           name="is_archived"
           render={({ field }) => (
             <Tabs
-              value={field.value ?? "0"}
+              value={field.value ?? '0'}
               onChange={({ value }) => {
-                if (value && (value === "1" || value === "0")) {
+                if (value && (value === '1' || value === '0')) {
                   field.onChange(value);
-                  filtersForm.setValue("page", undefined);
-                  filtersForm.setValue("search", undefined);
+                  filtersForm.setValue('page', undefined);
+                  filtersForm.setValue('search', undefined);
                   setSearch(null);
                 }
               }}
@@ -206,13 +195,13 @@ export function ActionIndexPage() {
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
-              value={search ?? ""}
+              value={search ?? ''}
               placeholder="Search by name"
             />
 
             <AppPageResetButton
               to={{
-                pathname: "/actions",
+                pathname: '/actions',
                 search: loaderData.data.request.is_archived
                   ? `is_archived=${loaderData.data.request.is_archived}`
                   : undefined,
@@ -227,122 +216,120 @@ export function ActionIndexPage() {
           loading={actionIndexQuery.isLoading}
           error={actionIndexQuery.isError}
           errorMessage={
-            (typeof actionIndexQuery.error === "object" &&
+            (typeof actionIndexQuery.error === 'object' &&
               actionIndexQuery.error instanceof Error &&
               actionIndexQuery.error.message) ||
             undefined
           }
           refetch={actionIndexQuery.refetch}
-          headings={["CTA Icon", "CTA Label", "Date created"]}
+          headings={['Icon', 'Label', 'Status', 'Date created']}
           rows={actionIndexQuery.data?.data.map((action, index) => [
-            (action.cta_icon_type === "emoji" && (
-              <em-emoji id={action.cta_icon_value} />
-            )) ||
-              (action.cta_icon_type === "image" && (
-                <img src={action.cta_icon_value} alt="" />
-              )),
-            action.cta_label,
+            (action.icon_type === 'emoji' && <em-emoji id={action.icon_value} />) ||
+              (action.icon_type === 'image' && <img src={action.icon_value} alt="" />),
+            action.label,
+            action.is_disabled ? <DisabledBadge /> : <EnabledBadge />,
             formatDateTime(action.created_at),
             <div className="flex items-center justify-end gap-x-1">
-              <IconButton
-                as={Link}
-                to={`/actions/${action.id}`}
-                icon={(props) => <PencilSimple {...props} />}
-                label="Edit Action"
-                data-testid={`link-edit-action-${index}`}
-              />
-              {loggedInAdmin?.role === "super_admin" &&
-                (!action.is_archived ? (
-                  <IconButton
-                    icon={(props) => <Archive {...props} />}
-                    label="Archive Action"
-                    onClick={archiveAction(action.id)}
-                    className="text-red-600"
-                    data-testid={`btn-archive-action-${index}`}
-                  />
-                ) : (
-                  <IconButton
-                    icon={(props) => <ArrowCounterClockwise {...props} />}
-                    label="Restore Action"
-                    onClick={restoreAction(action.id)}
-                    className="text-green-600"
-                    data-testid={`btn-restore-action-${index}`}
-                  />
-                ))}
+              <Menu>
+                <MenuTrigger asChild>
+                  <IconButton icon={(props) => <DotsThree {...props} />} label="Action" />
+                </MenuTrigger>
+                <MenuContent>
+                  <MenuItem asChild id="edit" data-testid={`link-edit-action-${index}`}>
+                    <Link to={`/actions/${action.id}`}>
+                      <PencilSimple className="mr-2 w-4 h-4" />
+                      Edit
+                    </Link>
+                  </MenuItem>
+                  {loggedInAdmin?.role === 'super_admin' &&
+                    (action.is_archived ? (
+                      <MenuItem
+                        id="restore"
+                        onClick={restoreAction(action.id)}
+                        data-testid={`btn-archive-action-${index}`}
+                      >
+                        <ArrowCounterClockwise className="mr-2 w-4 h-4" />
+                        Restore
+                      </MenuItem>
+                    ) : (
+                      <MenuItem
+                        id="archive"
+                        onClick={archiveAction(action.id)}
+                        destructive
+                        data-testid={`btn-restore-action-${index}`}
+                      >
+                        <Archive className="mr-2 w-4 h-4" />
+                        Archive
+                      </MenuItem>
+                    ))}
+                </MenuContent>
+              </Menu>
             </div>,
           ])}
           className="mt-5"
         />
-        {actionIndexQuery.isSuccess &&
-          actionIndexQuery.data.data.length > 0 && (
-            <div className="mt-5">
-              <Controller
-                control={filtersForm.control}
-                name="page"
-                render={({ field }) => (
-                  <Pagination
-                    page={field.value ?? 1}
-                    count={actionIndexQuery.data.meta?.pagination?.total ?? 1}
-                    pageSize={
-                      actionIndexQuery.data.meta?.pagination?.per_page ?? 1
-                    }
-                    onChange={({ page }) => {
-                      field.onChange(page);
-                    }}
-                    className="justify-center"
-                  >
-                    {({ pages }) => (
-                      <PaginationList>
-                        <PaginationListItem>
-                          <PaginationPrevPageTrigger />
-                        </PaginationListItem>
-                        {/* temporarily cast type until it's properly typed */}
-                        {(pages as { type: "page"; value: number }[]).map(
-                          (page, index) =>
-                            page.type === "page" ? (
-                              <PaginationListItem key={index}>
-                                <PaginationPageTrigger {...page}>
-                                  {page.value}
-                                </PaginationPageTrigger>
-                              </PaginationListItem>
-                            ) : (
-                              <PaginationListItem key={index}>
-                                <PaginationEllipsis index={index}>
-                                  &#8230;
-                                </PaginationEllipsis>
-                              </PaginationListItem>
-                            )
-                        )}
-                        <PaginationListItem>
-                          <PaginationNextPageTrigger />
-                        </PaginationListItem>
-                      </PaginationList>
-                    )}
-                  </Pagination>
-                )}
-              />
-            </div>
-          )}
+        {actionIndexQuery.isSuccess && actionIndexQuery.data.data.length > 0 && (
+          <div className="mt-5">
+            <Controller
+              control={filtersForm.control}
+              name="page"
+              render={({ field }) => (
+                <Pagination
+                  page={field.value ?? 1}
+                  count={actionIndexQuery.data.meta?.pagination?.total ?? 1}
+                  pageSize={actionIndexQuery.data.meta?.pagination?.per_page ?? 1}
+                  onChange={({ page }) => {
+                    field.onChange(page);
+                  }}
+                  className="justify-center"
+                >
+                  {({ pages }) => (
+                    <PaginationList>
+                      <PaginationListItem>
+                        <PaginationPrevPageTrigger />
+                      </PaginationListItem>
+                      {/* temporarily cast type until it's properly typed */}
+                      {(pages as { type: 'page'; value: number }[]).map((page, index) =>
+                        page.type === 'page' ? (
+                          <PaginationListItem key={index}>
+                            <PaginationPageTrigger {...page}>{page.value}</PaginationPageTrigger>
+                          </PaginationListItem>
+                        ) : (
+                          <PaginationListItem key={index}>
+                            <PaginationEllipsis index={index}>&#8230;</PaginationEllipsis>
+                          </PaginationListItem>
+                        ),
+                      )}
+                      <PaginationListItem>
+                        <PaginationNextPageTrigger />
+                      </PaginationListItem>
+                    </PaginationList>
+                  )}
+                </Pagination>
+              )}
+            />
+          </div>
+        )}
       </AppPageContainer>
       <ArchiveActionDialog
-        key={`archive-${actionDialogState.actionId ?? "null"}`}
-        actionId={actionDialogState.actionId ?? ""}
-        isOpen={actionDialogState.action === "archive"}
+        key={`archive-${actionDialogState.actionId ?? 'null'}`}
+        actionId={actionDialogState.actionId ?? ''}
+        isOpen={actionDialogState.action === 'archive'}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
             actionId: open ? prev.actionId : null,
-            action: open ? "archive" : null,
+            action: open ? 'archive' : null,
           }));
         }}
       />
       <RestoreActionDialog
-        key={`restore-${actionDialogState.actionId ?? "null"}`}
-        actionId={actionDialogState.actionId ?? ""}
-        isOpen={actionDialogState.action === "restore"}
+        key={`restore-${actionDialogState.actionId ?? 'null'}`}
+        actionId={actionDialogState.actionId ?? ''}
+        isOpen={actionDialogState.action === 'restore'}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
             actionId: open ? prev.actionId : null,
-            action: open ? "restore" : null,
+            action: open ? 'restore' : null,
           }));
         }}
       />

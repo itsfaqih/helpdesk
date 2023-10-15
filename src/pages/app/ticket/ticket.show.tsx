@@ -1,15 +1,15 @@
-import React from "react";
-import { AppPageTitle } from "../_components/page-title.app";
-import { QueryClient } from "@tanstack/react-query";
-import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import React from 'react';
+import { AppPageTitle } from '../_components/page-title.app';
+import { QueryClient } from '@tanstack/react-query';
+import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import {
   TicketShowRequestSchema,
   fetchTicketShowQuery,
   useTicketShowQuery,
-} from "@/queries/ticket.query";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { Card } from "@/components/base/card";
-import { Link, linkClass } from "@/components/base/link";
+} from '@/queries/ticket.query';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
+import { Card } from '@/components/base/card';
+import { Link, linkClass } from '@/components/base/link';
 import {
   ArrowSquareOut,
   CaretRight,
@@ -18,55 +18,40 @@ import {
   Plus,
   X,
   XCircle,
-} from "@phosphor-icons/react";
-import { Skeleton } from "@/components/base/skeleton";
-import {
-  ticketStatusToBadgeColor,
-  ticketStatusToLabel,
-} from "@/utils/ticket.util";
-import { Badge } from "@/components/base/badge";
-import { formatDateTime } from "@/utils/date";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageBackLink } from "../_components/page-back-link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/base/avatar";
-import { getInitials } from "@/utils/text.util";
-import { Button, IconButton } from "@/components/base/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/base/popover";
-import { useAdminIndexQuery } from "@/queries/admin.query";
-import { useDebounce } from "@/hooks/use-debounce";
-import { Command } from "cmdk";
-import { inputClassName } from "@/components/base/input";
-import { Loop } from "@/components/base/loop";
+} from '@phosphor-icons/react';
+import { Skeleton } from '@/components/base/skeleton';
+import { ticketStatusToBadgeColor, ticketStatusToLabel } from '@/utils/ticket.util';
+import { Badge } from '@/components/base/badge';
+import { formatDateTime } from '@/utils/date';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageBackLink } from '../_components/page-back-link';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/base/avatar';
+import { getInitials } from '@/utils/text.util';
+import { Button, IconButton } from '@/components/base/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/base/popover';
+import { useAdminIndexQuery } from '@/queries/admin.query';
+import { useDebounce } from '@/hooks/use-debounce';
+import { Command } from 'cmdk';
+import { inputClassName } from '@/components/base/input';
+import { Loop } from '@/components/base/loop';
 import {
   useCreateTicketAssignmentMutation,
   useDeleteTicketAssignmentMutation,
-} from "@/mutations/ticket.mutation";
-import { Ticket, TicketAssignmentWithRelations } from "@/schemas/ticket.schema";
-import {
-  fetchLoggedInAdminQuery,
-  useLoggedInAdminQuery,
-} from "@/queries/logged-in-admin.query";
-import { cn } from "@/libs/cn.lib";
-import { Spinner } from "@/components/base/spinner";
-import { AdminWithoutPassword } from "@/schemas/admin.schema";
-import {
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuTrigger,
-} from "@/components/base/menu";
-import { useActionIndexQuery } from "@/queries/action.query";
-import { Action, ActionField } from "@/schemas/action.schema";
-import { useChannelTicketResponseFieldIndexQuery } from "@/queries/action-field.query";
-import { Textbox } from "@/components/derived/textbox";
-import { TextAreabox } from "@/components/derived/textareabox";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { channelTicketResponseFieldsToZodSchema } from "@/utils/channel-ticket-response.util";
+} from '@/mutations/ticket.mutation';
+import { Ticket, TicketAssignmentWithRelations } from '@/schemas/ticket.schema';
+import { fetchLoggedInAdminQuery, useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { cn } from '@/libs/cn.lib';
+import { Spinner } from '@/components/base/spinner';
+import { AdminWithoutPassword } from '@/schemas/admin.schema';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/base/menu';
+import { useActionIndexQuery } from '@/queries/action.query';
+import { Action, ActionField } from '@/schemas/action.schema';
+import { useChannelTicketResponseFieldIndexQuery } from '@/queries/action-field.query';
+import { Textbox } from '@/components/derived/textbox';
+import { TextAreabox } from '@/components/derived/textareabox';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { channelTicketResponseFieldsToZodSchema } from '@/utils/channel-ticket-response.util';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -74,11 +59,9 @@ function loader(queryClient: QueryClient) {
 
     await fetchLoggedInAdminQuery({ queryClient });
 
-    await fetchTicketShowQuery({ queryClient, request: requestData }).catch(
-      (err) => {
-        console.error(err);
-      }
-    );
+    await fetchTicketShowQuery({ queryClient, request: requestData }).catch((err) => {
+      console.error(err);
+    });
 
     return loaderResponse({
       pageTitle: `Ticket #${requestData.id}`,
@@ -103,8 +86,7 @@ export function TicketShowPage() {
   const activeTicketAssigments =
     ticket?.assignments.filter((assignment) => !assignment.deleted_at) ?? [];
 
-  const [channelTicketResponseSearch, setChannelTicketResponseSearch] =
-    React.useState("");
+  const [channelTicketResponseSearch, setChannelTicketResponseSearch] = React.useState('');
 
   const channelTicketResponseIndexQuery = useActionIndexQuery({
     search: channelTicketResponseSearch,
@@ -140,9 +122,7 @@ export function TicketShowPage() {
                   title={ticket.category.name}
                   className="inline-flex items-center gap-1"
                 >
-                  <span className="w-40 text-right truncate">
-                    {ticket.category.name}
-                  </span>{" "}
+                  <span className="w-40 text-right truncate">{ticket.category.name}</span>{' '}
                   <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
                 </Link>
               )}
@@ -157,9 +137,7 @@ export function TicketShowPage() {
                   title={ticket.client.full_name}
                   className="inline-flex items-center gap-1"
                 >
-                  <span className="w-40 text-right truncate">
-                    {ticket.client.full_name}
-                  </span>{" "}
+                  <span className="w-40 text-right truncate">{ticket.client.full_name}</span>{' '}
                   <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
                 </Link>
               )}
@@ -174,9 +152,7 @@ export function TicketShowPage() {
                   title={ticket.channel.name}
                   className="inline-flex items-center gap-1"
                 >
-                  <span className="w-40 text-right truncate">
-                    {ticket.channel.name}
-                  </span>{" "}
+                  <span className="w-40 text-right truncate">{ticket.channel.name}</span>{' '}
                   <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
                 </Link>
               )}
@@ -223,8 +199,7 @@ export function TicketShowPage() {
                     });
                   }}
                   className={cn(linkClass(), {
-                    "opacity-70 cursor-wait":
-                      createTicketAssignmentMutation.isLoading,
+                    'opacity-70 cursor-wait': createTicketAssignmentMutation.isLoading,
                   })}
                 >
                   Assign your self
@@ -233,10 +208,7 @@ export function TicketShowPage() {
             )}
             {ticket &&
               activeTicketAssigments.map((assignment) => (
-                <TicketAssignmentItem
-                  key={assignment.id}
-                  assignment={assignment}
-                />
+                <TicketAssignmentItem key={assignment.id} assignment={assignment} />
               ))}
           </div>
         </Card>
@@ -282,9 +254,7 @@ export function TicketShowPage() {
                         title={ticket.category.name}
                         className="inline-flex items-center gap-1"
                       >
-                        <span className="w-40 text-right truncate">
-                          {ticket.category.name}
-                        </span>{" "}
+                        <span className="w-40 text-right truncate">{ticket.category.name}</span>{' '}
                         <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
                       </Link>
                     )}
@@ -301,9 +271,7 @@ export function TicketShowPage() {
                         title={ticket.client.full_name}
                         className="inline-flex items-center gap-1"
                       >
-                        <span className="w-40 text-right truncate">
-                          {ticket.client.full_name}
-                        </span>{" "}
+                        <span className="w-40 text-right truncate">{ticket.client.full_name}</span>{' '}
                         <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
                       </Link>
                     )}
@@ -320,9 +288,7 @@ export function TicketShowPage() {
                         title={ticket.channel.name}
                         className="inline-flex items-center gap-1"
                       >
-                        <span className="w-40 text-right truncate">
-                          {ticket.channel.name}
-                        </span>{" "}
+                        <span className="w-40 text-right truncate">{ticket.channel.name}</span>{' '}
                         <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
                       </Link>
                     )}
@@ -352,17 +318,13 @@ export function TicketShowPage() {
                   <td colSpan={2} className="py-2 font-medium text-gray-600">
                     <div className="flex items-center justify-between">
                       <span>Assigned agents</span>
-                      {ticketShowQuery.isLoading && (
-                        <Skeleton className="w-8 h-8" />
-                      )}
+                      {ticketShowQuery.isLoading && <Skeleton className="w-8 h-8" />}
                       {ticket && (
                         <AddTicketAssigneePopover
                           ticketId={ticket.id}
                           trigger={
                             <IconButton
-                              icon={(props) => (
-                                <Plus weight="bold" {...props} />
-                              )}
+                              icon={(props) => <Plus weight="bold" {...props} />}
                               label="Add agent"
                             />
                           }
@@ -386,8 +348,7 @@ export function TicketShowPage() {
                               });
                             }}
                             className={cn(linkClass(), {
-                              "opacity-70 cursor-wait":
-                                createTicketAssignmentMutation.isLoading,
+                              'opacity-70 cursor-wait': createTicketAssignmentMutation.isLoading,
                             })}
                           >
                             Assign your self
@@ -396,10 +357,7 @@ export function TicketShowPage() {
                       ) : (
                         <div className="flex flex-col gap-y-4">
                           {activeTicketAssigments.map((assignment) => (
-                            <TicketAssignmentItem
-                              key={assignment.id}
-                              assignment={assignment}
-                            />
+                            <TicketAssignmentItem key={assignment.id} assignment={assignment} />
                           ))}
                         </div>
                       ))}
@@ -414,23 +372,20 @@ export function TicketShowPage() {
         <div className="flex gap-5 p-6">
           <div className="flex justify-center flex-1">
             <div className="flex items-center overflow-hidden bg-white divide-x divide-gray-300 rounded-md shadow-haptic-gray-300">
-              <Popover positioning={{ placement: "top" }}>
+              <Popover positioning={{ placement: 'top' }}>
                 <PopoverTrigger asChild>
                   {ticketResponseFormState?.channelTicketResponse ? (
                     <Button
                       leading={() => (
                         <em-emoji
-                          id={
-                            ticketResponseFormState.channelTicketResponse
-                              .cta_icon_value
-                          }
+                          id={ticketResponseFormState.channelTicketResponse.icon_value}
                           class="mr-1.5"
                         />
                       )}
                       variant="transparent"
                       className="rounded-r-none"
                     >
-                      {ticketResponseFormState.channelTicketResponse.cta_label}
+                      {ticketResponseFormState.channelTicketResponse.label}
                     </Button>
                   ) : (
                     <Button
@@ -448,27 +403,25 @@ export function TicketShowPage() {
                     <Command shouldFilter={false} className="w-full">
                       <Command.List className="flex flex-col gap-y-1">
                         {channelTicketResponseIndexQuery.isSuccess &&
-                          channelTicketResponseIndexQuery.data.data.map(
-                            (channelTicketResponse) => (
-                              <Command.Item
-                                key={channelTicketResponse.id}
-                                onSelect={() => {
-                                  setTicketResponseFormState({
-                                    channelTicketResponse,
-                                  });
-                                }}
-                                className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-800"
-                              >
-                                <em-emoji
-                                  id={channelTicketResponse.cta_icon_value}
-                                  className="flex-shrink-0"
-                                />
-                                <span className="flex-1 text-left">
-                                  {channelTicketResponse.cta_label}
-                                </span>
-                              </Command.Item>
-                            )
-                          )}
+                          channelTicketResponseIndexQuery.data.data.map((channelTicketResponse) => (
+                            <Command.Item
+                              key={channelTicketResponse.id}
+                              onSelect={() => {
+                                setTicketResponseFormState({
+                                  channelTicketResponse,
+                                });
+                              }}
+                              className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-700"
+                            >
+                              <em-emoji
+                                id={channelTicketResponse.icon_value}
+                                className="flex-shrink-0"
+                              />
+                              <span className="flex-1 text-left">
+                                {channelTicketResponse.label}
+                              </span>
+                            </Command.Item>
+                          ))}
                       </Command.List>
                       <Command.Input
                         placeholder="Search action"
@@ -476,15 +429,13 @@ export function TicketShowPage() {
                         onValueChange={(value) => {
                           setChannelTicketResponseSearch(value);
                         }}
-                        className={inputClassName({ className: "w-full mt-2" })}
+                        className={inputClassName({ className: 'w-full mt-2' })}
                       />
                     </Command>
                   )}
                   {ticketResponseFormState?.channelTicketResponse && (
                     <TicketResponseFormContainer
-                      channelTicketResponseId={
-                        ticketResponseFormState.channelTicketResponse.id
-                      }
+                      channelTicketResponseId={ticketResponseFormState.channelTicketResponse.id}
                       onCancel={() => {
                         setTicketResponseFormState(null);
                       }}
@@ -505,17 +456,11 @@ export function TicketShowPage() {
                 </MenuTrigger>
                 <MenuContent>
                   <MenuItem id="resolved">
-                    <CheckCircle
-                      weight="fill"
-                      className="w-5 h-5 text-green-500 mr-2"
-                    />
+                    <CheckCircle weight="fill" className="w-5 h-5 text-green-500 mr-2" />
                     Resolved
                   </MenuItem>
                   <MenuItem id="unresolved">
-                    <XCircle
-                      weight="fill"
-                      className="w-5 h-5 text-red-500 mr-2"
-                    />
+                    <XCircle weight="fill" className="w-5 h-5 text-red-500 mr-2" />
                     Unresolved
                   </MenuItem>
                 </MenuContent>
@@ -530,16 +475,13 @@ export function TicketShowPage() {
 }
 
 type AddTicketAssigneePopoverProps = {
-  ticketId: Ticket["id"];
+  ticketId: Ticket['id'];
   trigger: React.ReactNode;
 };
 
-function AddTicketAssigneePopover({
-  ticketId,
-  trigger,
-}: AddTicketAssigneePopoverProps) {
+function AddTicketAssigneePopover({ ticketId, trigger }: AddTicketAssigneePopoverProps) {
   const [open, setOpen] = React.useState(false);
-  const [searchAdmin, setSearchAdmin] = React.useState("");
+  const [searchAdmin, setSearchAdmin] = React.useState('');
   const debouncedSearchAdmin = useDebounce(searchAdmin, 500);
 
   const adminIndexQuery = useAdminIndexQuery({
@@ -557,7 +499,7 @@ function AddTicketAssigneePopover({
       onClose={() => {
         setOpen(false);
       }}
-      positioning={{ placement: "bottom-end" }}
+      positioning={{ placement: 'bottom-end' }}
     >
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
 
@@ -568,7 +510,7 @@ function AddTicketAssigneePopover({
             value={searchAdmin}
             onValueChange={(value) => setSearchAdmin(value)}
             placeholder="Search by name or email"
-            className={inputClassName({ className: "w-full" })}
+            className={inputClassName({ className: 'w-full' })}
           />
 
           <Command.List className="flex flex-col mt-2 gap-y-1">
@@ -587,20 +529,13 @@ function AddTicketAssigneePopover({
             )}
 
             {adminIndexQuery.isSuccess && admins.length === 0 && (
-              <div
-                role="presentation"
-                className="py-3.5 text-center text-gray-500"
-              >
+              <div role="presentation" className="py-3.5 text-center text-gray-500">
                 No results found.
               </div>
             )}
 
             {admins.map((admin) => (
-              <AddTicketAssigneePopoverItem
-                key={admin.id}
-                admin={admin}
-                ticketId={ticketId}
-              />
+              <AddTicketAssigneePopoverItem key={admin.id} admin={admin} ticketId={ticketId} />
             ))}
           </Command.List>
         </Command>
@@ -611,7 +546,7 @@ function AddTicketAssigneePopover({
 
 type AddTicketAssigneePopoverItemProps = {
   admin: AdminWithoutPassword;
-  ticketId: Ticket["id"];
+  ticketId: Ticket['id'];
 };
 
 const AddTicketAssigneePopoverItem = React.forwardRef<
@@ -632,15 +567,13 @@ const AddTicketAssigneePopoverItem = React.forwardRef<
         });
       }}
       className={cn(
-        "group flex items-center gap-x-2.5 cursor-default px-2.5 py-1.5 rounded-md",
-        "data-[selected]:bg-brand-50"
+        'group flex items-center gap-x-2.5 cursor-default px-2.5 py-1.5 rounded-md',
+        'data-[selected]:bg-brand-50',
       )}
     >
       <Avatar className="w-8 h-8 cursor-default group-aria-disabled:opacity-70">
         <AvatarImage src={undefined} />
-        <AvatarFallback>
-          {admin.full_name ? getInitials(admin.full_name) : ""}
-        </AvatarFallback>
+        <AvatarFallback>{admin.full_name ? getInitials(admin.full_name) : ''}</AvatarFallback>
       </Avatar>
       <div className="flex flex-col flex-1 text-left group-aria-disabled:opacity-70">
         <span className="text-sm line-clamp-1 group-data-[selected]:text-brand-800 text-gray-800">
@@ -669,25 +602,19 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
   return (
     <div className="group flex items-center gap-x-2.5 hover:bg-gray-100 p-2.5 -mx-2.5 rounded-md transition">
       <div
-        className={cn("flex items-center gap-x-2.5 flex-1", {
-          "opacity-70": deleteTicketAssigmentMutation.isLoading,
+        className={cn('flex items-center gap-x-2.5 flex-1', {
+          'opacity-70': deleteTicketAssigmentMutation.isLoading,
         })}
       >
         <Avatar className="w-8 h-8 cursor-default">
           <AvatarImage src={undefined} />
           <AvatarFallback>
-            {assignment.admin.full_name
-              ? getInitials(assignment.admin.full_name)
-              : ""}
+            {assignment.admin.full_name ? getInitials(assignment.admin.full_name) : ''}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col flex-1 text-left">
-          <span className="text-sm text-gray-800 line-clamp-1">
-            {assignment.admin.full_name}
-          </span>
-          <span className="text-xs text-gray-500 line-clamp-1">
-            {assignment.admin.email}
-          </span>
+          <span className="text-sm text-gray-800 line-clamp-1">{assignment.admin.full_name}</span>
+          <span className="text-xs text-gray-500 line-clamp-1">{assignment.admin.email}</span>
         </div>
       </div>
       <IconButton
@@ -700,9 +627,8 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
           });
         }}
         loading={deleteTicketAssigmentMutation.isLoading}
-        className={cn("ml-auto", {
-          "invisible group-hover:visible hover:bg-gray-200":
-            deleteTicketAssigmentMutation.isIdle,
+        className={cn('ml-auto', {
+          'invisible group-hover:visible hover:bg-gray-200': deleteTicketAssigmentMutation.isIdle,
         })}
       />
     </div>
@@ -710,7 +636,7 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
 }
 
 type TicketResponseFormContainerProps = {
-  channelTicketResponseId: Action["id"];
+  channelTicketResponseId: Action['id'];
   onCancel: () => void;
 };
 
@@ -718,10 +644,9 @@ function TicketResponseFormContainer({
   channelTicketResponseId,
   onCancel,
 }: TicketResponseFormContainerProps) {
-  const channelTicketResponseFieldIndexQuery =
-    useChannelTicketResponseFieldIndexQuery({
-      actionId: channelTicketResponseId,
-    });
+  const channelTicketResponseFieldIndexQuery = useChannelTicketResponseFieldIndexQuery({
+    actionId: channelTicketResponseId,
+  });
 
   return (
     <div className="animate-in fade-in py-2 px-1">
@@ -762,39 +687,33 @@ function TicketResponseForm({ fields, onCancel }: TicketResponseFormProps) {
       <div className="flex flex-col gap-3">
         {fields.map((field) => (
           <div key={field.id}>
-            {field.type === "text" && (
+            {field.type === 'text' && (
               <Textbox
                 {...ticketResponseForm.register(field.name)}
                 label={field.label}
                 placeholder={field.placeholder ?? undefined}
-                error={ticketResponseForm.formState.errors[
-                  field.name
-                ]?.message?.toString()}
+                error={ticketResponseForm.formState.errors[field.name]?.message?.toString()}
                 optional={!field.is_required}
                 helperText={field.helper_text ?? undefined}
               />
             )}
-            {field.type === "textarea" && (
+            {field.type === 'textarea' && (
               <TextAreabox
                 {...ticketResponseForm.register(field.name)}
                 label={field.label}
                 placeholder={field.placeholder ?? undefined}
                 rows={4}
-                error={ticketResponseForm.formState.errors[
-                  field.name
-                ]?.message?.toString()}
+                error={ticketResponseForm.formState.errors[field.name]?.message?.toString()}
                 optional={!field.is_required}
                 helperText={field.helper_text ?? undefined}
               />
             )}
-            {field.type === "file" && (
+            {field.type === 'file' && (
               <Textbox
                 {...ticketResponseForm.register(field.name)}
                 label={field.label}
                 type="file"
-                error={ticketResponseForm.formState.errors[
-                  field.name
-                ]?.message?.toString()}
+                error={ticketResponseForm.formState.errors[field.name]?.message?.toString()}
                 optional={!field.is_required}
                 helperText={field.helper_text ?? undefined}
               />
@@ -803,12 +722,7 @@ function TicketResponseForm({ fields, onCancel }: TicketResponseFormProps) {
         ))}
       </div>
       <div className="mt-4 flex gap-2 justify-end">
-        <Button
-          onClick={onCancel}
-          variant="plain"
-          type="button"
-          className="text-red-500"
-        >
+        <Button onClick={onCancel} variant="plain" type="button" className="text-red-500">
           Discard
         </Button>
         <Button variant="primary" type="submit">

@@ -1,38 +1,34 @@
-import React from "react";
-import { AppPageTitle } from "../_components/page-title.app";
+import React from 'react';
+import { AppPageTitle } from '../_components/page-title.app';
 import {
   TicketCategory,
   TicketCategorySchema,
   UpdateTicketCategorySchema,
-} from "@/schemas/ticket.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import {
-  QueryClient,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { api } from "@/libs/api.lib";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+} from '@/schemas/ticket.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { api } from '@/libs/api.lib';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import {
   TicketCategoryShowRequestSchema,
   fetchTicketCategoryShowQuery,
   useTicketCategoryShowQuery,
-} from "@/queries/ticket.query";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { Textbox } from "@/components/derived/textbox";
-import { Label } from "@/components/base/label";
-import { Card } from "@/components/base/card";
-import { Skeleton } from "@/components/base/skeleton";
-import { TextAreabox } from "@/components/derived/textareabox";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageBackLink } from "../_components/page-back-link";
-import { RestoreTicketCategoryDialog } from "./_components/restore-ticket-category-dialog";
-import { ArchiveTicketCategoryDialog } from "./_components/archive-ticket-category-dialog";
-import { ArchiveButton } from "@/components/derived/archive-button";
-import { SaveButton } from "@/components/derived/save-button";
-import { RestoreButton } from "@/components/derived/restore-button";
+} from '@/queries/ticket.query';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
+import { Textbox } from '@/components/derived/textbox';
+import { Label } from '@/components/base/label';
+import { Card } from '@/components/base/card';
+import { Skeleton } from '@/components/base/skeleton';
+import { TextAreabox } from '@/components/derived/textareabox';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageBackLink } from '../_components/page-back-link';
+import { RestoreTicketCategoryDialog } from './_components/restore-ticket-category-dialog';
+import { ArchiveTicketCategoryDialog } from './_components/archive-ticket-category-dialog';
+import { ArchiveButton } from '@/components/derived/archive-button';
+import { SaveButton } from '@/components/derived/save-button';
+import { RestoreButton } from '@/components/derived/restore-button';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -46,7 +42,7 @@ function loader(queryClient: QueryClient) {
     });
 
     return loaderResponse({
-      pageTitle: "Edit Ticket Category",
+      pageTitle: 'Edit Ticket Category',
       data: { request: requestData },
     });
   };
@@ -90,22 +86,12 @@ export function TicketCategoryShowPage() {
             (ticketCategory.is_archived ? (
               <RestoreTicketCategoryDialog
                 ticketCategoryId={ticketCategory.id}
-                trigger={
-                  <RestoreButton
-                    type="button"
-                    data-testid="btn-restore-ticket-category"
-                  />
-                }
+                trigger={<RestoreButton type="button" data-testid="btn-restore-ticket-category" />}
               />
             ) : (
               <ArchiveTicketCategoryDialog
                 ticketCategoryId={ticketCategory.id}
-                trigger={
-                  <ArchiveButton
-                    type="button"
-                    data-testid="btn-archive-ticket-category"
-                  />
-                }
+                trigger={<ArchiveButton type="button" data-testid="btn-archive-ticket-category" />}
               />
             ))}
         </div>
@@ -119,9 +105,7 @@ export function TicketCategoryShowPage() {
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="full_name">Name</Label>
             <div className="col-span-3">
-              {ticketCategoryShowQuery.isLoading && (
-                <Skeleton className="mb-6 h-9" />
-              )}
+              {ticketCategoryShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
               {ticketCategoryShowQuery.isSuccess && (
                 <Textbox
                   label="Name"
@@ -138,23 +122,14 @@ export function TicketCategoryShowPage() {
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="description">Description</Label>
             <div className="col-span-3">
-              {ticketCategoryShowQuery.isLoading && (
-                <Skeleton className="mb-6 h-9" />
-              )}
+              {ticketCategoryShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
               {ticketCategoryShowQuery.isSuccess && (
                 <TextAreabox
-                  {...updateTicketCategoryForm.register("description")}
+                  {...updateTicketCategoryForm.register('description')}
                   label="Description"
-                  placeholder={
-                    ticketCategory?.is_archived
-                      ? "No description"
-                      : "Enter Description"
-                  }
+                  placeholder={ticketCategory?.is_archived ? 'No description' : 'Enter Description'}
                   disabled={updateTicketCategoryMutation.isLoading}
-                  error={
-                    updateTicketCategoryForm.formState.errors.description
-                      ?.message
-                  }
+                  error={updateTicketCategoryForm.formState.errors.description?.message}
                   readOnly={ticketCategory?.is_archived}
                   srOnlyLabel
                   rows={3}
@@ -188,7 +163,7 @@ const UpdateTicketCategoryResponseSchema = APIResponseSchema({
 });
 
 type UseUpdateTicketCategoryMutationParams = {
-  ticketCategoryId: TicketCategory["id"];
+  ticketCategoryId: TicketCategory['id'];
 };
 
 function useUpdateTicketCategoryMutation({
@@ -199,25 +174,16 @@ function useUpdateTicketCategoryMutation({
   return useMutation({
     async mutationFn(data: UpdateTicketCategorySchema) {
       try {
-        const res = await api.put(
-          data,
-          `/ticket-categories/${ticketCategoryId}`
-        );
+        const res = await api.put(data, `/ticket-categories/${ticketCategoryId}`);
 
         return UpdateTicketCategoryResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["ticket-category", "index"]);
-      await queryClient.invalidateQueries([
-        "ticket-category",
-        "show",
-        ticketCategoryId,
-      ]);
+      await queryClient.invalidateQueries(['ticket-category', 'index']);
+      await queryClient.invalidateQueries(['ticket-category', 'show', ticketCategoryId]);
     },
   });
 }

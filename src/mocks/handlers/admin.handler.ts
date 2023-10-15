@@ -1,42 +1,35 @@
-import { AdminIndexRequestSchema } from "@/queries/admin.query";
-import {
-  CreateAdminSchema,
-  AdminSchema,
-  Admin,
-  UpdateAdminSchema,
-} from "@/schemas/admin.schema";
-import { generatePaginationMeta } from "@/utils/api.util";
-import localforage from "localforage";
-import { rest } from "msw";
-import { nanoid } from "nanoid";
+import { AdminIndexRequestSchema } from '@/queries/admin.query';
+import { CreateAdminSchema, AdminSchema, Admin, UpdateAdminSchema } from '@/schemas/admin.schema';
+import { generatePaginationMeta } from '@/utils/api.util';
+import localforage from 'localforage';
+import { rest } from 'msw';
+import { nanoid } from 'nanoid';
 import {
   allowAuthenticatedOnly,
   allowSuperAdminOnly,
   errorResponse,
   handleResponseError,
   successResponse,
-} from "../mock-utils";
-import { NotFoundError, UnprocessableEntityError } from "@/utils/error.util";
-import { getAdmins } from "../records/admin.record";
-import { getTicketAssignmentsWithRelationsByTicketId } from "../records/ticket-assignment.record";
-import { TicketAssignmentWithRelations } from "@/schemas/ticket.schema";
+} from '../mock-utils';
+import { NotFoundError, UnprocessableEntityError } from '@/utils/error.util';
+import { getAdmins } from '../records/admin.record';
+import { getTicketAssignmentsWithRelationsByTicketId } from '../records/ticket-assignment.record';
+import { TicketAssignmentWithRelations } from '@/schemas/ticket.schema';
 
 export const adminHandlers = [
-  rest.post("/api/admins", async (req) => {
+  rest.post('/api/admins', async (req) => {
     try {
       await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const data = CreateAdminSchema.parse(await req.json());
 
-      const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+      const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-      const isAdminExisted = storedAdmins.some(
-        (admin) => admin.email === data.email
-      );
+      const isAdminExisted = storedAdmins.some((admin) => admin.email === data.email);
 
       if (isAdminExisted) {
-        throw new UnprocessableEntityError("Email is already registered");
+        throw new UnprocessableEntityError('Email is already registered');
       }
 
       const newAdmin: Admin = {
@@ -52,26 +45,26 @@ export const adminHandlers = [
 
       const newAdmins = [...storedAdmins, newAdmin];
 
-      await localforage.setItem("admins", newAdmins);
+      await localforage.setItem('admins', newAdmins);
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...newAdminWithoutPassword } = newAdmin;
 
       return successResponse({
         data: newAdminWithoutPassword,
-        message: "Successfully created admin",
+        message: 'Successfully created admin',
       });
     } catch (error) {
       return handleResponseError(error);
     }
   }),
-  rest.put("/api/admins/:adminId", async (req) => {
+  rest.put('/api/admins/:adminId', async (req) => {
     try {
       await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
       const data = UpdateAdminSchema.parse(await req.json());
 
-      const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+      const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
       const adminId = req.params.adminId;
@@ -79,7 +72,7 @@ export const adminHandlers = [
       const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
 
       if (!adminToUpdate) {
-        throw new NotFoundError("Admin is not found");
+        throw new NotFoundError('Admin is not found');
       }
 
       const updatedAdmin: Admin = {
@@ -89,24 +82,22 @@ export const adminHandlers = [
         updated_at: new Date().toISOString(),
       };
 
-      const newAdmins = storedAdmins.map((admin) =>
-        admin.id === adminId ? updatedAdmin : admin
-      );
+      const newAdmins = storedAdmins.map((admin) => (admin.id === adminId ? updatedAdmin : admin));
 
-      await localforage.setItem("admins", newAdmins);
+      await localforage.setItem('admins', newAdmins);
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...updatedAdminWithoutPassword } = updatedAdmin;
 
       return successResponse({
         data: updatedAdminWithoutPassword,
-        message: "Successfully updated admin",
+        message: 'Successfully updated admin',
       });
     } catch (error) {
       return handleResponseError(error);
     }
   }),
-  rest.get("/api/admins", async (req) => {
+  rest.get('/api/admins', async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
@@ -118,10 +109,9 @@ export const adminHandlers = [
       let storedTicketAssignments: TicketAssignmentWithRelations[] = [];
 
       if (filters.assignable_ticket_id) {
-        storedTicketAssignments =
-          await getTicketAssignmentsWithRelationsByTicketId({
-            ticketId: filters.assignable_ticket_id,
-          });
+        storedTicketAssignments = await getTicketAssignmentsWithRelationsByTicketId({
+          ticketId: filters.assignable_ticket_id,
+        });
       }
 
       // return successResponse({
@@ -151,19 +141,15 @@ export const adminHandlers = [
         }
 
         if (filters.assignable_ticket_id) {
-          if (
-            storedTicketAssignments.some(
-              (assignment) => assignment.admin_id === admin.id
-            )
-          ) {
+          if (storedTicketAssignments.some((assignment) => assignment.admin_id === admin.id)) {
             return false;
           }
         }
 
         if (filters.is_active) {
-          if (filters.is_active === "1" && !admin.is_active) {
+          if (filters.is_active === '1' && !admin.is_active) {
             return false;
-          } else if (filters.is_active === "0" && admin.is_active) {
+          } else if (filters.is_active === '0' && admin.is_active) {
             return false;
           }
         } else {
@@ -189,7 +175,7 @@ export const adminHandlers = [
 
       return successResponse({
         data: paginatedAdmins,
-        message: "Successfully retrieved admins",
+        message: 'Successfully retrieved admins',
         meta: {
           ...generatePaginationMeta({
             currentPage: page,
@@ -201,7 +187,7 @@ export const adminHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get("/api/admins/:adminId", async (req) => {
+  rest.get('/api/admins/:adminId', async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
@@ -213,20 +199,20 @@ export const adminHandlers = [
 
       if (!admin) {
         return errorResponse({
-          message: "Admin is not found",
+          message: 'Admin is not found',
           status: 404,
         });
       }
 
       return successResponse({
         data: admin,
-        message: "Successfully retrieved admin",
+        message: 'Successfully retrieved admin',
       });
     } catch (error) {
       return handleResponseError(error);
     }
   }),
-  rest.put("/api/admins/:adminId/deactivate", async (req) => {
+  rest.put('/api/admins/:adminId/deactivate', async (req) => {
     try {
       await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
@@ -237,7 +223,7 @@ export const adminHandlers = [
       const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
 
       if (!adminToUpdate) {
-        throw new NotFoundError("Admin is not found");
+        throw new NotFoundError('Admin is not found');
       }
 
       const updatedAdmin: Admin = {
@@ -246,28 +232,26 @@ export const adminHandlers = [
         updated_at: new Date().toISOString(),
       };
 
-      const newAdmins = storedAdmins.map((admin) =>
-        admin.id === adminId ? updatedAdmin : admin
-      );
+      const newAdmins = storedAdmins.map((admin) => (admin.id === adminId ? updatedAdmin : admin));
 
-      await localforage.setItem("admins", newAdmins);
+      await localforage.setItem('admins', newAdmins);
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...updatedAdminWithoutPassword } = updatedAdmin;
 
       return successResponse({
         data: updatedAdminWithoutPassword,
-        message: "Successfully deactivated admin",
+        message: 'Successfully deactivated admin',
       });
     } catch (error) {
       return handleResponseError(error);
     }
   }),
-  rest.put("/api/admins/:adminId/activate", async (req) => {
+  rest.put('/api/admins/:adminId/activate', async (req) => {
     try {
       await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
 
-      const unparsedStoredAdmins = (await localforage.getItem("admins")) ?? [];
+      const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
       const adminId = req.params.adminId;
@@ -276,7 +260,7 @@ export const adminHandlers = [
 
       if (!adminToUpdate) {
         return errorResponse({
-          message: "Admin is not found",
+          message: 'Admin is not found',
           status: 404,
         });
       }
@@ -287,18 +271,16 @@ export const adminHandlers = [
         updated_at: new Date().toISOString(),
       };
 
-      const newAdmins = storedAdmins.map((admin) =>
-        admin.id === adminId ? updatedAdmin : admin
-      );
+      const newAdmins = storedAdmins.map((admin) => (admin.id === adminId ? updatedAdmin : admin));
 
-      await localforage.setItem("admins", newAdmins);
+      await localforage.setItem('admins', newAdmins);
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...updatedAdminWithoutPassword } = updatedAdmin;
 
       return successResponse({
         data: updatedAdminWithoutPassword,
-        message: "Successfully activated admin",
+        message: 'Successfully activated admin',
       });
     } catch (error) {
       return handleResponseError(error);

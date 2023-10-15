@@ -1,52 +1,52 @@
-import { Channel, ChannelSchema } from "@/schemas/channel.schema";
-import { NotFoundError } from "@/utils/error.util";
-import localforage from "localforage";
-import { nanoid } from "nanoid";
+import { Channel, ChannelSchema } from '@/schemas/channel.schema';
+import { NotFoundError } from '@/utils/error.util';
+import localforage from 'localforage';
+import { nanoid } from 'nanoid';
 
 export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
-    name: "WhatsApp",
-    description: "WhatsApp messaging app",
+    name: 'WhatsApp',
+    description: 'WhatsApp messaging app',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: nanoid(),
-    name: "Telegram",
-    description: "Telegram messaging app",
+    name: 'Telegram',
+    description: 'Telegram messaging app',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: nanoid(),
-    name: "Facebook",
-    description: "Facebook messenger",
+    name: 'Facebook',
+    description: 'Facebook messenger',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: nanoid(),
-    name: "Instagram",
-    description: "Instagram DM",
+    name: 'Instagram',
+    description: 'Instagram DM',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: nanoid(),
-    name: "Twitter",
-    description: "Twitter DM",
+    name: 'Twitter',
+    description: 'Twitter DM',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: nanoid(),
-    name: "Email",
+    name: 'Email',
     description: null,
     is_archived: false,
     created_at: new Date().toISOString(),
@@ -54,7 +54,7 @@ export const mockChannelRecords: Channel[] = [
   },
   {
     id: nanoid(),
-    name: "SMS",
+    name: 'SMS',
     description: null,
     is_archived: false,
     created_at: new Date().toISOString(),
@@ -62,42 +62,40 @@ export const mockChannelRecords: Channel[] = [
   },
   {
     id: nanoid(),
-    name: "Main Website",
-    description: "Main website contact form",
+    name: 'Main Website',
+    description: 'Main website contact form',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: nanoid(),
-    name: "Second Website",
-    description: "Second website contact form",
+    name: 'Second Website',
+    description: 'Second website contact form',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: nanoid(),
-    name: "Third Website",
-    description: "Third website contact form",
+    name: 'Third Website',
+    description: 'Third website contact form',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: nanoid(),
-    name: "Another",
-    description: "Another contact form",
+    name: 'Another',
+    description: 'Another contact form',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
 ];
 
-export async function getChannelByid(
-  channelId: Channel["id"]
-): Promise<Channel> {
-  const unparsedStoredClients = await localforage.getItem("channels");
+export async function getChannelByid(channelId: Channel['id']): Promise<Channel> {
+  const unparsedStoredClients = await localforage.getItem('channels');
   const storedClients = ChannelSchema.array().parse(unparsedStoredClients);
 
   const client = storedClients.find((client) => client.id === channelId);

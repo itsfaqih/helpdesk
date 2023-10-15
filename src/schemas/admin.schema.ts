@@ -1,21 +1,18 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const AdminRoleEnum = z.enum(["super_admin", "operator"]);
+export const AdminRoleEnum = z.enum(['super_admin', 'operator']);
 export type AdminRole = z.infer<typeof AdminRoleEnum>;
 
 export const AdminSchema = z.object({
   id: z.string().nonempty(),
-  full_name: z.string().nonempty("Full name is required"),
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .nonempty("Email is required"),
+  full_name: z.string().nonempty('Full name is required'),
+  email: z.string().email('Please enter a valid email address').nonempty('Email is required'),
   password: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .nonempty("Password is required"),
+    .min(8, { message: 'Password must be at least 8 characters long' })
+    .nonempty('Password is required'),
   role: z.enum(AdminRoleEnum.options, {
-    required_error: "Role is required",
+    required_error: 'Role is required',
   }),
   is_active: z.boolean().default(true),
   created_at: z.string().datetime(),

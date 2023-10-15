@@ -1,12 +1,13 @@
-import React from "react";
-import { Action, ActionSchema } from "@/schemas/action.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/libs/api.lib";
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
+import React from 'react';
+import { Action, ActionSchema } from '@/schemas/action.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/libs/api.lib';
+import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
+import { Archive } from '@phosphor-icons/react';
 
 type ArchiveActionDialogProps = {
-  actionId: Action["id"];
+  actionId: Action['id'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -35,6 +36,7 @@ export function ArchiveActionDialog({
       isSuccess={archiveActionMutation.isSuccess}
       buttonLabel="Archive"
       buttonOnClick={() => archiveActionMutation.mutate()}
+      buttonLeadingIcon={(props) => <Archive {...props} />}
       trigger={trigger}
       onSuccess={() => {
         onOpenChange?.(false);
@@ -51,12 +53,10 @@ const ArchiveActionResponseSchema = APIResponseSchema({
 });
 
 type UseArchiveActionMutationParams = {
-  actionId: Action["id"];
+  actionId: Action['id'];
 };
 
-function useArchiveActionMutation({
-  actionId,
-}: UseArchiveActionMutationParams) {
+function useArchiveActionMutation({ actionId }: UseArchiveActionMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -66,14 +66,12 @@ function useArchiveActionMutation({
 
         return ArchiveActionResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["action", "index"]);
-      await queryClient.invalidateQueries(["action", "show", actionId]);
+      await queryClient.invalidateQueries(['action', 'index']);
+      await queryClient.invalidateQueries(['action', 'show', actionId]);
     },
   });
 }

@@ -1,25 +1,25 @@
-import { AppPageTitle } from "../_components/page-title.app";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { ChannelSchema, CreateChannelSchema } from "@/schemas/channel.schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { api } from "@/libs/api.lib";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Textbox } from "@/components/derived/textbox";
-import { Label } from "@/components/base/label";
-import { Card } from "@/components/base/card";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageBackLink } from "../_components/page-back-link";
-import { TextAreabox } from "@/components/derived/textareabox";
-import { UnprocessableEntityError } from "@/utils/error.util";
-import { SaveButton } from "@/components/derived/save-button";
+import { AppPageTitle } from '../_components/page-title.app';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { ChannelSchema, CreateChannelSchema } from '@/schemas/channel.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { api } from '@/libs/api.lib';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Textbox } from '@/components/derived/textbox';
+import { Label } from '@/components/base/label';
+import { Card } from '@/components/base/card';
+import { useLoaderData, useNavigate } from 'react-router-dom';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageBackLink } from '../_components/page-back-link';
+import { TextAreabox } from '@/components/derived/textareabox';
+import { UnprocessableEntityError } from '@/utils/error.util';
+import { SaveButton } from '@/components/derived/save-button';
 
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: "Create Channel",
+      pageTitle: 'Create Channel',
     });
   };
 }
@@ -49,16 +49,12 @@ export function ChannelCreatePage() {
       <AppPageBackLink to="/channels" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
-        <form
-          id="create-channel-form"
-          onSubmit={onSubmit}
-          className="flex flex-col gap-y-4"
-        >
+        <form id="create-channel-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="name">Name</Label>
             <div className="col-span-3">
               <Textbox
-                {...createChannelForm.register("name")}
+                {...createChannelForm.register('name')}
                 label="Name"
                 placeholder="Enter Name"
                 disabled={createChannelMutation.isLoading}
@@ -72,7 +68,7 @@ export function ChannelCreatePage() {
             <Label htmlFor="description">Description</Label>
             <div className="col-span-3">
               <TextAreabox
-                {...createChannelForm.register("description")}
+                {...createChannelForm.register('description')}
                 label="Description"
                 placeholder="Enter Description"
                 disabled={createChannelMutation.isLoading}
@@ -110,21 +106,19 @@ function useCreateChannelMutation() {
   return useMutation({
     async mutationFn(data: CreateChannelSchema) {
       try {
-        const res = await api.post(data, "/channels");
+        const res = await api.post(data, '/channels');
 
         return CreateChannelResponseSchema.parse(res);
       } catch (error) {
         if (error instanceof UnprocessableEntityError) {
-          throw new Error("Channel with this name already exists");
+          throw new Error('Channel with this name already exists');
         }
 
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["channel", "index"]);
+      await queryClient.invalidateQueries(['channel', 'index']);
     },
   });
 }

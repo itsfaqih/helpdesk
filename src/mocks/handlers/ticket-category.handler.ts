@@ -1,33 +1,28 @@
-import { TicketCategoryIndexRequestSchema } from "@/queries/ticket.query";
+import { TicketCategoryIndexRequestSchema } from '@/queries/ticket.query';
 import {
   CreateTicketCategorySchema,
   TicketCategorySchema,
   TicketCategory,
   UpdateTicketCategorySchema,
-} from "@/schemas/ticket.schema";
-import localforage from "localforage";
-import { rest } from "msw";
-import { nanoid } from "nanoid";
-import {
-  allowAuthenticatedOnly,
-  handleResponseError,
-  successResponse,
-} from "../mock-utils";
-import { NotFoundError } from "@/utils/error.util";
-import { generatePaginationMeta } from "@/utils/api.util";
-import { getTicketCategories } from "../records/ticket-category.record";
+} from '@/schemas/ticket.schema';
+import localforage from 'localforage';
+import { rest } from 'msw';
+import { nanoid } from 'nanoid';
+import { allowAuthenticatedOnly, handleResponseError, successResponse } from '../mock-utils';
+import { NotFoundError } from '@/utils/error.util';
+import { generatePaginationMeta } from '@/utils/api.util';
+import { getTicketCategories } from '../records/ticket-category.record';
 
 export const ticketCategoryHandlers = [
-  rest.post("/api/ticket-categories", async (req) => {
+  rest.post('/api/ticket-categories', async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const data = CreateTicketCategorySchema.parse(await req.json());
 
-      const unparsedStoredTicketCategories =
-        (await localforage.getItem("ticket_categories")) ?? [];
+      const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
-        unparsedStoredTicketCategories
+        unparsedStoredTicketCategories,
       );
 
       const newTicketCategory: TicketCategory = {
@@ -39,58 +34,48 @@ export const ticketCategoryHandlers = [
         updated_at: new Date().toISOString(),
       };
 
-      const newTicketCategories = [
-        ...storedTicketCategories,
-        newTicketCategory,
-      ];
+      const newTicketCategories = [...storedTicketCategories, newTicketCategory];
 
-      await localforage.setItem("ticket_categories", newTicketCategories);
+      await localforage.setItem('ticket_categories', newTicketCategories);
 
       return successResponse({
         data: newTicketCategory,
-        message: "Successfully created ticket category",
+        message: 'Successfully created ticket category',
       });
     } catch (error) {
       return handleResponseError(error);
     }
   }),
-  rest.get("/api/ticket-categories", async (req) => {
+  rest.get('/api/ticket-categories', async (req) => {
     try {
       const storedTicketCategories = await getTicketCategories();
 
       const unparsedFilters = Object.fromEntries(req.url.searchParams);
       const filters = TicketCategoryIndexRequestSchema.parse(unparsedFilters);
 
-      const filteredTicketCategories = storedTicketCategories.filter(
-        (ticketCategory) => {
-          if (filters.search) {
-            const search = filters.search.toLowerCase();
+      const filteredTicketCategories = storedTicketCategories.filter((ticketCategory) => {
+        if (filters.search) {
+          const search = filters.search.toLowerCase();
 
-            const isMatched = ticketCategory.name
-              .toLowerCase()
-              .includes(search);
+          const isMatched = ticketCategory.name.toLowerCase().includes(search);
 
-            if (!isMatched) {
-              return false;
-            }
+          if (!isMatched) {
+            return false;
           }
-
-          if (filters.is_archived) {
-            if (filters.is_archived === "1" && !ticketCategory.is_archived) {
-              return false;
-            } else if (
-              filters.is_archived === "0" &&
-              ticketCategory.is_archived
-            ) {
-              return false;
-            }
-          } else {
-            return ticketCategory.is_archived === false;
-          }
-
-          return true;
         }
-      );
+
+        if (filters.is_archived) {
+          if (filters.is_archived === '1' && !ticketCategory.is_archived) {
+            return false;
+          } else if (filters.is_archived === '0' && ticketCategory.is_archived) {
+            return false;
+          }
+        } else {
+          return ticketCategory.is_archived === false;
+        }
+
+        return true;
+      });
 
       const sortedTicketCategories = filteredTicketCategories.sort((a, b) => {
         if (a.updated_at > b.updated_at) {
@@ -104,14 +89,11 @@ export const ticketCategoryHandlers = [
 
       const page = filters.page ?? 1;
 
-      const paginatedTicketCategories = sortedTicketCategories.slice(
-        (page - 1) * 10,
-        page * 10
-      );
+      const paginatedTicketCategories = sortedTicketCategories.slice((page - 1) * 10, page * 10);
 
       return successResponse({
         data: paginatedTicketCategories,
-        message: "Successfully retrieved ticket categories",
+        message: 'Successfully retrieved ticket categories',
         meta: {
           ...generatePaginationMeta({
             currentPage: page,
@@ -123,54 +105,52 @@ export const ticketCategoryHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get("/api/ticket-categories/:ticketCategoryId", async (req) => {
+  rest.get('/api/ticket-categories/:ticketCategoryId', async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
-      const unparsedStoredTicketCategories =
-        (await localforage.getItem("ticket_categories")) ?? [];
+      const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
-        unparsedStoredTicketCategories
+        unparsedStoredTicketCategories,
       );
 
       const ticketCategoryId = req.params.ticketCategoryId;
 
       const ticketCategory = storedTicketCategories.find(
-        (ticketCategory) => ticketCategory.id === ticketCategoryId
+        (ticketCategory) => ticketCategory.id === ticketCategoryId,
       );
 
       if (!ticketCategory) {
-        throw new NotFoundError("Ticket category is not found");
+        throw new NotFoundError('Ticket category is not found');
       }
 
       return successResponse({
         data: ticketCategory,
-        message: "Successfully retrieved ticket category",
+        message: 'Successfully retrieved ticket category',
       });
     } catch (error) {
       return handleResponseError(error);
     }
   }),
-  rest.put("/api/ticket-categories/:ticketCategoryId", async (req) => {
+  rest.put('/api/ticket-categories/:ticketCategoryId', async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
       const data = UpdateTicketCategorySchema.parse(await req.json());
 
-      const unparsedStoredTicketCategories =
-        (await localforage.getItem("ticket_categories")) ?? [];
+      const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
-        unparsedStoredTicketCategories
+        unparsedStoredTicketCategories,
       );
 
       const ticketCategoryId = req.params.ticketCategoryId;
 
       const ticketCategoryToUpdate = storedTicketCategories.find(
-        (ticketCategory) => ticketCategory.id === ticketCategoryId
+        (ticketCategory) => ticketCategory.id === ticketCategoryId,
       );
 
       if (!ticketCategoryToUpdate) {
-        throw new NotFoundError("Ticket category is not found");
+        throw new NotFoundError('Ticket category is not found');
       }
 
       const updatedTicketCategory: TicketCategory = {
@@ -180,39 +160,36 @@ export const ticketCategoryHandlers = [
       };
 
       const newTicketCategories = storedTicketCategories.map((ticketCategory) =>
-        ticketCategory.id === ticketCategoryId
-          ? updatedTicketCategory
-          : ticketCategory
+        ticketCategory.id === ticketCategoryId ? updatedTicketCategory : ticketCategory,
       );
 
-      await localforage.setItem("ticket_categories", newTicketCategories);
+      await localforage.setItem('ticket_categories', newTicketCategories);
 
       return successResponse({
         data: updatedTicketCategory,
-        message: "Successfully updated ticket category",
+        message: 'Successfully updated ticket category',
       });
     } catch (error) {
       return handleResponseError(error);
     }
   }),
-  rest.put("/api/ticket-categories/:ticketCategoryId/archive", async (req) => {
+  rest.put('/api/ticket-categories/:ticketCategoryId/archive', async (req) => {
     try {
       await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
 
-      const unparsedStoredTicketCategories =
-        (await localforage.getItem("ticket_categories")) ?? [];
+      const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
-        unparsedStoredTicketCategories
+        unparsedStoredTicketCategories,
       );
 
       const ticketCategoryId = req.params.ticketCategoryId;
 
       const ticketCategoryToUpdate = storedTicketCategories.find(
-        (ticketCategory) => ticketCategory.id === ticketCategoryId
+        (ticketCategory) => ticketCategory.id === ticketCategoryId,
       );
 
       if (!ticketCategoryToUpdate) {
-        throw new NotFoundError("Ticket category is not found");
+        throw new NotFoundError('Ticket category is not found');
       }
 
       const updatedTicketCategory: TicketCategory = {
@@ -222,37 +199,34 @@ export const ticketCategoryHandlers = [
       };
 
       const newTicketCategories = storedTicketCategories.map((ticketCategory) =>
-        ticketCategory.id === ticketCategoryId
-          ? updatedTicketCategory
-          : ticketCategory
+        ticketCategory.id === ticketCategoryId ? updatedTicketCategory : ticketCategory,
       );
 
-      await localforage.setItem("ticket_categories", newTicketCategories);
+      await localforage.setItem('ticket_categories', newTicketCategories);
 
       return successResponse({
         data: updatedTicketCategory,
-        message: "Successfully archived ticket category",
+        message: 'Successfully archived ticket category',
       });
     } catch (error) {
       return handleResponseError(error);
     }
   }),
-  rest.put("/api/ticket-categories/:ticketCategoryId/restore", async (req) => {
+  rest.put('/api/ticket-categories/:ticketCategoryId/restore', async (req) => {
     try {
-      const unparsedStoredTicketCategories =
-        (await localforage.getItem("ticket_categories")) ?? [];
+      const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
-        unparsedStoredTicketCategories
+        unparsedStoredTicketCategories,
       );
 
       const ticketCategoryId = req.params.ticketCategoryId;
 
       const ticketCategoryToUpdate = storedTicketCategories.find(
-        (ticketCategory) => ticketCategory.id === ticketCategoryId
+        (ticketCategory) => ticketCategory.id === ticketCategoryId,
       );
 
       if (!ticketCategoryToUpdate) {
-        throw new NotFoundError("Ticket category is not found");
+        throw new NotFoundError('Ticket category is not found');
       }
 
       const updatedTicketCategory: TicketCategory = {
@@ -262,16 +236,14 @@ export const ticketCategoryHandlers = [
       };
 
       const newTicketCategories = storedTicketCategories.map((ticketCategory) =>
-        ticketCategory.id === ticketCategoryId
-          ? updatedTicketCategory
-          : ticketCategory
+        ticketCategory.id === ticketCategoryId ? updatedTicketCategory : ticketCategory,
       );
 
-      await localforage.setItem("ticket_categories", newTicketCategories);
+      await localforage.setItem('ticket_categories', newTicketCategories);
 
       return successResponse({
         data: updatedTicketCategory,
-        message: "Successfully restored ticket category",
+        message: 'Successfully restored ticket category',
       });
     } catch (error) {
       return handleResponseError(error);

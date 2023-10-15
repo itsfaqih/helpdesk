@@ -1,21 +1,16 @@
-import React from "react";
-import { Portal as ArkPortal, Select as ArkSelect } from "@ark-ui/react";
-import { cn } from "@/libs/cn.lib";
+import React from 'react';
+import { Portal as ArkPortal, Select as ArkSelect } from '@ark-ui/react';
+import { cn } from '@/libs/cn.lib';
 
 type SelectOptionType = { label: string; value: string };
 
 export function Select({
   positioning,
   ...props
-}: Omit<React.ComponentPropsWithoutRef<typeof ArkSelect>, "items"> & {
+}: Omit<React.ComponentPropsWithoutRef<typeof ArkSelect>, 'items'> & {
   items: SelectOptionType[];
 }) {
-  return (
-    <ArkSelect.Root
-      positioning={{ sameWidth: true, ...positioning }}
-      {...props}
-    />
-  );
+  return <ArkSelect.Root positioning={{ sameWidth: true, ...positioning }} {...props} />;
 }
 
 export const SelectLabel = React.forwardRef<
@@ -24,7 +19,7 @@ export const SelectLabel = React.forwardRef<
 >(({ children, className, ...props }, ref) => (
   <ArkSelect.Label
     ref={ref}
-    className={cn("block text-sm font-medium text-gray-700", className)}
+    className={cn('block text-sm font-medium text-gray-700', className)}
     {...props}
   >
     {children}
@@ -35,7 +30,7 @@ SelectLabel.displayName = ArkSelect.Label.displayName;
 
 type SelectTriggerProps = Omit<
   React.ComponentPropsWithoutRef<typeof ArkSelect.Trigger>,
-  "children"
+  'children'
 > & {
   placeholder: string;
   error?: string;
@@ -50,11 +45,11 @@ export const SelectTrigger = React.forwardRef<
       <ArkSelect.Trigger
         ref={ref}
         className={cn(
-          "whitespace-nowrap flex w-full justify-between gap-4 cursor-default items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-medium transition hover:bg-gray-100 focus:outline-2",
+          'whitespace-nowrap flex w-full justify-between gap-4 cursor-default items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-medium transition hover:bg-gray-100 focus:outline-2',
           error
-            ? "focus:outline-rose-600 shadow-haptic-rose-300 enabled:hover:shadow-haptic-rose-400"
-            : "focus:outline-brand-600 shadow-haptic-gray-300 enabled:hover:shadow-haptic-gray-400",
-          className
+            ? 'focus:outline-rose-600 shadow-haptic-rose-300 enabled:hover:shadow-haptic-rose-400'
+            : 'focus:outline-brand-600 shadow-haptic-gray-300 enabled:hover:shadow-haptic-gray-400',
+          className,
         )}
         {...props}
       >
@@ -91,10 +86,7 @@ export const SelectContent = React.forwardRef<
     <ArkSelect.Positioner>
       <ArkSelect.Content
         ref={ref}
-        className={cn(
-          "rounded-md bg-white shadow-menu focus:outline-none p-1",
-          className
-        )}
+        className={cn('rounded-md bg-white shadow-menu focus:outline-none p-1', className)}
         {...props}
       >
         <div className="flex flex-col gap-1">{children}</div>
@@ -111,7 +103,7 @@ export const SelectItemGroupLabel = ArkSelect.ItemGroupLabel;
 
 export const SelectOption = React.forwardRef<
   React.ElementRef<typeof ArkSelect.Item>,
-  Omit<React.ComponentPropsWithoutRef<typeof ArkSelect.Item>, "item"> & {
+  Omit<React.ComponentPropsWithoutRef<typeof ArkSelect.Item>, 'item'> & {
     item: SelectOptionType;
   }
 >(({ className, item, ...props }, ref) => (
@@ -119,12 +111,12 @@ export const SelectOption = React.forwardRef<
     ref={ref}
     item={item}
     className={cn(
-      "cursor-default flex w-full items-center rounded-md px-2.5 py-1.5 text-sm font-medium",
-      "data-[highlighted]:outline-none data-[highlighted]:bg-gray-100",
-      "data-[disabled]:opacity-70",
-      "aria-selected:text-brand-800 aria-selected:bg-brand-50",
-      "aria-selected:data-[highlighted]:bg-brand-50",
-      className
+      'cursor-default flex w-full items-center rounded-md px-2.5 py-1.5 text-sm font-medium',
+      'data-[highlighted]:outline-none data-[highlighted]:bg-gray-100',
+      'data-[disabled]:opacity-70',
+      'aria-selected:text-brand-800 aria-selected:bg-brand-50',
+      'aria-selected:data-[highlighted]:bg-brand-50',
+      className,
     )}
     {...props}
   >
@@ -133,4 +125,4 @@ export const SelectOption = React.forwardRef<
   </ArkSelect.Item>
 ));
 
-SelectOption.displayName = "SelectOption";
+SelectOption.displayName = 'SelectOption';

@@ -1,12 +1,13 @@
-import { api } from "@/libs/api.lib";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { Action, ActionSchema } from "@/schemas/action.schema";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import React from "react";
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
+import { api } from '@/libs/api.lib';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { Action, ActionSchema } from '@/schemas/action.schema';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+import React from 'react';
+import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
+import { ArrowCounterClockwise } from '@phosphor-icons/react';
 
 type RestoreActionDialogProps = {
-  actionId: Action["id"];
+  actionId: Action['id'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -32,6 +33,7 @@ export function RestoreActionDialog({
       isSuccess={restoreActionMutation.isSuccess}
       buttonLabel="Restore"
       buttonOnClick={() => restoreActionMutation.mutate()}
+      buttonLeadingIcon={(props) => <ArrowCounterClockwise {...props} />}
       trigger={trigger}
       onSuccess={() => {
         onOpenChange?.(false);
@@ -48,12 +50,10 @@ const RestoreActionResponseSchema = APIResponseSchema({
 });
 
 type UseRestoreActionMutationParams = {
-  actionId: Action["id"];
+  actionId: Action['id'];
 };
 
-function useRestoreActionMutation({
-  actionId,
-}: UseRestoreActionMutationParams) {
+function useRestoreActionMutation({ actionId }: UseRestoreActionMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -63,14 +63,12 @@ function useRestoreActionMutation({
 
         return RestoreActionResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["action", "index"]);
-      await queryClient.invalidateQueries(["action", "show", actionId]);
+      await queryClient.invalidateQueries(['action', 'index']);
+      await queryClient.invalidateQueries(['action', 'show', actionId]);
     },
   });
 }

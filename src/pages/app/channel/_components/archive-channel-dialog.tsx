@@ -1,12 +1,13 @@
-import React from "react";
-import { Channel, ChannelSchema } from "@/schemas/channel.schema";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/libs/api.lib";
-import { ConfirmationDialog } from "@/components/derived/confirmation-dialog";
+import React from 'react';
+import { Channel, ChannelSchema } from '@/schemas/channel.schema';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/libs/api.lib';
+import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
+import { Archive } from '@phosphor-icons/react';
 
 type ArchiveChannelDialogProps = {
-  channelId: Channel["id"];
+  channelId: Channel['id'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -33,6 +34,7 @@ export function ArchiveChannelDialog({
       isSuccess={archiveChannelMutation.isSuccess}
       buttonLabel="Archive"
       buttonOnClick={() => archiveChannelMutation.mutate()}
+      buttonLeadingIcon={(props) => <Archive {...props} />}
       trigger={trigger}
       onSuccess={() => {
         onOpenChange?.(false);
@@ -49,12 +51,10 @@ const ArchiveChannelResponseSchema = APIResponseSchema({
 });
 
 type UseArchiveChannelMutationParams = {
-  channelId: Channel["id"];
+  channelId: Channel['id'];
 };
 
-function useArchiveChannelMutation({
-  channelId,
-}: UseArchiveChannelMutationParams) {
+function useArchiveChannelMutation({ channelId }: UseArchiveChannelMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -64,14 +64,12 @@ function useArchiveChannelMutation({
 
         return ArchiveChannelResponseSchema.parse(res);
       } catch (error) {
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["channel", "index"]);
-      await queryClient.invalidateQueries(["channel", "show", channelId]);
+      await queryClient.invalidateQueries(['channel', 'index']);
+      await queryClient.invalidateQueries(['channel', 'show', channelId]);
     },
   });
 }

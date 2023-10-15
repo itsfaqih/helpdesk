@@ -1,6 +1,6 @@
-import React from "react";
-import * as Ark from "@ark-ui/react";
-import { cn } from "@/libs/cn.lib";
+import React from 'react';
+import * as Ark from '@ark-ui/react';
+import { cn } from '@/libs/cn.lib';
 
 export const Menu = Ark.Menu;
 export const MenuTrigger = Ark.MenuTrigger;
@@ -15,8 +15,8 @@ export const MenuContent = React.forwardRef<
       <Ark.MenuContent
         ref={ref}
         className={cn(
-          "min-w-[14rem] rounded-md bg-white shadow-menu focus:outline-none p-1",
-          className
+          'min-w-[14rem] rounded-md bg-white shadow-menu focus:outline-none p-1',
+          className,
         )}
         {...props}
       />
@@ -26,20 +26,26 @@ export const MenuContent = React.forwardRef<
 
 MenuContent.displayName = Ark.MenuContent.displayName;
 
-export const MenuItem = React.forwardRef<
-  React.ElementRef<typeof Ark.MenuItem>,
-  React.ComponentPropsWithoutRef<typeof Ark.MenuItem>
->(({ className, ...props }, ref) => (
-  <Ark.MenuItem
-    ref={ref}
-    className={cn(
-      "flex w-full select-none items-center rounded-md px-2.5 py-2 text-sm font-medium",
-      "data-[highlighted]:bg-brand-50 data-[highlighted]:text-brand-800",
-      "data-[focus]:outline-none data-[focus]:bg-gray-100",
-      className
-    )}
-    {...props}
-  />
-));
+type MenuItemProps = React.ComponentPropsWithoutRef<typeof Ark.MenuItem> & {
+  destructive?: boolean;
+};
+
+export const MenuItem = React.forwardRef<React.ElementRef<typeof Ark.MenuItem>, MenuItemProps>(
+  ({ destructive, className, ...props }, ref) => (
+    <Ark.MenuItem
+      ref={ref}
+      className={cn(
+        'flex w-full select-none items-center rounded-md px-2.5 py-2 text-sm font-medium',
+        'data-[focus]:outline-none data-[focus]:bg-gray-100',
+        {
+          'data-[highlighted]:bg-brand-50 data-[highlighted]:text-brand-700': !destructive,
+          'text-red-600 data-[highlighted]:bg-red-50 data-[highlighted]:text-red-700': destructive,
+        },
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
 
 MenuItem.displayName = Ark.MenuItem.displayName;

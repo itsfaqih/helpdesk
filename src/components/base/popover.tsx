@@ -1,9 +1,9 @@
-import React from "react";
-import * as Ark from "@ark-ui/react";
-import { cn } from "@/libs/cn.lib";
+import React from 'react';
+import * as Ark from '@ark-ui/react';
+import { cn } from '@/libs/cn.lib';
 
 export function Popover(
-  props: Omit<React.ComponentPropsWithoutRef<typeof Ark.Popover>, "portalled">
+  props: Omit<React.ComponentPropsWithoutRef<typeof Ark.Popover>, 'portalled'>,
 ) {
   return <Ark.Popover {...props} />;
 }
@@ -19,8 +19,8 @@ export const PopoverContent = React.forwardRef<
       <Ark.PopoverContent
         ref={ref}
         className={cn(
-          "bg-white rounded-lg shadow-menu px-3 py-2 animate-in fade-in slide-in-from-bottom-4",
-          className
+          'bg-white rounded-lg shadow-menu px-3 py-2 animate-in fade-in slide-in-from-bottom-4',
+          className,
         )}
         {...props}
       />

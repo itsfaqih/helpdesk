@@ -1,8 +1,8 @@
-import * as React from "react";
-import { cn } from "@/libs/cn.lib";
-import { Loop } from "./loop";
-import { Skeleton } from "./skeleton";
-import { linkClass } from "./link";
+import * as React from 'react';
+import { cn } from '@/libs/cn.lib';
+import { Loop } from './loop';
+import { Skeleton } from './skeleton';
+import { linkClass } from './link';
 
 type TableProps = React.HTMLAttributes<HTMLDivElement> & {
   id: string;
@@ -21,16 +21,12 @@ export function Table({
   loading,
   error,
   refetch,
-  errorMessage = "Something went wrong when fetching data",
+  errorMessage = 'Something went wrong when fetching data',
   className,
   ...props
 }: TableProps) {
   return (
-    <div
-      className={cn("flow-root", className)}
-      data-testid={`table-${id}`}
-      {...props}
-    >
+    <div className={cn('flow-root', className)} data-testid={`table-${id}`} {...props}>
       <div className="-mx-6 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-6">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-6">
           <div className="overflow-hidden shadow-haptic-gray-300 sm:rounded-md">
@@ -52,12 +48,7 @@ export function Table({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {loading && (
-                  <TableSkeleton
-                    tableId={id}
-                    columnAmount={headings.length + 1}
-                  />
-                )}
+                {loading && <TableSkeleton tableId={id} columnAmount={headings.length + 1} />}
                 {error && (
                   <tr data-testid={`table-${id}-error`}>
                     <td
@@ -65,7 +56,7 @@ export function Table({
                       className="py-2.5 text-sm text-center text-gray-500"
                     >
                       {errorMessage}
-                      {". "}
+                      {'. '}
                       <button className={linkClass()} onClick={refetch}>
                         Retry
                       </button>
@@ -92,14 +83,11 @@ export function Table({
                       {row.map((data, index, arr) => (
                         <td
                           key={index}
-                          className={cn(
-                            "whitespace-nowrap py-2 text-sm text-gray-800",
-                            {
-                              "relative pl-3 pr-4 text-right font-medium sm:pr-6":
-                                index === arr.length - 1,
-                              "px-3": index !== arr.length - 1,
-                            }
-                          )}
+                          className={cn('whitespace-nowrap py-2 text-sm text-gray-800', {
+                            'relative pl-3 pr-4 text-right font-medium sm:pr-6':
+                              index === arr.length - 1,
+                            'px-3': index !== arr.length - 1,
+                          })}
                         >
                           {data}
                         </td>
@@ -127,10 +115,10 @@ function TableSkeleton({ tableId, columnAmount }: TableSkeletonProps) {
         {Array.from({ length: columnAmount }, (_, i) => (
           <td
             key={i}
-            className={cn("py-3.5", {
-              "pl-4": i === 0,
-              "relative pl-3 pr-4 sm:pr-6": i === columnAmount - 1,
-              "px-3": i !== 0 && i !== columnAmount - 1,
+            className={cn('py-3.5', {
+              'pl-4': i === 0,
+              'relative pl-3 pr-4 sm:pr-6': i === columnAmount - 1,
+              'px-3': i !== 0 && i !== columnAmount - 1,
             })}
           >
             <Skeleton />

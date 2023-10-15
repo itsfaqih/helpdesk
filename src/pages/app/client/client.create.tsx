@@ -1,24 +1,24 @@
-import { AppPageTitle } from "../_components/page-title.app";
-import { APIResponseSchema } from "@/schemas/api.schema";
-import { ClientSchema, CreateClientSchema } from "@/schemas/client.schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { api } from "@/libs/api.lib";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Textbox } from "@/components/derived/textbox";
-import { Label } from "@/components/base/label";
-import { Card } from "@/components/base/card";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageBackLink } from "../_components/page-back-link";
-import { UnprocessableEntityError } from "@/utils/error.util";
-import { SaveButton } from "@/components/derived/save-button";
+import { AppPageTitle } from '../_components/page-title.app';
+import { APIResponseSchema } from '@/schemas/api.schema';
+import { ClientSchema, CreateClientSchema } from '@/schemas/client.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { api } from '@/libs/api.lib';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Textbox } from '@/components/derived/textbox';
+import { Label } from '@/components/base/label';
+import { Card } from '@/components/base/card';
+import { useLoaderData, useNavigate } from 'react-router-dom';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageBackLink } from '../_components/page-back-link';
+import { UnprocessableEntityError } from '@/utils/error.util';
+import { SaveButton } from '@/components/derived/save-button';
 
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: "Create Client",
+      pageTitle: 'Create Client',
     });
   };
 }
@@ -48,16 +48,12 @@ export function ClientCreatePage() {
       <AppPageBackLink to="/clients" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
-        <form
-          id="create-client-form"
-          onSubmit={onSubmit}
-          className="flex flex-col gap-y-4"
-        >
+        <form id="create-client-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="full_name">Full Name</Label>
             <div className="col-span-3">
               <Textbox
-                {...createClientForm.register("full_name")}
+                {...createClientForm.register('full_name')}
                 label="Full Name"
                 placeholder="Enter Full Name"
                 disabled={createClientMutation.isLoading}
@@ -97,21 +93,19 @@ function useCreateClientMutation() {
   return useMutation({
     async mutationFn(data: CreateClientSchema) {
       try {
-        const res = await api.post(data, "/clients");
+        const res = await api.post(data, '/clients');
 
         return CreateClientResponseSchema.parse(res);
       } catch (error) {
         if (error instanceof UnprocessableEntityError) {
-          throw new Error("Email is already registered");
+          throw new Error('Email is already registered');
         }
 
-        throw new Error(
-          "Something went wrong. Please contact the administrator"
-        );
+        throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(["client", "index"]);
+      await queryClient.invalidateQueries(['client', 'index']);
     },
   });
 }

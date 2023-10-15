@@ -1,38 +1,28 @@
-import React from "react";
-import { CaretRight, PencilSimple, Plus, Power } from "@phosphor-icons/react";
-import { Controller, useForm } from "react-hook-form";
-import qs from "qs";
-import { Button, IconButton } from "@/components/base/button";
+import React from 'react';
+import { CaretRight, PencilSimple, Plus, Power } from '@phosphor-icons/react';
+import { Controller, useForm } from 'react-hook-form';
+import qs from 'qs';
+import { Button, IconButton } from '@/components/base/button';
 import {
   Select,
   SelectContent,
   SelectLabel,
   SelectOption,
   SelectTrigger,
-} from "@/components/base/select";
-import {
-  TabIndicator,
-  TabList,
-  TabTrigger,
-  Tabs,
-} from "@/components/base/tabs";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { QueryClient } from "@tanstack/react-query";
-import { useLoggedInAdminQuery } from "@/queries/logged-in-admin.query";
-import { adminRoleValueToLabel } from "@/utils/admin.util";
+} from '@/components/base/select';
+import { TabIndicator, TabList, TabTrigger, Tabs } from '@/components/base/tabs';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { QueryClient } from '@tanstack/react-query';
+import { useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { adminRoleValueToLabel } from '@/utils/admin.util';
 import {
   AdminIndexRequest,
   AdminIndexRequestSchema,
   fetchAdminIndexQuery,
   useAdminIndexQuery,
-} from "@/queries/admin.query";
-import {
-  Link,
-  LoaderFunctionArgs,
-  useLoaderData,
-  useSearchParams,
-} from "react-router-dom";
-import { LoaderDataReturn, loaderResponse } from "@/utils/router.util";
+} from '@/queries/admin.query';
+import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
+import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import {
   Pagination,
   PaginationEllipsis,
@@ -41,21 +31,21 @@ import {
   PaginationNextPageTrigger,
   PaginationPageTrigger,
   PaginationPrevPageTrigger,
-} from "@/components/base/pagination";
-import { useDebounce } from "@/hooks/use-debounce";
-import { AppPageTitle } from "../_components/page-title.app";
-import { Table } from "@/components/base/table";
-import { formatDateTime } from "@/utils/date";
-import { AppPageContainer } from "@/components/derived/app-page-container";
-import { AppPageResetButton } from "../_components/page-reset-button";
-import { DeactivateAdminDialog } from "./_components/deactivate-admin-dialog";
-import { ReactivateAdminDialog } from "./_components/reactivate-admin-dialog";
-import { AppPageSearchBox } from "../_components/page-search-box";
+} from '@/components/base/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
+import { AppPageTitle } from '../_components/page-title.app';
+import { Table } from '@/components/base/table';
+import { formatDateTime } from '@/utils/date';
+import { AppPageContainer } from '@/components/derived/app-page-container';
+import { AppPageResetButton } from '../_components/page-reset-button';
+import { DeactivateAdminDialog } from './_components/deactivate-admin-dialog';
+import { ActivateAdminDialog } from './_components/activate-admin-dialog';
+import { AppPageSearchBox } from '../_components/page-search-box';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
     const requestData = AdminIndexRequestSchema.parse(
-      Object.fromEntries(new URL(request.url).searchParams)
+      Object.fromEntries(new URL(request.url).searchParams),
     );
 
     fetchAdminIndexQuery({ queryClient, request: requestData }).catch((err) => {
@@ -63,7 +53,7 @@ function loader(queryClient: QueryClient) {
     });
 
     return loaderResponse({
-      pageTitle: "Administrators",
+      pageTitle: 'Administrators',
       data: { request: requestData },
     });
   };
@@ -72,9 +62,9 @@ function loader(queryClient: QueryClient) {
 AdminIndexPage.loader = loader;
 
 const adminRoleOptions = [
-  { value: "", label: "All role" },
-  { value: "super_admin", label: "Super Admin" },
-  { value: "operator", label: "Operator" },
+  { value: '', label: 'All role' },
+  { value: 'super_admin', label: 'Super Admin' },
+  { value: 'operator', label: 'Operator' },
 ];
 
 export function AdminIndexPage() {
@@ -82,7 +72,7 @@ export function AdminIndexPage() {
   const [_, setSearchParams] = useSearchParams();
   const [actionDialogState, setActionDialogState] = React.useState<{
     adminId: string | null;
-    action: "deactivate" | "reactivate" | null;
+    action: 'deactivate' | 'reactivate' | null;
   }>({
     adminId: null,
     action: null,
@@ -99,18 +89,18 @@ export function AdminIndexPage() {
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
     if (search === null) return;
-    filtersForm.setValue("search", search);
+    filtersForm.setValue('search', search);
   }, 500);
 
   const adminIndexQuery = useAdminIndexQuery(loaderData.data.request);
 
   filtersForm.watch((data, { name }) => {
-    if (name === "is_active") {
+    if (name === 'is_active') {
       data.search = undefined;
       data.role = undefined;
     }
 
-    if (name !== "page") {
+    if (name !== 'page') {
       data.page = undefined;
     }
 
@@ -121,19 +111,17 @@ export function AdminIndexPage() {
   });
 
   React.useEffect(() => {
-    if (
-      filtersForm.getValues("is_active") !== loaderData.data.request.is_active
-    ) {
-      filtersForm.setValue("is_active", loaderData.data.request.is_active);
+    if (filtersForm.getValues('is_active') !== loaderData.data.request.is_active) {
+      filtersForm.setValue('is_active', loaderData.data.request.is_active);
     }
-    if (filtersForm.getValues("role") !== loaderData.data.request.role) {
-      filtersForm.setValue("role", loaderData.data.request.role);
+    if (filtersForm.getValues('role') !== loaderData.data.request.role) {
+      filtersForm.setValue('role', loaderData.data.request.role);
     }
-    if (filtersForm.getValues("search") !== loaderData.data.request.search) {
-      filtersForm.setValue("search", loaderData.data.request.search);
+    if (filtersForm.getValues('search') !== loaderData.data.request.search) {
+      filtersForm.setValue('search', loaderData.data.request.search);
     }
-    if (filtersForm.getValues("page") !== loaderData.data.request.page) {
-      filtersForm.setValue("page", loaderData.data.request.page);
+    if (filtersForm.getValues('page') !== loaderData.data.request.page) {
+      filtersForm.setValue('page', loaderData.data.request.page);
     }
   }, [filtersForm, loaderData.data.request]);
 
@@ -142,7 +130,7 @@ export function AdminIndexPage() {
       setActionDialogState((prev) => ({
         ...prev,
         adminId,
-        action: "deactivate",
+        action: 'deactivate',
       }));
   }, []);
 
@@ -151,13 +139,13 @@ export function AdminIndexPage() {
       setActionDialogState((prev) => ({
         ...prev,
         adminId,
-        action: "reactivate",
+        action: 'reactivate',
       }));
   }, []);
 
   return (
     <>
-      {loggedInAdmin?.role === "super_admin" && (
+      {loggedInAdmin?.role === 'super_admin' && (
         <Link
           to="/admins/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
@@ -170,7 +158,7 @@ export function AdminIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            loggedInAdmin?.role === "super_admin" && (
+            loggedInAdmin?.role === 'super_admin' && (
               <Button
                 as={Link}
                 to="/admins/create"
@@ -190,9 +178,9 @@ export function AdminIndexPage() {
           name="is_active"
           render={({ field }) => (
             <Tabs
-              value={field.value ?? "1"}
+              value={field.value ?? '1'}
               onChange={({ value }) => {
-                if (value && (value === "1" || value === "0")) {
+                if (value && (value === '1' || value === '0')) {
                   field.onChange(value);
                 }
               }}
@@ -202,10 +190,7 @@ export function AdminIndexPage() {
                 <TabTrigger value="1" data-testid="tab-is_deactivated-active">
                   Active
                 </TabTrigger>
-                <TabTrigger
-                  value="0"
-                  data-testid="tab-is_deactivated-deactivated"
-                >
+                <TabTrigger value="0" data-testid="tab-is_deactivated-deactivated">
                   Deactivated
                 </TabTrigger>
                 <TabIndicator />
@@ -219,7 +204,7 @@ export function AdminIndexPage() {
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
-              value={search ?? ""}
+              value={search ?? ''}
               placeholder="Search by full name or email"
             />
 
@@ -233,11 +218,7 @@ export function AdminIndexPage() {
                   onChange={(e) => {
                     const value = e?.value[0];
 
-                    if (
-                      value === "" ||
-                      value === "super_admin" ||
-                      value === "operator"
-                    ) {
+                    if (value === '' || value === 'super_admin' || value === 'operator') {
                       field.onChange(value);
                     }
                   }}
@@ -256,11 +237,8 @@ export function AdminIndexPage() {
 
             <AppPageResetButton
               to={{
-                pathname: "/admins",
-                search:
-                  loaderData.data.request.is_active === "0"
-                    ? "?is_active=0"
-                    : undefined,
+                pathname: '/admins',
+                search: loaderData.data.request.is_active === '0' ? '?is_active=0' : undefined,
               }}
               onClick={() => setSearch(null)}
               className="ml-auto"
@@ -272,13 +250,13 @@ export function AdminIndexPage() {
           loading={adminIndexQuery.isLoading}
           error={adminIndexQuery.isError}
           errorMessage={
-            (typeof adminIndexQuery.error === "object" &&
+            (typeof adminIndexQuery.error === 'object' &&
               adminIndexQuery.error instanceof Error &&
               adminIndexQuery.error.message) ||
             undefined
           }
           refetch={adminIndexQuery.refetch}
-          headings={["Full Name", "Email", "Role", "Date created"]}
+          headings={['Full Name', 'Email', 'Role', 'Date created']}
           rows={adminIndexQuery.data?.data.map((admin, index) => [
             admin.full_name,
             admin.email,
@@ -294,7 +272,7 @@ export function AdminIndexPage() {
                 />
               )}
               {loggedInAdmin?.id !== admin.id &&
-                loggedInAdmin?.role === "super_admin" &&
+                loggedInAdmin?.role === 'super_admin' &&
                 (admin.is_active ? (
                   <>
                     <IconButton
@@ -326,7 +304,7 @@ export function AdminIndexPage() {
                       icon={(props) => <Power {...props} />}
                       label="Reactivate"
                       onClick={reactivateAdmin(admin.id)}
-                      className="text-green-600"
+                      className="text-brand-600"
                       data-testid={`btn-reactivate-admin-${index}`}
                     />
                   </>
@@ -344,9 +322,7 @@ export function AdminIndexPage() {
                 <Pagination
                   page={field.value ?? 1}
                   count={adminIndexQuery.data.meta?.pagination?.total ?? 1}
-                  pageSize={
-                    adminIndexQuery.data.meta?.pagination?.per_page ?? 1
-                  }
+                  pageSize={adminIndexQuery.data.meta?.pagination?.per_page ?? 1}
                   onChange={({ page }) => {
                     field.onChange(page);
                   }}
@@ -358,21 +334,16 @@ export function AdminIndexPage() {
                         <PaginationPrevPageTrigger />
                       </PaginationListItem>
                       {/* temporarily cast type until it's properly typed */}
-                      {(pages as { type: "page"; value: number }[]).map(
-                        (page, index) =>
-                          page.type === "page" ? (
-                            <PaginationListItem key={index}>
-                              <PaginationPageTrigger {...page}>
-                                {page.value}
-                              </PaginationPageTrigger>
-                            </PaginationListItem>
-                          ) : (
-                            <PaginationListItem key={index}>
-                              <PaginationEllipsis index={index}>
-                                &#8230;
-                              </PaginationEllipsis>
-                            </PaginationListItem>
-                          )
+                      {(pages as { type: 'page'; value: number }[]).map((page, index) =>
+                        page.type === 'page' ? (
+                          <PaginationListItem key={index}>
+                            <PaginationPageTrigger {...page}>{page.value}</PaginationPageTrigger>
+                          </PaginationListItem>
+                        ) : (
+                          <PaginationListItem key={index}>
+                            <PaginationEllipsis index={index}>&#8230;</PaginationEllipsis>
+                          </PaginationListItem>
+                        ),
                       )}
                       <PaginationListItem>
                         <PaginationNextPageTrigger />
@@ -386,24 +357,24 @@ export function AdminIndexPage() {
         )}
       </AppPageContainer>
       <DeactivateAdminDialog
-        key={`deactivate-${actionDialogState.adminId ?? "null"}`}
-        adminId={actionDialogState.adminId ?? ""}
-        isOpen={actionDialogState.action === "deactivate"}
+        key={`deactivate-${actionDialogState.adminId ?? 'null'}`}
+        adminId={actionDialogState.adminId ?? ''}
+        isOpen={actionDialogState.action === 'deactivate'}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
             adminId: open ? prev.adminId : null,
-            action: open ? "deactivate" : null,
+            action: open ? 'deactivate' : null,
           }));
         }}
       />
-      <ReactivateAdminDialog
-        key={`reactivate-${actionDialogState.adminId ?? "null"}`}
-        adminId={actionDialogState.adminId ?? ""}
-        isOpen={actionDialogState.action === "reactivate"}
+      <ActivateAdminDialog
+        key={`reactivate-${actionDialogState.adminId ?? 'null'}`}
+        adminId={actionDialogState.adminId ?? ''}
+        isOpen={actionDialogState.action === 'reactivate'}
         onOpenChange={(open) =>
           setActionDialogState((prev) => ({
             adminId: open ? prev.adminId : null,
-            action: open ? "reactivate" : null,
+            action: open ? 'reactivate' : null,
           }))
         }
       />

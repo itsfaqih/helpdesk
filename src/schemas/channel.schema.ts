@@ -1,9 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const ChannelSchema = z.object({
   id: z.string().nonempty(),
-  name: z.string().nonempty("Name is required"),
-  description: z.string().nonempty("Name is required").nullable(),
+  name: z.string().nonempty('Name is required'),
+  description: z.string().nonempty('Name is required').nullable(),
   is_archived: z.boolean().default(false),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
