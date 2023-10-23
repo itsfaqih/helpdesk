@@ -148,7 +148,7 @@ export function AppRoot() {
               </div>
               <Menu positioning={{ placement: 'bottom-end' }}>
                 <MenuTrigger asChild>
-                  <button className="flex items-center px-2.5 py-2 rounded-md gap-x-2 hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-brand-600">
+                  <button className="flex items-center px-2.5 py-2 rounded-lg gap-x-2 hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-brand-600">
                     <Avatar>
                       <AvatarImage src={undefined} />
                       <AvatarFallback>
@@ -191,7 +191,7 @@ function MainMenuItem({ icon: Icon, label, className, ...props }: MainMenuItemPr
     <NavLink
       className={({ isActive, isPending }) =>
         cn(
-          'px-3 py-1.5 rounded-md w-full flex gap-x-2.5 items-center font-medium text-sm',
+          'px-3 py-1.5 rounded-lg w-full flex gap-x-2.5 items-center font-medium text-sm',
           {
             'text-gray-500 hover:shadow-haptic-gray-300 hover:text-gray-600 active:bg-gray-50 active:shadow-haptic-gray-400':
               !isActive,

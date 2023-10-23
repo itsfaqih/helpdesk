@@ -5,12 +5,19 @@ import { cn } from '@/libs/cn.lib';
 type SelectOptionType = { label: string; value: string };
 
 export function Select({
+  className,
   positioning,
   ...props
 }: Omit<React.ComponentPropsWithoutRef<typeof ArkSelect>, 'items'> & {
   items: SelectOptionType[];
 }) {
-  return <ArkSelect.Root positioning={{ sameWidth: true, ...positioning }} {...props} />;
+  return (
+    <ArkSelect.Root
+      positioning={{ sameWidth: true, ...positioning }}
+      className={cn('grid gap-1.5', className)}
+      {...props}
+    />
+  );
 }
 
 export const SelectLabel = React.forwardRef<
@@ -45,7 +52,7 @@ export const SelectTrigger = React.forwardRef<
       <ArkSelect.Trigger
         ref={ref}
         className={cn(
-          'whitespace-nowrap flex w-full justify-between gap-4 cursor-default items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-medium transition hover:bg-gray-100 focus:outline-2',
+          'whitespace-nowrap flex w-full justify-between gap-4 cursor-default items-center rounded-lg bg-white px-2.5 py-1.5 text-sm font-medium transition hover:bg-gray-100 focus:outline-2',
           error
             ? 'focus:outline-rose-600 shadow-haptic-rose-300 enabled:hover:shadow-haptic-rose-400'
             : 'focus:outline-brand-600 shadow-haptic-gray-300 enabled:hover:shadow-haptic-gray-400',

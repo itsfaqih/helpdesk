@@ -84,7 +84,7 @@ function ButtonComponent(
 export const Button = forwardRefWithAs<ButtonProps, 'button'>(ButtonComponent);
 
 const buttonClass = cva(
-  'leading-none relative disabled:opacity-70 rounded-md inline-flex tracking-wide transition focus:outline-2 focus:outline-offset-4 items-center',
+  'leading-none relative disabled:opacity-70 rounded-lg inline-flex tracking-wide transition focus:outline-2 focus:outline-offset-4 items-center',
   {
     variants: {
       variant: {

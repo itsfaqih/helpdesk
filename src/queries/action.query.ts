@@ -6,6 +6,7 @@ import { z } from 'zod';
 import qs from 'qs';
 import { ChannelSchema } from '@/schemas/channel.schema';
 import { UserError } from '@/utils/error.util';
+import { ActionFieldSchema } from '@/schemas/action-field.schema';
 
 export const ActionIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
@@ -62,7 +63,9 @@ export const ActionShowRequestSchema = z.object({
 export type ActionShowRequest = z.infer<typeof ActionShowRequestSchema>;
 
 const ActionShowResponseSchema = APIResponseSchema({
-  schema: ActionSchema,
+  schema: ActionSchema.extend({
+    fields: ActionFieldSchema.array(),
+  }),
 });
 
 export function actionShowQuery(request: ActionShowRequest) {

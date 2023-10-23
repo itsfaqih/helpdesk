@@ -45,12 +45,13 @@ import { ChannelCreatePage } from './pages/app/channel/channel.create';
 import { ChannelShowPage } from './pages/app/channel/channel.show';
 import { loggedInAdminQuery } from './queries/logged-in-admin.query';
 import { mockTicketAssignments } from './mocks/records/ticket-assignment.record';
-import { Action, ActionField, ActionFieldSchema, ActionSchema } from './schemas/action.schema';
+import { Action, ActionSchema } from './schemas/action.schema';
 import { mockActionRecords } from './mocks/records/action.record';
 import { mockActionFieldRecords } from './mocks/records/action-field.record';
 import { ActionIndexPage } from './pages/app/action/action.index';
 import { ActionCreatePage } from './pages/app/action/action.create';
 import { ActionShowPage } from './pages/app/action/action.show';
+import { ActionField, ActionFieldSchema } from './schemas/action-field.schema';
 
 async function prepare() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call

@@ -1,8 +1,9 @@
-import { Action, ActionField, ActionFieldSchema, ActionSchema } from '@/schemas/action.schema';
+import { Action, ActionSchema } from '@/schemas/action.schema';
 import { nanoid } from 'nanoid';
 import localforage from 'localforage';
 import { NotFoundError } from '@/utils/error.util';
 import { mockActionRecords } from './action.record';
+import { ActionField, ActionFieldSchema } from '@/schemas/action-field.schema';
 
 export function mockActionFieldRecords(): ActionField[] {
   return [
@@ -14,7 +15,7 @@ export function mockActionFieldRecords(): ActionField[] {
       label: 'Subject',
       type: 'text',
       placeholder: 'Enter subject',
-      helper_text: null,
+      helper_text: '',
       is_required: true,
     },
     {
@@ -24,7 +25,7 @@ export function mockActionFieldRecords(): ActionField[] {
       label: 'Content',
       type: 'textarea',
       placeholder: 'Enter content',
-      helper_text: null,
+      helper_text: '',
       is_required: true,
     },
     {
@@ -33,8 +34,8 @@ export function mockActionFieldRecords(): ActionField[] {
       name: 'attachment',
       label: 'Attachment',
       type: 'file',
-      placeholder: null,
-      helper_text: null,
+      placeholder: '',
+      helper_text: '',
       is_required: false,
     },
   ];

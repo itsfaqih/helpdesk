@@ -18,6 +18,7 @@ import { ActionIndexRequestSchema } from '@/queries/action.query';
 import { ActionChannelSchema } from '@/schemas/action-channel.schema';
 import { NotFoundError, UnprocessableEntityError } from '@/utils/error.util';
 import { nanoid } from 'nanoid';
+import { ActionFieldSchema } from '@/schemas/action-field.schema';
 
 export const actionHandlers = [
   rest.get('/api/actions', async (req) => {
@@ -86,8 +87,13 @@ export const actionHandlers = [
         throw new NotFoundError('Action is not found');
       }
 
+      const unparsedFields = (await localforage.getItem('action_fields')) ?? [];
+      const storedFields = ActionFieldSchema.array().parse(unparsedFields);
+
+      const fields = storedFields.filter((field) => field.action_id === actionId);
+
       return successResponse({
-        data: action,
+        data: { ...action, fields },
         message: 'Successfully retrieved action',
       });
     } catch (error) {

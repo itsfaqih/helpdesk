@@ -4,14 +4,14 @@ import { cn } from '@/libs/cn.lib';
 import { Check, Minus } from '@phosphor-icons/react';
 import { labelClass } from '@/components/base/label';
 
-type CheckboxProps = Omit<React.ComponentPropsWithoutRef<typeof Ark.Checkbox>, 'children'> & {
+type CheckboxProps = Omit<React.ComponentPropsWithoutRef<typeof Ark.Checkbox.Root>, 'children'> & {
   label: string;
 };
 
-export const Checkbox = React.forwardRef<React.ElementRef<typeof Ark.Checkbox>, CheckboxProps>(
+export const Checkbox = React.forwardRef<React.ElementRef<typeof Ark.Checkbox.Root>, CheckboxProps>(
   ({ label, className, ...props }, ref) => {
     return (
-      <Ark.Checkbox
+      <Ark.Checkbox.Root
         ref={ref}
         className={cn('inline-flex items-center gap-x-2', className)}
         {...props}
@@ -22,7 +22,7 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Ark.Checkbox>, 
               className={cn(
                 'shadow-haptic-sm-gray-700 h-4.5 w-4.5 rounded-md bg-white text-white inline-flex items-center justify-center',
                 'data-[focus]:outline data-[focus]:outline-offset-2 data-[focus]:outline-2 data-[focus]:outline-brand-700',
-                'data-[checked]:bg-brand-600 data-[checked]:border-brand-700',
+                'data-[state=checked]:bg-brand-600 data-[state=checked]:border-brand-700',
                 'data-[hover]:shadow-haptic-gray-400',
               )}
             >
@@ -32,7 +32,7 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Ark.Checkbox>, 
             <Ark.CheckboxLabel className={labelClass}>{label}</Ark.CheckboxLabel>
           </>
         )}
-      </Ark.Checkbox>
+      </Ark.Checkbox.Root>
     );
   },
 );

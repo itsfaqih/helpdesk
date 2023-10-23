@@ -45,13 +45,14 @@ import { Spinner } from '@/components/base/spinner';
 import { AdminWithoutPassword } from '@/schemas/admin.schema';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/base/menu';
 import { useActionIndexQuery } from '@/queries/action.query';
-import { Action, ActionField } from '@/schemas/action.schema';
+import { Action } from '@/schemas/action.schema';
 import { useChannelTicketResponseFieldIndexQuery } from '@/queries/action-field.query';
 import { Textbox } from '@/components/derived/textbox';
 import { TextAreabox } from '@/components/derived/textareabox';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { channelTicketResponseFieldsToZodSchema } from '@/utils/channel-ticket-response.util';
+import { ActionField } from '@/schemas/action-field.schema';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -100,7 +101,7 @@ export function TicketShowPage() {
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <AppPageBackLink to="/tickets" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
-      <div className="flex flex-col gap-5 xl:flex-row mt-7">
+      <div className="flex flex-col gap-5 xl:flex-row mt-6">
         <Card className="px-4.5 py-4 xl:hidden sm:mx-0 -mx-6 sm:rounded-md rounded-none block">
           <div className="grid text-sm sm:grid-cols-2 gap-y-5 gap-x-8">
             <div className="flex items-center gap-1.5 justify-between">

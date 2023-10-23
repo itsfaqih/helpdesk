@@ -1,8 +1,9 @@
 import { api } from '@/libs/api.lib';
 import { APIResponseSchema } from '@/schemas/api.schema';
-import { ActionFieldSchema, ActionSchema } from '@/schemas/action.schema';
+import { ActionSchema } from '@/schemas/action.schema';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
+import { ActionFieldSchema } from '@/schemas/action-field.schema';
 
 export const ActionFieldIndexRequestSchema = z.object({
   actionId: ActionSchema.shape.id,

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ActionField } from '@/schemas/action.schema';
+import { ActionField } from '@/schemas/action-field.schema';
 
 export function channelTicketResponseFieldsToZodSchema(channelTicketResponseFields: ActionField[]) {
   const fieldsSchema: Record<ActionField['name'], z.ZodType> = {};

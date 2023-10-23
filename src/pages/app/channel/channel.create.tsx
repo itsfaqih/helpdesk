@@ -48,7 +48,7 @@ export function ChannelCreatePage() {
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
       <AppPageBackLink to="/channels" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
-      <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
+      <Card className="px-4.5 py-5 mt-6 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form id="create-channel-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="name">Name</Label>

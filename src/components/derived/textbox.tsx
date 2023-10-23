@@ -14,7 +14,7 @@ type TextboxProps = React.InputHTMLAttributes<HTMLInputElement> & {
 export const Textbox = React.forwardRef<HTMLInputElement, TextboxProps>(
   ({ label, error, srOnlyLabel, helperText, optional, id, name, className, ...props }, ref) => {
     const generatedId = React.useId();
-    const elementId = id || name || generatedId;
+    const elementId = id || generatedId;
 
     return (
       <div className={cn('grid w-full items-center gap-1.5', className)}>

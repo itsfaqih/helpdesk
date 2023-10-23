@@ -1,31 +1,20 @@
 import { z } from 'zod';
 
+const ActionIconTypeEnum = z.enum(['emoji', 'image']);
+
 export const ActionSchema = z.object({
-  id: z.string().nonempty(),
-  icon_type: z.enum(['emoji', 'image']),
+  id: z.string(),
+  icon_type: ActionIconTypeEnum,
   icon_value: z.string(),
-  label: z.string().nonempty('CTA label should not be empty'),
-  description: z.string().nullable(),
-  is_archived: z.boolean().default(false),
-  is_disabled: z.boolean().default(false),
+  label: z.string(),
+  description: z.string(),
+  is_archived: z.boolean(),
+  is_disabled: z.boolean(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });
 
 export type Action = z.infer<typeof ActionSchema>;
-
-export const ActionFieldSchema = z.object({
-  id: z.string().nonempty(),
-  action_id: ActionSchema.shape.id,
-  name: z.string().nonempty('Name should not be empty'),
-  label: z.string().nonempty('Label should not be empty'),
-  type: z.enum(['text', 'textarea', 'file']),
-  placeholder: z.string().nullable(),
-  helper_text: z.string().nonempty('Helper text should not be empty').nullable(),
-  is_required: z.boolean().default(true),
-});
-
-export type ActionField = z.infer<typeof ActionFieldSchema>;
 
 export const CreateActionSchema = ActionSchema.pick({
   icon_type: true,
@@ -35,6 +24,15 @@ export const CreateActionSchema = ActionSchema.pick({
 });
 
 export type CreateActionSchema = z.infer<typeof CreateActionSchema>;
+
+export const CreateActionFormSchema = z.object({
+  icon_type: ActionIconTypeEnum,
+  icon_value: z.string().min(1, { message: 'Please select an icon' }).default(''),
+  label: z.string().min(1, { message: 'Please enter a label' }).default(''),
+  description: z.string().default(''),
+});
+
+export type CreateActionForm = z.infer<typeof CreateActionFormSchema>;
 
 export const UpdateActionSchema = ActionSchema.pick({
   icon_type: true,

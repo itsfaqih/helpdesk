@@ -4,12 +4,12 @@ import React from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 
 export const linkClass = cva(
-  'text-sm font-medium text-brand-600 hover:underline focus:outline-brand-600',
+  'text-sm font-medium hover:underline focus:outline-brand-600 underline-offset-2',
   {
     variants: {
       variant: {
-        primary: 'text-brand-600 hover:underline focus:outline-brand-600',
-        plain: 'text-gray-600 hover:underline focus:outline-brand-600',
+        primary: 'text-brand-600',
+        plain: 'text-gray-600',
       },
     },
     defaultVariants: {

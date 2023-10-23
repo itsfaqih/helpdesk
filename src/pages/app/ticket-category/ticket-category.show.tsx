@@ -96,7 +96,7 @@ export function TicketCategoryShowPage() {
             ))}
         </div>
       </div>
-      <Card className="px-4.5 py-5 mt-7 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
+      <Card className="px-4.5 py-5 mt-6 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form
           id="update-ticket-category-form"
           onSubmit={onSubmit}
