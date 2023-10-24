@@ -52,7 +52,7 @@ export const SelectTrigger = React.forwardRef<
       <ArkSelect.Trigger
         ref={ref}
         className={cn(
-          'whitespace-nowrap flex w-full justify-between gap-4 cursor-default items-center rounded-lg bg-white px-2.5 py-1.5 text-sm font-medium transition hover:bg-gray-100 focus:outline-2',
+          'whitespace-nowrap flex w-full justify-between gap-4 cursor-default items-center rounded-lg bg-haptic-white px-2.5 py-1.5 text-sm font-medium transition focus:outline-2',
           error
             ? 'focus:outline-rose-600 shadow-haptic-rose-300 enabled:hover:shadow-haptic-rose-400'
             : 'focus:outline-brand-600 shadow-haptic-gray-300 enabled:hover:shadow-haptic-gray-400',
@@ -118,11 +118,11 @@ export const SelectOption = React.forwardRef<
     ref={ref}
     item={item}
     className={cn(
-      'cursor-default flex w-full items-center rounded-md px-2.5 py-1.5 text-sm font-medium',
-      'data-[highlighted]:outline-none data-[highlighted]:bg-gray-100',
+      'cursor-default flex w-full items-center rounded-lg px-2.5 py-1.5 text-sm font-medium',
+      'data-[highlighted]:bg-gray-100',
       'data-[disabled]:opacity-70',
-      'aria-selected:text-brand-800 aria-selected:bg-brand-50',
-      'aria-selected:data-[highlighted]:bg-brand-50',
+      'aria-selected:text-white aria-selected:bg-brand-700',
+      'aria-selected:data-[highlighted]:bg-brand-600',
       className,
     )}
     {...props}

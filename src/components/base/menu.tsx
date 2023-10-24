@@ -35,10 +35,10 @@ export const MenuItem = React.forwardRef<React.ElementRef<typeof Ark.MenuItem>, 
     <Ark.MenuItem
       ref={ref}
       className={cn(
-        'flex w-full select-none items-center rounded-md px-2.5 py-2 text-sm font-medium',
+        'flex w-full select-none items-center rounded-lg px-2.5 py-2 text-sm font-medium',
         'data-[focus]:outline-none data-[focus]:bg-gray-100',
         {
-          'data-[highlighted]:bg-brand-50 data-[highlighted]:text-brand-700': !destructive,
+          'data-[highlighted]:bg-gray-100': !destructive,
           'text-red-600 data-[highlighted]:bg-red-50 data-[highlighted]:text-red-700': destructive,
         },
         className,

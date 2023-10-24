@@ -80,7 +80,7 @@ export function AppRoot() {
       <FadeInContainer from="left">
         <nav className="fixed top-0 left-0 hidden w-64 h-full px-4 bg-white border-r border-gray-300 lg:block">
           <span className="block py-6 font-medium text-center">Helpdesk Management</span>
-          <ul className="flex flex-col gap-y-2.5 mt-4">
+          <ul className="flex flex-col gap-y-2 mt-4">
             {mainMenus.map((menu) => (
               <li key={menu.to}>
                 <MainMenuItem to={menu.to} icon={menu.icon} label={menu.label} />
@@ -111,7 +111,7 @@ export function AppRoot() {
                   )}
                 >
                   <span className="block py-6 font-medium text-center">Helpdesk Management</span>
-                  <ul className="flex flex-col gap-y-2.5 mt-4">
+                  <ul className="flex flex-col gap-y-2 mt-4">
                     {mainMenus.map((menu) => (
                       <li key={menu.to}>
                         <MainMenuItem
@@ -195,7 +195,7 @@ function MainMenuItem({ icon: Icon, label, className, ...props }: MainMenuItemPr
           {
             'text-gray-500 hover:shadow-haptic-gray-300 hover:text-gray-600 active:bg-gray-50 active:shadow-haptic-gray-400':
               !isActive,
-            'text-brand-800 shadow-haptic-brand-300 hover:shadow-haptic-brand-400 active:bg-brand-100 bg-brand-50':
+            'text-white active:bg-brand-100 bg-haptic-brand-700 hover:bg-haptic-brand-600':
               isActive,
             'animate-pulse': isPending,
           },

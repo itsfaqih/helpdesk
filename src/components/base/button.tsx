@@ -84,20 +84,18 @@ function ButtonComponent(
 export const Button = forwardRefWithAs<ButtonProps, 'button'>(ButtonComponent);
 
 const buttonClass = cva(
-  'leading-none relative disabled:opacity-70 rounded-lg inline-flex tracking-wide transition focus:outline-2 focus:outline-offset-4 items-center',
+  'leading-none relative disabled:opacity-70 rounded-lg inline-flex tracking-wide transition focus:outline-2 focus:outline-offset-4 items-center active:scale-95',
   {
     variants: {
       variant: {
         primary:
-          'bg-haptic-brand-700 hover:bg-haptic-brand-800 shadow-haptic-brand-900 hover:shadow-haptic-brand-950 active:bg-haptic-brand-900',
+          'bg-haptic-brand-700 hover:bg-haptic-brand-600 shadow-haptic-brand-900 hover:shadow-haptic-brand-800',
         danger:
-          'bg-haptic-red-700 hover:bg-haptic-red-800 shadow-haptic-red-900 hover:shadow-haptic-red-950 active:bg-haptic-red-900',
-        plain:
-          'bg-white hover:bg-gray-100 text-gray-700 shadow-haptic-gray-300 hover:shadow-haptic-gray-400 active:bg-gray-200',
-        'danger-plain':
-          'bg-white hover:bg-gray-100 text-red-600 shadow-haptic-gray-300 hover:shadow-haptic-gray-400 active:bg-gray-200',
-        transparent: 'hover:bg-gray-100 text-gray-700 active:bg-gray-200',
-        'danger-transparent': 'hover:bg-gray-100 text-red-600 active:bg-gray-200',
+          'bg-haptic-red-700 hover:bg-haptic-red-600 shadow-haptic-red-900 hover:shadow-haptic-red-800',
+        plain: 'bg-white text-gray-700 shadow-haptic-gray-300 hover:shadow-haptic-gray-400',
+        'danger-plain': 'bg-white text-red-600 shadow-haptic-gray-300 hover:shadow-haptic-gray-400',
+        transparent: 'hover:bg-gray-100 text-gray-700',
+        'danger-transparent': 'hover:bg-gray-100 text-red-600',
         'primary-subtle':
           'bg-haptic-brand-100 text-brand-700 hover:bg-haptic-brand-200 hover:text-brand-800 active:bg-haptic-brand-300',
         'danger-subtle':
