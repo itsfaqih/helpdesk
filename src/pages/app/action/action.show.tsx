@@ -44,8 +44,6 @@ import {
 import {
   ActionField,
   ActionFieldTypeEnum,
-  CreateActionFieldForm,
-  CreateActionFieldFormSchema,
   UpdateActionFieldForm,
   UpdateActionFieldFormSchema,
   actionFieldTypeOptions,
@@ -271,10 +269,6 @@ function ActionFieldFormSection({
 }) {
   const actionShowQuery = useActionShowQuery({ id: actionId });
   const action = actionShowQuery.data?.data;
-
-  const createActionFieldForm = useForm<CreateActionFieldForm>({
-    resolver: zodResolver(CreateActionFieldFormSchema),
-  });
 
   return (
     <section className={className}>
