@@ -3,7 +3,6 @@ import { ClientSchema } from '@/schemas/client.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { UserError } from '@/utils/error.util';
 import { QueryClient, useQuery } from '@tanstack/react-query';
-import qs from 'qs';
 import { z } from 'zod';
 
 export const ClientIndexRequestSchema = z.object({
@@ -22,8 +21,7 @@ export function clientIndexQuery(request: ClientIndexRequest = {}) {
   return {
     queryKey: ['client', 'index', request],
     async queryFn() {
-      const queryStrings = qs.stringify(request);
-      const res = await api.get(`/clients?${queryStrings}`);
+      const res = await api.query(request).get('/clients');
 
       return ClientIndexResponseSchema.parse(res);
     },

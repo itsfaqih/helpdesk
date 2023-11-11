@@ -3,7 +3,6 @@ import { ChannelSchema } from '@/schemas/channel.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { UserError } from '@/utils/error.util';
 import { QueryClient, useQuery } from '@tanstack/react-query';
-import qs from 'qs';
 import { z } from 'zod';
 
 export const ChannelIndexRequestSchema = z.object({
@@ -22,8 +21,7 @@ export function channelIndexQuery(request: ChannelIndexRequest = {}) {
   return {
     queryKey: ['channel', 'index', request],
     async queryFn() {
-      const queryStrings = qs.stringify(request);
-      const res = await api.get(`/channels?${queryStrings}`);
+      const res = await api.query(request).get('/channels');
 
       return ChannelIndexResponseSchema.parse(res);
     },

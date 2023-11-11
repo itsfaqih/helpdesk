@@ -7,7 +7,7 @@ import {
 } from '@/schemas/client.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
 import localforage from 'localforage';
-import { rest } from 'msw';
+import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
   allowAuthenticatedOnly,
@@ -18,11 +18,11 @@ import {
 import { NotFoundError, UnprocessableEntityError } from '@/utils/error.util';
 
 export const clientHandlers = [
-  rest.post('/api/clients', async (req) => {
+  http.post('/api/clients', async ({ cookies, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const data = CreateClientSchema.parse(await req.json());
+      const data = CreateClientSchema.parse(await request.json());
 
       const unparsedStoredAdmins = (await localforage.getItem('clients')) ?? [];
       const storedAdmins = ClientSchema.array().parse(unparsedStoredAdmins);
@@ -53,16 +53,16 @@ export const clientHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/clients/:clientId', async (req) => {
+  http.put('/api/clients/:clientId', async ({ cookies, params, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const data = UpdateClientSchema.parse(await req.json());
+      const data = UpdateClientSchema.parse(await request.json());
 
       const unparsedStoredClients = (await localforage.getItem('clients')) ?? [];
       const storedClients = ClientSchema.array().parse(unparsedStoredClients);
 
-      const clientId = req.params.clientId;
+      const clientId = params.clientId;
 
       const clientToUpdate = storedClients.find((client) => client.id === clientId);
 
@@ -90,14 +90,14 @@ export const clientHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/clients', async (req) => {
+  http.get('/api/clients', async ({ cookies, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredClients = (await localforage.getItem('clients')) ?? [];
       const storedClients = ClientSchema.array().parse(unparsedStoredClients);
 
-      const unparsedFilters = Object.fromEntries(req.url.searchParams);
+      const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = ClientIndexRequestSchema.parse(unparsedFilters);
 
       const filteredClients = storedClients.filter((client) => {
@@ -152,14 +152,14 @@ export const clientHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/clients/:clientId', async (req) => {
+  http.get('/api/clients/:clientId', async ({ cookies, params }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredClients = (await localforage.getItem('clients')) ?? [];
       const storedClients = ClientSchema.array().parse(unparsedStoredClients);
 
-      const clientId = req.params.clientId;
+      const clientId = params.clientId;
 
       const client = storedClients.find((client) => client.id === clientId);
 
@@ -175,14 +175,14 @@ export const clientHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/clients/:clientId/archive', async (req) => {
+  http.put('/api/clients/:clientId/archive', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredClient = (await localforage.getItem('clients')) ?? [];
       const storedClients = ClientSchema.array().parse(unparsedStoredClient);
 
-      const clientId = req.params.clientId;
+      const clientId = params.clientId;
 
       const clientToUpdate = storedClients.find((client) => client.id === clientId);
 
@@ -210,14 +210,14 @@ export const clientHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/clients/:clientId/restore', async (req) => {
+  http.put('/api/clients/:clientId/restore', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredClients = (await localforage.getItem('clients')) ?? [];
       const storedClients = ClientSchema.array().parse(unparsedStoredClients);
 
-      const clientId = req.params.clientId;
+      const clientId = params.clientId;
 
       const clientToUpdate = storedClients.find((client) => client.id === clientId);
 

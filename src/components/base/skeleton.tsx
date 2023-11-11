@@ -1,5 +1,5 @@
 import { cn } from '@/libs/cn.lib';
-import React from 'react';
+import * as React from 'react';
 
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (

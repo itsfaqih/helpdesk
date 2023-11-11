@@ -85,8 +85,9 @@ export function RegisterPage() {
           error={registerForm.formState.errors.confirm_password?.message}
         />
         <Button
-          variant="primary"
-          loading={registerMutation.isLoading}
+          variant="filled"
+          severity="primary"
+          loading={registerMutation.isPending}
           success={registerMutation.isSuccess}
           type="submit"
           className="justify-center"

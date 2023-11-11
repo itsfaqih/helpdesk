@@ -1,22 +1,22 @@
-import React from 'react';
-import { Link } from '@/components/base/link';
-import { cn } from '@/libs/cn.lib';
+import * as React from 'react';
 import { CaretLeft } from '@phosphor-icons/react';
+import { Button } from '@/components/base/button';
+import { Link } from 'react-router-dom';
 
 export const AppPageBackLink = React.forwardRef<
   React.ElementRef<typeof Link>,
   Omit<React.ComponentPropsWithoutRef<typeof Link>, 'children'>
->(({ className, ...props }, ref) => {
+>(({ ...props }, ref) => {
   return (
-    <Link
+    <Button
       ref={ref}
-      variant="plain"
-      className={cn('inline-flex items-center gap-x-1.5', className)}
-      data-testid="link-back"
+      as={Link}
+      variant="transparent"
+      size="sm"
+      leading={(props) => <CaretLeft {...props} />}
       {...props}
     >
-      <CaretLeft className="w-4 h-4" />
-      <span>Back</span>
-    </Link>
+      Back
+    </Button>
   );
 });

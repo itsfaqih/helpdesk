@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Archive, ArrowCounterClockwise, PencilSimple, Plus } from '@phosphor-icons/react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import qs from 'qs';
@@ -140,7 +140,8 @@ export function ChannelIndexPage() {
               <Button
                 as={Link}
                 to="/channels/create"
-                variant="primary"
+                variant="filled"
+                severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-channel"

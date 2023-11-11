@@ -17,6 +17,7 @@ export function mockActionFieldRecords(): ActionField[] {
       placeholder: 'Enter subject',
       helper_text: '',
       is_required: true,
+      order: 1,
     },
     {
       id: nanoid(),
@@ -27,6 +28,7 @@ export function mockActionFieldRecords(): ActionField[] {
       placeholder: 'Enter content',
       helper_text: '',
       is_required: true,
+      order: 2,
     },
     {
       id: nanoid(),
@@ -37,6 +39,7 @@ export function mockActionFieldRecords(): ActionField[] {
       placeholder: '',
       helper_text: '',
       is_required: false,
+      order: 3,
     },
   ];
 }
@@ -49,15 +52,17 @@ export async function getActionFieldsByActionId(actionId: Action['id']) {
   const action = storedActions.find((action) => action.id === actionId);
 
   if (!action) {
-    throw new NotFoundError(`Action with channel id ${actionId} not found`);
+    throw new NotFoundError(`Action with id ${actionId} not found`);
   }
 
   const unparsedStoredActionFields = await localforage.getItem('action_fields');
   const storedActionFields = ActionFieldSchema.array().parse(unparsedStoredActionFields);
 
-  const actionFields = storedActionFields.filter(
+  const filteredActionFields = storedActionFields.filter(
     (actionField) => actionField.action_id === actionId,
   );
 
-  return actionFields;
+  const sortedActionFields = filteredActionFields.sort((a, b) => a.order - b.order);
+
+  return sortedActionFields;
 }

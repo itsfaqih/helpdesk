@@ -65,7 +65,7 @@ export function AdminCreatePage() {
                 {...createAdminForm.register('full_name')}
                 label="Full Name"
                 placeholder="Enter Full Name"
-                disabled={createAdminMutation.isLoading}
+                disabled={createAdminMutation.isPending}
                 error={createAdminForm.formState.errors.full_name?.message}
                 srOnlyLabel
                 data-testid="textbox-full-name"
@@ -80,7 +80,7 @@ export function AdminCreatePage() {
                 label="Email"
                 type="email"
                 placeholder="Enter Email"
-                disabled={createAdminMutation.isLoading}
+                disabled={createAdminMutation.isPending}
                 error={createAdminForm.formState.errors.email?.message}
                 srOnlyLabel
                 data-testid="textbox-email"
@@ -95,7 +95,7 @@ export function AdminCreatePage() {
                 label="Password"
                 type="password"
                 placeholder="Enter Password"
-                disabled={createAdminMutation.isLoading}
+                disabled={createAdminMutation.isPending}
                 error={createAdminForm.formState.errors.password?.message}
                 srOnlyLabel
                 data-testid="textbox-password"
@@ -111,7 +111,7 @@ export function AdminCreatePage() {
                 render={({ field }) => (
                   <Select
                     name={field.name}
-                    disabled={createAdminMutation.isLoading}
+                    disabled={createAdminMutation.isPending}
                     items={adminRoleOptions}
                     onChange={(e) => {
                       const value = e.value[0];
@@ -149,7 +149,7 @@ export function AdminCreatePage() {
           <div className="flex justify-end">
             <SaveButton
               type="submit"
-              loading={createAdminMutation.isLoading}
+              loading={createAdminMutation.isPending}
               success={createAdminMutation.isSuccess}
               data-testid="btn-create-admin"
             />
@@ -188,7 +188,7 @@ function useCreateAdminMutation() {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['admin', 'index']);
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'index'] });
     },
   });
 }

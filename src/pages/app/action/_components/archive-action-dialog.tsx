@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Action, ActionSchema } from '@/schemas/action.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -32,7 +32,7 @@ export function ArchiveActionDialog({
       description="Are you sure you want to archive this action? After archiving the
       action will not be listed in the action list"
       destructive
-      isLoading={archiveActionMutation.isLoading}
+      isLoading={archiveActionMutation.isPending}
       isSuccess={archiveActionMutation.isSuccess}
       buttonLabel="Archive"
       buttonOnClick={() => archiveActionMutation.mutate()}
@@ -70,8 +70,8 @@ function useArchiveActionMutation({ actionId }: UseArchiveActionMutationParams) 
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['action', 'index']);
-      await queryClient.invalidateQueries(['action', 'show', actionId]);
+      await queryClient.invalidateQueries({ queryKey: ['action', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['action', 'show', actionId] });
     },
   });
 }

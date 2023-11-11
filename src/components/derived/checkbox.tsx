@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import * as Ark from '@ark-ui/react';
 import { cn } from '@/libs/cn.lib';
 import { Check, Minus } from '@phosphor-icons/react';
@@ -20,7 +20,7 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Ark.Checkbox.Ro
           <>
             <Ark.CheckboxControl
               className={cn(
-                'shadow-haptic-sm-gray-700 h-4.5 w-4.5 rounded-md bg-white text-white inline-flex items-center justify-center',
+                'shadow-haptic-sm-gray-700 h-4.5 w-4.5 rounded-md bg-white text-white inline-flex items-center justify-center transition-colors',
                 'data-[focus]:outline data-[focus]:outline-offset-2 data-[focus]:outline-2 data-[focus]:outline-brand-700',
                 'data-[state=checked]:bg-brand-600 data-[state=checked]:border-brand-700',
                 'data-[hover]:shadow-haptic-gray-400',

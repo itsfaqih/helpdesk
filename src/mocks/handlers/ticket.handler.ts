@@ -9,7 +9,7 @@ import {
 } from '@/schemas/ticket.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
 import localforage from 'localforage';
-import { rest } from 'msw';
+import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
   allowAuthenticatedOnly,
@@ -21,11 +21,11 @@ import { NotFoundError } from '@/utils/error.util';
 import { getTicketWithRelationsById, getTicketsWithRelations } from '../records/ticket.record';
 
 export const ticketHandlers = [
-  rest.post('/api/tickets', async (req) => {
+  http.post('/api/tickets', async ({ cookies, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const data = CreateTicketSchema.parse(await req.json());
+      const data = CreateTicketSchema.parse(await request.json());
 
       const unparsedStoredAdmins = (await localforage.getItem('tickets')) ?? [];
       const storedAdmins = TicketSchema.array().parse(unparsedStoredAdmins);
@@ -54,13 +54,13 @@ export const ticketHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/tickets', async (req) => {
+  http.get('/api/tickets', async ({ cookies, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const storedTickets = await getTicketsWithRelations();
 
-      const unparsedFilters = Object.fromEntries(req.url.searchParams);
+      const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = TicketIndexRequestSchema.parse(unparsedFilters);
 
       const filteredTickets = storedTickets.filter((ticket) => {
@@ -127,12 +127,12 @@ export const ticketHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/tickets/:ticketId', async (req) => {
+  http.get('/api/tickets/:ticketId', async ({ cookies, params }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const ticket = await getTicketWithRelationsById({
-        ticketId: req.params.ticketId as string,
+        ticketId: params.ticketId as string,
         assignments: {
           withTrash: true,
         },
@@ -146,14 +146,14 @@ export const ticketHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/tickets/:ticketId/archive', async (req) => {
+  http.put('/api/tickets/:ticketId/archive', async ({ cookies, params }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredTickets = (await localforage.getItem('tickets')) ?? [];
       const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
 
-      const ticketId = req.params.ticketId;
+      const ticketId = params.ticketId;
 
       const ticketToUpdate = storedTickets.find((ticket) => ticket.id === ticketId);
 
@@ -181,14 +181,14 @@ export const ticketHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/tickets/:ticketId/restore', async (req) => {
+  http.put('/api/tickets/:ticketId/restore', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredTickets = (await localforage.getItem('tickets')) ?? [];
       const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
 
-      const ticketId = req.params.ticketId;
+      const ticketId = params.ticketId;
 
       const ticketToUpdate = storedTickets.find((ticket) => ticket.id === ticketId);
 
@@ -216,14 +216,14 @@ export const ticketHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.post('/api/tickets/:ticketId/assignments', async (req) => {
+  http.post('/api/tickets/:ticketId/assignments', async ({ cookies, params, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredTickets = (await localforage.getItem('tickets')) ?? [];
       const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
 
-      const ticketId = req.params.ticketId;
+      const ticketId = params.ticketId;
 
       const ticketToUpdate = storedTickets.find((ticket) => ticket.id === ticketId);
 
@@ -231,7 +231,7 @@ export const ticketHandlers = [
         throw new NotFoundError('Ticket is not found');
       }
 
-      const data = CreateTicketAssignmentSchema.parse(await req.json());
+      const data = CreateTicketAssignmentSchema.parse(await request.json());
 
       if (data.ticket_id !== ticketId) {
         throw new Error('Ticket ID is not match');
@@ -262,45 +262,48 @@ export const ticketHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.delete('/api/tickets/:ticketId/assignments/:ticketAssignmentId', async (req) => {
-    try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+  http.delete(
+    '/api/tickets/:ticketId/assignments/:ticketAssignmentId',
+    async ({ cookies, params }) => {
+      try {
+        await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredTicketAssignments = await localforage.getItem('ticket_assignments');
-      const storedTicketAssignments = TicketAssignmentSchema.array().parse(
-        unparsedStoredTicketAssignments,
-      );
+        const unparsedStoredTicketAssignments = await localforage.getItem('ticket_assignments');
+        const storedTicketAssignments = TicketAssignmentSchema.array().parse(
+          unparsedStoredTicketAssignments,
+        );
 
-      const ticketAssignmentId = req.params.ticketAssignmentId;
+        const ticketAssignmentId = params.ticketAssignmentId;
 
-      const ticketAssignmentToDelete = storedTicketAssignments.find(
-        (ticketAssignment) => ticketAssignment.id === ticketAssignmentId,
-      );
+        const ticketAssignmentToDelete = storedTicketAssignments.find(
+          (ticketAssignment) => ticketAssignment.id === ticketAssignmentId,
+        );
 
-      if (!ticketAssignmentToDelete) {
-        throw new NotFoundError('Ticket assignment is not found');
-      }
-
-      const softDeletedTicketAssignment: TicketAssignment = {
-        ...ticketAssignmentToDelete,
-        deleted_at: new Date().toISOString(),
-      };
-
-      const newTicketAssignments = storedTicketAssignments.map((ticketAssignment) => {
-        if (ticketAssignment.id !== ticketAssignmentId) {
-          return ticketAssignment;
+        if (!ticketAssignmentToDelete) {
+          throw new NotFoundError('Ticket assignment is not found');
         }
-        return softDeletedTicketAssignment;
-      });
 
-      await localforage.setItem('ticket_assignments', newTicketAssignments);
+        const softDeletedTicketAssignment: TicketAssignment = {
+          ...ticketAssignmentToDelete,
+          deleted_at: new Date().toISOString(),
+        };
 
-      return successResponse({
-        data: softDeletedTicketAssignment,
-        message: 'Successfully deleted ticket assignment',
-      });
-    } catch (error) {
-      return handleResponseError(error);
-    }
-  }),
+        const newTicketAssignments = storedTicketAssignments.map((ticketAssignment) => {
+          if (ticketAssignment.id !== ticketAssignmentId) {
+            return ticketAssignment;
+          }
+          return softDeletedTicketAssignment;
+        });
+
+        await localforage.setItem('ticket_assignments', newTicketAssignments);
+
+        return successResponse({
+          data: softDeletedTicketAssignment,
+          message: 'Successfully deleted ticket assignment',
+        });
+      } catch (error) {
+        return handleResponseError(error);
+      }
+    },
+  ),
 ];

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Channel, ChannelSchema } from '@/schemas/channel.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -30,7 +30,7 @@ export function ArchiveChannelDialog({
       description="Are you sure you want to archive this channel? After archiving the
       channel will not be listed in the channel list"
       destructive
-      isLoading={archiveChannelMutation.isLoading}
+      isLoading={archiveChannelMutation.isPending}
       isSuccess={archiveChannelMutation.isSuccess}
       buttonLabel="Archive"
       buttonOnClick={() => archiveChannelMutation.mutate()}
@@ -68,8 +68,8 @@ function useArchiveChannelMutation({ channelId }: UseArchiveChannelMutationParam
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['channel', 'index']);
-      await queryClient.invalidateQueries(['channel', 'show', channelId]);
+      await queryClient.invalidateQueries({ queryKey: ['channel', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['channel', 'show', channelId] });
     },
   });
 }

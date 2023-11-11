@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
   Archive,
   ArrowCounterClockwise,
@@ -142,7 +142,8 @@ export function TicketCategoryIndexPage() {
               <Button
                 as={Link}
                 to="/ticket-categories/create"
-                variant="primary"
+                variant="filled"
+                severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-ticket-category"

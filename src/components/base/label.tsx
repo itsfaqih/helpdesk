@@ -1,5 +1,5 @@
 import { cn } from '@/libs/cn.lib';
-import React from 'react';
+import * as React from 'react';
 
 export const labelClass = 'text-sm font-medium text-gray-700';
 

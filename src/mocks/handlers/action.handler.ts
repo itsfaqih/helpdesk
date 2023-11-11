@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http } from 'msw';
 import { matchSorter } from 'match-sorter';
 import {
   allowAuthenticatedOnly,
@@ -21,14 +21,14 @@ import { nanoid } from 'nanoid';
 import { ActionFieldSchema } from '@/schemas/action-field.schema';
 
 export const actionHandlers = [
-  rest.get('/api/actions', async (req) => {
+  http.get('/api/actions', async ({ cookies, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
 
-      const unparsedFilters = Object.fromEntries(req.url.searchParams);
+      const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = ActionIndexRequestSchema.parse(unparsedFilters);
 
       const filteredActions = matchSorter(
@@ -72,14 +72,14 @@ export const actionHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/actions/:actionId', async (req) => {
+  http.get('/api/actions/:actionId', async ({ cookies, params }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
 
-      const actionId = req.params.actionId;
+      const actionId = params.actionId;
 
       const action = storedActions.find((action) => action.id === actionId);
 
@@ -90,7 +90,9 @@ export const actionHandlers = [
       const unparsedFields = (await localforage.getItem('action_fields')) ?? [];
       const storedFields = ActionFieldSchema.array().parse(unparsedFields);
 
-      const fields = storedFields.filter((field) => field.action_id === actionId);
+      const fields = storedFields
+        .filter((field) => field.action_id === actionId)
+        .sort((fieldA, fieldB) => fieldA.order - fieldB.order);
 
       return successResponse({
         data: { ...action, fields },
@@ -100,11 +102,11 @@ export const actionHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.post('/api/actions', async (req) => {
+  http.post('/api/actions', async ({ cookies, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const data = CreateActionSchema.parse(await req.json());
+      const data = CreateActionSchema.parse(await request.json());
 
       const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
@@ -121,6 +123,8 @@ export const actionHandlers = [
         icon_value: data.icon_value,
         label: data.label,
         description: data.description,
+        form_method: null,
+        webhook_url: '',
         is_archived: false,
         is_disabled: false,
         created_at: new Date().toISOString(),
@@ -139,16 +143,16 @@ export const actionHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/actions/:actionId', async (req) => {
+  http.put('/api/actions/:actionId', async ({ cookies, request, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const data = UpdateActionSchema.parse(await req.json());
+      const data = UpdateActionSchema.parse(await request.json());
 
       const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
 
-      const actionId = req.params.actionId;
+      const actionId = params.actionId;
 
       const actionToUpdate = storedActions.find((action) => action.id === actionId);
 
@@ -176,14 +180,14 @@ export const actionHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/actions/:actionId/archive', async (req) => {
+  http.put('/api/actions/:actionId/archive', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredAction = (await localforage.getItem('actions')) ?? [];
       const storedActions = ActionSchema.array().parse(unparsedStoredAction);
 
-      const actionId = req.params.actionId;
+      const actionId = params.actionId;
 
       const actionToUpdate = storedActions.find((action) => action.id === actionId);
 
@@ -211,14 +215,14 @@ export const actionHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/actions/:actionId/restore', async (req) => {
+  http.put('/api/actions/:actionId/restore', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
 
-      const actionId = req.params.actionId;
+      const actionId = params.actionId;
 
       const actionToUpdate = storedActions.find((action) => action.id === actionId);
 
@@ -246,14 +250,14 @@ export const actionHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/actions/:actionId/enable', async (req) => {
+  http.put('/api/actions/:actionId/enable', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
 
-      const actionId = req.params.actionId;
+      const actionId = params.actionId;
 
       const actionToUpdate = storedActions.find((action) => action.id === actionId);
 
@@ -281,14 +285,14 @@ export const actionHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/actions/:actionId/disable', async (req) => {
+  http.put('/api/actions/:actionId/disable', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
 
-      const actionId = req.params.actionId;
+      const actionId = params.actionId;
 
       const actionToUpdate = storedActions.find((action) => action.id === actionId);
 

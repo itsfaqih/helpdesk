@@ -27,6 +27,6 @@ export function actionFieldIndexQuery(request: ActionFieldIndexRequest) {
   };
 }
 
-export function useChannelTicketResponseFieldIndexQuery(request: ActionFieldIndexRequest) {
+export function useActionFieldIndexQuery(request: ActionFieldIndexRequest) {
   return useQuery(actionFieldIndexQuery(request));
 }

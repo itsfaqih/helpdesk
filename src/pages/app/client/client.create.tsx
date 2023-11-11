@@ -56,7 +56,7 @@ export function ClientCreatePage() {
                 {...createClientForm.register('full_name')}
                 label="Full Name"
                 placeholder="Enter Full Name"
-                disabled={createClientMutation.isLoading}
+                disabled={createClientMutation.isPending}
                 error={createClientForm.formState.errors.full_name?.message}
                 srOnlyLabel
                 data-testid="textbox-full-name"
@@ -66,7 +66,7 @@ export function ClientCreatePage() {
           <div className="flex justify-end">
             <SaveButton
               type="submit"
-              loading={createClientMutation.isLoading}
+              loading={createClientMutation.isPending}
               success={createClientMutation.isSuccess}
               data-testid="btn-create-client"
             />
@@ -105,7 +105,7 @@ function useCreateClientMutation() {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['client', 'index']);
+      await queryClient.invalidateQueries({ queryKey: ['client', 'index'] });
     },
   });
 }

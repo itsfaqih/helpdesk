@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Client, ClientSchema, UpdateClientSchema } from '@/schemas/client.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -79,7 +79,7 @@ export function ClientShowPage() {
               <RestoreClientDialog
                 clientId={client.id}
                 trigger={
-                  <Button type="button" variant="plain" data-testid="btn-restore-client">
+                  <Button type="button" variant="white" data-testid="btn-restore-client">
                     Restore Client
                   </Button>
                 }
@@ -103,7 +103,7 @@ export function ClientShowPage() {
                   {...updateClientForm.register('full_name')}
                   label="Full Name"
                   placeholder="Enter Full Name"
-                  disabled={updateClientMutation.isLoading}
+                  disabled={updateClientMutation.isPending}
                   error={updateClientForm.formState.errors.full_name?.message}
                   readOnly={client?.is_archived}
                   srOnlyLabel
@@ -117,7 +117,7 @@ export function ClientShowPage() {
               <SaveButton
                 form="update-client-form"
                 type="submit"
-                loading={updateClientMutation.isLoading}
+                loading={updateClientMutation.isPending}
                 success={updateClientMutation.isSuccess && !updateClientForm.formState.isDirty}
                 data-testid="btn-update-client"
               />
@@ -157,7 +157,7 @@ function useUpdateClientMutation({ clientId }: UseUpdateClientMutationParams) {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['client', 'index']);
+      await queryClient.invalidateQueries({ queryKey: ['client', 'index'] });
     },
   });
 }

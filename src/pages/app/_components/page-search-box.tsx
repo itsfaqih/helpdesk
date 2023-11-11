@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Textbox } from '@/components/derived/textbox';
 import { cn } from '@/libs/cn.lib';
 

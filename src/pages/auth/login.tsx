@@ -64,7 +64,7 @@ export function LoginPage() {
           label="Email"
           type="email"
           placeholder="Enter your email"
-          disabled={loginMutation.isLoading}
+          disabled={loginMutation.isPending}
           error={loginForm.formState.errors.email?.message}
         />
         <Textbox
@@ -72,7 +72,7 @@ export function LoginPage() {
           label="Password"
           type="password"
           placeholder="Enter your password"
-          disabled={loginMutation.isLoading}
+          disabled={loginMutation.isPending}
           error={loginForm.formState.errors.password?.message}
         />
         <div className="flex items-center justify-between">
@@ -89,7 +89,7 @@ export function LoginPage() {
                   field.onChange(typeof checked === 'boolean' ? checked : false);
                 }}
                 checked={field.value}
-                disabled={loginMutation.isLoading}
+                disabled={loginMutation.isPending}
               />
             )}
           />
@@ -97,8 +97,9 @@ export function LoginPage() {
           <Link to="/auth/forgot-password">Forgot password?</Link>
         </div>
         <Button
-          variant="primary"
-          loading={loginMutation.isLoading}
+          variant="filled"
+          severity="primary"
+          loading={loginMutation.isPending}
           success={loginMutation.isSuccess}
           type="submit"
           className="justify-center"

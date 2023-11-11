@@ -2,7 +2,7 @@ import { api } from '@/libs/api.lib';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { Action, ActionSchema } from '@/schemas/action.schema';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import React from 'react';
+import * as React from 'react';
 import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
 
@@ -29,7 +29,7 @@ export function RestoreActionDialog({
       title="Restore Action"
       description="Are you sure you want to restore this action? After restoring the
     action will be listed in the action list"
-      isLoading={restoreActionMutation.isLoading}
+      isLoading={restoreActionMutation.isPending}
       isSuccess={restoreActionMutation.isSuccess}
       buttonLabel="Restore"
       buttonOnClick={() => restoreActionMutation.mutate()}
@@ -67,8 +67,8 @@ function useRestoreActionMutation({ actionId }: UseRestoreActionMutationParams) 
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['action', 'index']);
-      await queryClient.invalidateQueries(['action', 'show', actionId]);
+      await queryClient.invalidateQueries({ queryKey: ['action', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['action', 'show', actionId] });
     },
   });
 }

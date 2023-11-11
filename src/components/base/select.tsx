@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Portal as ArkPortal, Select as ArkSelect } from '@ark-ui/react';
 import { cn } from '@/libs/cn.lib';
 
@@ -11,6 +11,10 @@ export function Select({
 }: Omit<React.ComponentPropsWithoutRef<typeof ArkSelect>, 'items'> & {
   items: SelectOptionType[];
 }) {
+  // const generatedId = React.useId()
+
+  // const elementId = id || generatedId
+
   return (
     <ArkSelect.Root
       positioning={{ sameWidth: true, ...positioning }}
@@ -48,7 +52,7 @@ export const SelectTrigger = React.forwardRef<
   SelectTriggerProps
 >(({ placeholder, error, className, ...props }, ref) => (
   <div className="grid gap-1.5">
-    <ArkSelect.Control>
+    <ArkSelect.Control className="relative">
       <ArkSelect.Trigger
         ref={ref}
         className={cn(

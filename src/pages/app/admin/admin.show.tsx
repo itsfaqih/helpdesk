@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Admin, AdminSchema, UpdateAdminSchema } from '@/schemas/admin.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -105,7 +105,7 @@ export function AdminShowPage() {
                   {...updateAdminForm.register('full_name')}
                   label="Full Name"
                   placeholder="Enter Full Name"
-                  disabled={updateAdminMutation.isLoading}
+                  disabled={updateAdminMutation.isPending}
                   error={updateAdminForm.formState.errors.full_name?.message}
                   readOnly={!admin?.is_active}
                   srOnlyLabel
@@ -123,7 +123,7 @@ export function AdminShowPage() {
                   label="Email"
                   type="email"
                   placeholder="Enter Email"
-                  disabled={updateAdminMutation.isLoading}
+                  disabled={updateAdminMutation.isPending}
                   value={admin?.email}
                   readOnly
                   srOnlyLabel
@@ -143,7 +143,7 @@ export function AdminShowPage() {
                   render={({ field }) => (
                     <Select
                       name={field.name}
-                      disabled={updateAdminMutation.isLoading}
+                      disabled={updateAdminMutation.isPending}
                       items={adminRoleOptions}
                       onChange={(e) => {
                         const value = e?.value[0];
@@ -185,7 +185,7 @@ export function AdminShowPage() {
               <SaveButton
                 form="update-admin-form"
                 type="submit"
-                loading={updateAdminMutation.isLoading}
+                loading={updateAdminMutation.isPending}
                 success={updateAdminMutation.isSuccess && !updateAdminForm.formState.isDirty}
                 data-testid="btn-update-admin"
               />
@@ -225,8 +225,8 @@ function useUpdateAdminMutation({ adminId }: UseUpdateAdminMutationParams) {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['admin', 'index']);
-      await queryClient.invalidateQueries(['admin', 'show', adminId]);
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'show', adminId] });
     },
   });
 }

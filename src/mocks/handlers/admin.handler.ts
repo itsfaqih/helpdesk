@@ -2,7 +2,7 @@ import { AdminIndexRequestSchema } from '@/queries/admin.query';
 import { CreateAdminSchema, AdminSchema, Admin, UpdateAdminSchema } from '@/schemas/admin.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
 import localforage from 'localforage';
-import { rest } from 'msw';
+import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
   allowAuthenticatedOnly,
@@ -17,11 +17,11 @@ import { getTicketAssignmentsWithRelationsByTicketId } from '../records/ticket-a
 import { TicketAssignmentWithRelations } from '@/schemas/ticket.schema';
 
 export const adminHandlers = [
-  rest.post('/api/admins', async (req) => {
+  http.post('/api/admins', async ({ cookies, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const data = CreateAdminSchema.parse(await req.json());
+      const data = CreateAdminSchema.parse(await request.json());
 
       const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
@@ -58,16 +58,16 @@ export const adminHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/admins/:adminId', async (req) => {
+  http.put('/api/admins/:adminId', async ({ request, cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const data = UpdateAdminSchema.parse(await req.json());
+      const data = UpdateAdminSchema.parse(await request.json());
 
       const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-      const adminId = req.params.adminId;
+      const adminId = params.adminId;
 
       const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
 
@@ -97,13 +97,13 @@ export const adminHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/admins', async (req) => {
+  http.get('/api/admins', async ({ cookies, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const storedAdmins = await getAdmins();
 
-      const unparsedFilters = Object.fromEntries(req.url.searchParams);
+      const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = AdminIndexRequestSchema.parse(unparsedFilters);
 
       let storedTicketAssignments: TicketAssignmentWithRelations[] = [];
@@ -187,13 +187,13 @@ export const adminHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/admins/:adminId', async (req) => {
+  http.get('/api/admins/:adminId', async ({ cookies, params }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const storedAdmins = await getAdmins();
 
-      const adminId = req.params.adminId;
+      const adminId = params.adminId;
 
       const admin = storedAdmins.find((admin) => admin.id === adminId);
 
@@ -212,13 +212,13 @@ export const adminHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/admins/:adminId/deactivate', async (req) => {
+  http.put('/api/admins/:adminId/deactivate', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const storedAdmins = await getAdmins();
 
-      const adminId = req.params.adminId;
+      const adminId = params.adminId;
 
       const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
 
@@ -247,14 +247,14 @@ export const adminHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/admins/:adminId/activate', async (req) => {
+  http.put('/api/admins/:adminId/activate', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
       const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-      const adminId = req.params.adminId;
+      const adminId = params.adminId;
 
       const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
 

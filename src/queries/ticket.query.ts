@@ -7,14 +7,13 @@ import {
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { UserError } from '@/utils/error.util';
 import { QueryClient, useQuery } from '@tanstack/react-query';
-import qs from 'qs';
 import { z } from 'zod';
 
 export const TicketIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
   is_archived: z.enum(['1', '0']).optional().catch(undefined),
   status: z
-    .enum(['', ...TicketStatusEnum.options])
+    .enum(['all', ...TicketStatusEnum.options])
     .optional()
     .catch(undefined),
   category_id: z.string().optional().catch(undefined),
@@ -31,8 +30,7 @@ export function ticketIndexQuery(request: TicketIndexRequest = {}) {
   return {
     queryKey: ['ticket', 'index', request],
     async queryFn() {
-      const queryStrings = qs.stringify(request);
-      const res = await api.get(`/tickets?${queryStrings}`);
+      const res = await api.query(request).get('/tickets');
 
       return TicketIndexResponseSchema.parse(res);
     },
@@ -121,8 +119,7 @@ export function ticketCategoryIndexQuery(request: TicketCategoryIndexRequest = {
   return {
     queryKey: ['ticket-category', 'index', request],
     async queryFn() {
-      const queryStrings = qs.stringify(request);
-      const res = await api.get(`/ticket-categories?${queryStrings}`);
+      const res = await api.query(request).get('/ticket-categories');
 
       return TicketCategoryIndexResponseSchema.parse(res);
     },

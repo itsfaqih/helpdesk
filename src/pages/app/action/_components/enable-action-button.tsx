@@ -2,7 +2,7 @@ import { api } from '@/libs/api.lib';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { Action, ActionSchema } from '@/schemas/action.schema';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import React from 'react';
+import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
 type EnableActionButtonProps = React.ComponentPropsWithoutRef<'button'> & {
@@ -28,7 +28,7 @@ export function EnableActionButton({
         enableActionMutation.mutate();
         onClick?.(e);
       }}
-      data-loading={enableActionMutation.isLoading}
+      data-loading={enableActionMutation.isPending}
     />
   );
 }
@@ -58,8 +58,8 @@ function useEnableActionMutation({ actionId }: UseEnableActionMutationParams) {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['action', 'index']);
-      await queryClient.invalidateQueries(['action', 'show', actionId]);
+      await queryClient.invalidateQueries({ queryKey: ['action', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['action', 'show', actionId] });
     },
   });
 }

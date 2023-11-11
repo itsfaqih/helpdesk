@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { CaretRight, PencilSimple, Plus, Power } from '@phosphor-icons/react';
 import { Controller, useForm } from 'react-hook-form';
 import qs from 'qs';
@@ -162,7 +162,8 @@ export function AdminIndexPage() {
               <Button
                 as={Link}
                 to="/admins/create"
-                variant="primary"
+                variant="filled"
+                severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-admin"

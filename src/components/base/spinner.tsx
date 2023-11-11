@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { cn } from '@/libs/cn.lib';
 
 export function Spinner({ className, ...props }: React.ComponentPropsWithoutRef<'svg'>) {

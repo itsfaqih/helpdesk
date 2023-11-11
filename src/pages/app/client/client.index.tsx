@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
   Archive,
   ArrowCounterClockwise,
@@ -147,7 +147,8 @@ export function ClientIndexPage() {
               <Button
                 as={Link}
                 to="/clients/create"
-                variant="primary"
+                variant="filled"
+                severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-client"

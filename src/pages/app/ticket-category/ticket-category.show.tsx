@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import {
   TicketCategory,
@@ -110,7 +110,7 @@ export function TicketCategoryShowPage() {
                 <Textbox
                   label="Name"
                   placeholder="Name"
-                  disabled={updateTicketCategoryMutation.isLoading}
+                  disabled={updateTicketCategoryMutation.isPending}
                   value={ticketCategory?.name}
                   readOnly
                   srOnlyLabel
@@ -128,7 +128,7 @@ export function TicketCategoryShowPage() {
                   {...updateTicketCategoryForm.register('description')}
                   label="Description"
                   placeholder={ticketCategory?.is_archived ? 'No description' : 'Enter Description'}
-                  disabled={updateTicketCategoryMutation.isLoading}
+                  disabled={updateTicketCategoryMutation.isPending}
                   error={updateTicketCategoryForm.formState.errors.description?.message}
                   readOnly={ticketCategory?.is_archived}
                   srOnlyLabel
@@ -143,7 +143,7 @@ export function TicketCategoryShowPage() {
               <SaveButton
                 form="update-ticket-category-form"
                 type="submit"
-                loading={updateTicketCategoryMutation.isLoading}
+                loading={updateTicketCategoryMutation.isPending}
                 success={
                   updateTicketCategoryMutation.isSuccess &&
                   !updateTicketCategoryForm.formState.isDirty
@@ -182,8 +182,10 @@ function useUpdateTicketCategoryMutation({
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['ticket-category', 'index']);
-      await queryClient.invalidateQueries(['ticket-category', 'show', ticketCategoryId]);
+      await queryClient.invalidateQueries({ queryKey: ['ticket-category', 'index'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['ticket-category', 'show', ticketCategoryId],
+      });
     },
   });
 }

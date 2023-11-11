@@ -30,7 +30,7 @@ export function RestoreTicketCategoryDialog({
       title="Restore Ticket Category"
       description="Are you sure you want to restore this ticket category? After restoring, the
       ticket category will be listed in the ticket category list"
-      isLoading={restoreTicketCategoryMutation.isLoading}
+      isLoading={restoreTicketCategoryMutation.isPending}
       isSuccess={restoreTicketCategoryMutation.isSuccess}
       buttonLabel="Restore"
       buttonOnClick={() => restoreTicketCategoryMutation.mutate()}
@@ -71,8 +71,10 @@ function useRestoreTicketCategoryMutation({
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['ticket-category', 'index']);
-      await queryClient.invalidateQueries(['ticket-category', 'show', ticketCategoryId]);
+      await queryClient.invalidateQueries({ queryKey: ['ticket-category', 'index'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['ticket-category', 'show', ticketCategoryId],
+      });
     },
   });
 }

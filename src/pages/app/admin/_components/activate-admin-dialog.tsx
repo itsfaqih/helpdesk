@@ -28,7 +28,7 @@ export function ActivateAdminDialog({
       title="Reactivate Admin"
       description="Are you sure you want to activate this admin? After activating
       the admin will be able to login to the system"
-      isLoading={activateAdminMutation.isLoading}
+      isLoading={activateAdminMutation.isPending}
       isSuccess={activateAdminMutation.isSuccess}
       buttonLabel="Activate"
       buttonOnClick={() => activateAdminMutation.mutate()}
@@ -69,8 +69,8 @@ function useActivateAdminMutation({ adminId }: UseActivateAdminMutationParams) {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['admin', 'index']);
-      await queryClient.invalidateQueries(['admin', 'show', adminId]);
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'show', adminId] });
     },
   });
 }

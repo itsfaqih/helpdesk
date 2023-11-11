@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Label } from '@/components/base/label';
 import { Input } from '@/components/base/input';
 import { cn } from '@/libs/cn.lib';
@@ -24,7 +24,7 @@ export const Textbox = React.forwardRef<HTMLInputElement, TextboxProps>(
             'sr-only': srOnlyLabel,
           })}
         >
-          {label} {optional && <span className="text-gray-400">(Optional)</span>}
+          {label} {optional && <span className="text-gray-400 animate-in fade-in">(Optional)</span>}
         </Label>
         <Input ref={ref} name={name} id={elementId} invalid={!!error} {...props} />
         {helperText && <p className="text-sm text-gray-500">{helperText}</p>}

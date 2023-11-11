@@ -80,7 +80,7 @@ export function ActionCreatePage() {
                   {...createActionForm.register('label')}
                   label="Label"
                   placeholder="Enter Label"
-                  disabled={createActionMutation.isLoading}
+                  disabled={createActionMutation.isPending}
                   error={createActionForm.formState.errors.label?.message}
                   srOnlyLabel
                   data-testid="textbox-label"
@@ -94,7 +94,7 @@ export function ActionCreatePage() {
                   {...createActionForm.register('description')}
                   label="Description"
                   placeholder="Enter Description"
-                  disabled={createActionMutation.isLoading}
+                  disabled={createActionMutation.isPending}
                   error={createActionForm.formState.errors.description?.message}
                   srOnlyLabel
                   rows={3}
@@ -105,7 +105,7 @@ export function ActionCreatePage() {
             <div className="flex justify-end">
               <SaveButton
                 type="submit"
-                loading={createActionMutation.isLoading}
+                loading={createActionMutation.isPending}
                 success={createActionMutation.isSuccess}
                 data-testid="btn-create-action"
               />
@@ -139,7 +139,7 @@ function useCreateActionMutation() {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['action', 'index']);
+      await queryClient.invalidateQueries({ queryKey: ['action', 'index'] });
     },
   });
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import * as Ark from '@ark-ui/react';
 import { cn } from '@/libs/cn.lib';
 import { CaretLeft, CaretRight } from '@phosphor-icons/react';
@@ -78,7 +78,7 @@ export const PaginationPageTrigger = React.forwardRef<
   <Ark.PaginationPageTrigger
     ref={ref}
     className={cn(
-      'tabular-nums aria-[current]:bg-brand-50 aria-[current]:text-brand-700 aria-[current]:hover:bg-brand-100 aria-[current]:hover:text-brand-800 aria-[current]:active:bg-brand-200 active:bg-gray-200 text-gray-800 text-sm w-8 font-medium h-8 flex items-center justify-center disabled:cursor-not-allowed hover:bg-gray-100 rounded-lg',
+      'tabular-nums aria-[current]:bg-haptic-brand-700 aria-[current]:text-white aria-[current]:hover:bg-haptic-brand-600 active:scale-95 text-gray-800 text-sm w-8 font-medium h-8 flex items-center justify-center disabled:cursor-not-allowed hover:bg-gray-100 rounded-lg',
       className,
     )}
     {...props}

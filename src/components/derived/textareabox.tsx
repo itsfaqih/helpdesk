@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Label } from '@/components/base/label';
 import { cn } from '@/libs/cn.lib';
 import { TextArea } from '../base/textarea';
@@ -9,15 +9,19 @@ type TextAreaboxProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   srOnlyLabel?: boolean;
   helperText?: string;
   optional?: boolean;
+  containerClassName?: string;
 };
 
 export const TextAreabox = React.forwardRef<HTMLTextAreaElement, TextAreaboxProps>(
-  ({ label, error, srOnlyLabel, helperText, optional, id, name, className, ...props }, ref) => {
+  (
+    { label, error, srOnlyLabel, helperText, optional, containerClassName, id, name, ...props },
+    ref,
+  ) => {
     const generatedId = React.useId();
-    const elementId = id || name || generatedId;
+    const elementId = id || generatedId;
 
     return (
-      <div className={cn('grid w-full items-center gap-1.5', className)}>
+      <div className={cn('grid w-full items-center gap-1.5', containerClassName)}>
         <Label
           htmlFor={elementId}
           className={cn({

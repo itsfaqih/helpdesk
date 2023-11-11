@@ -57,7 +57,7 @@ export function ChannelCreatePage() {
                 {...createChannelForm.register('name')}
                 label="Name"
                 placeholder="Enter Name"
-                disabled={createChannelMutation.isLoading}
+                disabled={createChannelMutation.isPending}
                 error={createChannelForm.formState.errors.name?.message}
                 srOnlyLabel
                 data-testid="textbox-name"
@@ -71,7 +71,7 @@ export function ChannelCreatePage() {
                 {...createChannelForm.register('description')}
                 label="Description"
                 placeholder="Enter Description"
-                disabled={createChannelMutation.isLoading}
+                disabled={createChannelMutation.isPending}
                 error={createChannelForm.formState.errors.description?.message}
                 srOnlyLabel
                 rows={3}
@@ -82,7 +82,7 @@ export function ChannelCreatePage() {
           <div className="flex justify-end">
             <SaveButton
               type="submit"
-              loading={createChannelMutation.isLoading}
+              loading={createChannelMutation.isPending}
               success={createChannelMutation.isSuccess}
               data-testid="btn-create-channel"
             />
@@ -118,7 +118,7 @@ function useCreateChannelMutation() {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['channel', 'index']);
+      await queryClient.invalidateQueries({ queryKey: ['channel', 'index'] });
     },
   });
 }

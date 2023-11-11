@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/base/avatar';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/base/menu';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
@@ -132,7 +132,7 @@ export function AppRoot() {
       <main className="lg:pl-64">
         <FadeInContainer from="top">
           <nav className="py-1.5 px-6 border-b border-gray-300">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between container mx-auto">
               <div className="flex items-center gap-4">
                 <IconButton
                   icon={(props) => <List {...props} />}
@@ -174,7 +174,9 @@ export function AppRoot() {
           </nav>
         </FadeInContainer>
         <div className="p-6">
-          <Outlet />
+          <div className="container mx-auto">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import { QueryClient } from '@tanstack/react-query';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
@@ -46,13 +46,14 @@ import { AdminWithoutPassword } from '@/schemas/admin.schema';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/base/menu';
 import { useActionIndexQuery } from '@/queries/action.query';
 import { Action } from '@/schemas/action.schema';
-import { useChannelTicketResponseFieldIndexQuery } from '@/queries/action-field.query';
+import { useActionFieldIndexQuery } from '@/queries/action-field.query';
 import { Textbox } from '@/components/derived/textbox';
 import { TextAreabox } from '@/components/derived/textareabox';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { channelTicketResponseFieldsToZodSchema } from '@/utils/channel-ticket-response.util';
+import { channelTicketResponseFieldsToZodSchema as actionFieldsToZodSchema } from '@/utils/channel-ticket-response.util';
 import { ActionField } from '@/schemas/action-field.schema';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -87,15 +88,17 @@ export function TicketShowPage() {
   const activeTicketAssigments =
     ticket?.assignments.filter((assignment) => !assignment.deleted_at) ?? [];
 
-  const [channelTicketResponseSearch, setChannelTicketResponseSearch] = React.useState('');
+  const [actionSearch, setActionSearch] = React.useState('');
 
-  const channelTicketResponseIndexQuery = useActionIndexQuery({
-    search: channelTicketResponseSearch,
+  const actionIndexQuery = useActionIndexQuery({
+    search: actionSearch,
   });
 
   const [ticketResponseFormState, setTicketResponseFormState] = React.useState<{
-    channelTicketResponse: Action;
+    action: Action;
   } | null>(null);
+
+  const [actionPopoverContentAutoAnimateRef] = useAutoAnimate();
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
@@ -200,7 +203,7 @@ export function TicketShowPage() {
                     });
                   }}
                   className={cn(linkClass(), {
-                    'opacity-70 cursor-wait': createTicketAssignmentMutation.isLoading,
+                    'opacity-70 cursor-wait': createTicketAssignmentMutation.isPending,
                   })}
                 >
                   Assign your self
@@ -349,7 +352,7 @@ export function TicketShowPage() {
                               });
                             }}
                             className={cn(linkClass(), {
-                              'opacity-70 cursor-wait': createTicketAssignmentMutation.isLoading,
+                              'opacity-70 cursor-wait': createTicketAssignmentMutation.isPending,
                             })}
                           >
                             Assign your self
@@ -375,18 +378,15 @@ export function TicketShowPage() {
             <div className="flex items-center overflow-hidden bg-white divide-x divide-gray-300 rounded-md shadow-haptic-gray-300">
               <Popover positioning={{ placement: 'top' }}>
                 <PopoverTrigger asChild>
-                  {ticketResponseFormState?.channelTicketResponse ? (
+                  {ticketResponseFormState?.action ? (
                     <Button
                       leading={() => (
-                        <em-emoji
-                          id={ticketResponseFormState.channelTicketResponse.icon_value}
-                          class="mr-1.5"
-                        />
+                        <em-emoji id={ticketResponseFormState.action.icon_value} class="mr-1.5" />
                       )}
                       variant="transparent"
                       className="rounded-r-none"
                     >
-                      {ticketResponseFormState.channelTicketResponse.label}
+                      {ticketResponseFormState.action.label}
                     </Button>
                   ) : (
                     <Button
@@ -400,48 +400,48 @@ export function TicketShowPage() {
                 </PopoverTrigger>
 
                 <PopoverContent className="min-w-[18rem] z-10">
-                  {!ticketResponseFormState?.channelTicketResponse && (
-                    <Command shouldFilter={false} className="w-full">
-                      <Command.List className="flex flex-col gap-y-1">
-                        {channelTicketResponseIndexQuery.isSuccess &&
-                          channelTicketResponseIndexQuery.data.data.map((channelTicketResponse) => (
-                            <Command.Item
-                              key={channelTicketResponse.id}
-                              onSelect={() => {
-                                setTicketResponseFormState({
-                                  channelTicketResponse,
-                                });
-                              }}
-                              className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-700"
-                            >
-                              <em-emoji
-                                id={channelTicketResponse.icon_value}
-                                className="flex-shrink-0"
-                              />
-                              <span className="flex-1 text-left">
-                                {channelTicketResponse.label}
-                              </span>
-                            </Command.Item>
-                          ))}
-                      </Command.List>
-                      <Command.Input
-                        placeholder="Search action"
-                        value={channelTicketResponseSearch}
-                        onValueChange={(value) => {
-                          setChannelTicketResponseSearch(value);
+                  <div
+                    ref={actionPopoverContentAutoAnimateRef}
+                    className="overflow-hidden px-1 py-2 -m-1"
+                  >
+                    {!ticketResponseFormState?.action && (
+                      <Command shouldFilter={false} className="w-full">
+                        <Command.List className="flex flex-col gap-y-1">
+                          {actionIndexQuery.isSuccess &&
+                            actionIndexQuery.data.data.map((action) => (
+                              <Command.Item
+                                key={action.id}
+                                onSelect={() => {
+                                  setTicketResponseFormState({
+                                    action,
+                                  });
+                                }}
+                                className="flex items-center text-sm gap-x-2 cursor-default data-[selected]:bg-brand-50 px-2.5 py-2 font-medium rounded-md text-gray-700 data-[selected]:text-brand-700"
+                              >
+                                <em-emoji id={action.icon_value} className="flex-shrink-0" />
+                                <span className="flex-1 text-left">{action.label}</span>
+                              </Command.Item>
+                            ))}
+                        </Command.List>
+                        <Command.Input
+                          placeholder="Search action"
+                          value={actionSearch}
+                          onValueChange={(value) => {
+                            setActionSearch(value);
+                          }}
+                          className={inputClassName({ className: 'w-full mt-2' })}
+                        />
+                      </Command>
+                    )}
+                    {ticketResponseFormState?.action && (
+                      <TicketResponseFormContainer
+                        actionId={ticketResponseFormState.action.id}
+                        onCancel={() => {
+                          setTicketResponseFormState(null);
                         }}
-                        className={inputClassName({ className: 'w-full mt-2' })}
                       />
-                    </Command>
-                  )}
-                  {ticketResponseFormState?.channelTicketResponse && (
-                    <TicketResponseFormContainer
-                      channelTicketResponseId={ticketResponseFormState.channelTicketResponse.id}
-                      onCancel={() => {
-                        setTicketResponseFormState(null);
-                      }}
-                    />
-                  )}
+                    )}
+                  </div>
                 </PopoverContent>
               </Popover>
 
@@ -505,7 +505,7 @@ function AddTicketAssigneePopover({ ticketId, trigger }: AddTicketAssigneePopove
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
 
       <PopoverContent className="min-w-[18rem] z-10">
-        <span className="text-gray-400">Assign agent</span>
+        <span className="text-gray-500 text-sm">Assign agent</span>
         <Command shouldFilter={false} className="w-full mt-2">
           <Command.Input
             value={searchAdmin}
@@ -560,7 +560,7 @@ const AddTicketAssigneePopoverItem = React.forwardRef<
     <Command.Item
       ref={ref}
       value={admin.id}
-      disabled={createTicketAssignmentMutation.isLoading}
+      disabled={createTicketAssignmentMutation.isPending}
       onSelect={(value) => {
         createTicketAssignmentMutation.mutate({
           ticket_id: ticketId,
@@ -584,7 +584,7 @@ const AddTicketAssigneePopoverItem = React.forwardRef<
           {admin.email}
         </span>
       </div>
-      {createTicketAssignmentMutation.isLoading ? (
+      {createTicketAssignmentMutation.isPending ? (
         <Spinner className="text-brand-700" />
       ) : (
         <Plus className="w-4 h-4 group-data-[selected]:text-brand-700" />
@@ -604,7 +604,7 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
     <div className="group flex items-center gap-x-2.5 hover:bg-gray-100 p-2.5 -mx-2.5 rounded-md transition">
       <div
         className={cn('flex items-center gap-x-2.5 flex-1', {
-          'opacity-70': deleteTicketAssigmentMutation.isLoading,
+          'opacity-70': deleteTicketAssigmentMutation.isPending,
         })}
       >
         <Avatar className="w-8 h-8 cursor-default">
@@ -627,7 +627,7 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
             ticket_id: assignment.ticket.id,
           });
         }}
-        loading={deleteTicketAssigmentMutation.isLoading}
+        loading={deleteTicketAssigmentMutation.isPending}
         className={cn('ml-auto', {
           'invisible group-hover:visible hover:bg-gray-200': deleteTicketAssigmentMutation.isIdle,
         })}
@@ -637,31 +637,25 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
 }
 
 type TicketResponseFormContainerProps = {
-  channelTicketResponseId: Action['id'];
+  actionId: Action['id'];
   onCancel: () => void;
 };
 
-function TicketResponseFormContainer({
-  channelTicketResponseId,
-  onCancel,
-}: TicketResponseFormContainerProps) {
-  const channelTicketResponseFieldIndexQuery = useChannelTicketResponseFieldIndexQuery({
-    actionId: channelTicketResponseId,
+function TicketResponseFormContainer({ actionId, onCancel }: TicketResponseFormContainerProps) {
+  const actionFieldIndexQuery = useActionFieldIndexQuery({
+    actionId,
   });
 
   return (
-    <div className="animate-in fade-in py-2 px-1">
-      {channelTicketResponseFieldIndexQuery.isLoading && (
+    <div className="py-2 px-1">
+      {actionFieldIndexQuery.isLoading && (
         <div className="flex items-center gap-3">
           <Spinner className="text-brand-500" />
           <p className="text-gray-600">Loading form...</p>
         </div>
       )}
-      {channelTicketResponseFieldIndexQuery.isSuccess && (
-        <TicketResponseForm
-          fields={channelTicketResponseFieldIndexQuery.data.data}
-          onCancel={onCancel}
-        />
+      {actionFieldIndexQuery.isSuccess && (
+        <TicketResponseForm fields={actionFieldIndexQuery.data.data} onCancel={onCancel} />
       )}
     </div>
   );
@@ -673,7 +667,7 @@ type TicketResponseFormProps = {
 };
 
 function TicketResponseForm({ fields, onCancel }: TicketResponseFormProps) {
-  const schema = channelTicketResponseFieldsToZodSchema(fields);
+  const schema = actionFieldsToZodSchema(fields);
   const ticketResponseForm = useForm({
     resolver: zodResolver(schema),
   });
@@ -692,21 +686,21 @@ function TicketResponseForm({ fields, onCancel }: TicketResponseFormProps) {
               <Textbox
                 {...ticketResponseForm.register(field.name)}
                 label={field.label}
-                placeholder={field.placeholder ?? undefined}
+                placeholder={field.placeholder}
                 error={ticketResponseForm.formState.errors[field.name]?.message?.toString()}
                 optional={!field.is_required}
-                helperText={field.helper_text ?? undefined}
+                helperText={field.helper_text}
               />
             )}
             {field.type === 'textarea' && (
               <TextAreabox
                 {...ticketResponseForm.register(field.name)}
                 label={field.label}
-                placeholder={field.placeholder ?? undefined}
+                placeholder={field.placeholder}
                 rows={4}
                 error={ticketResponseForm.formState.errors[field.name]?.message?.toString()}
                 optional={!field.is_required}
-                helperText={field.helper_text ?? undefined}
+                helperText={field.helper_text}
               />
             )}
             {field.type === 'file' && (
@@ -716,17 +710,28 @@ function TicketResponseForm({ fields, onCancel }: TicketResponseFormProps) {
                 type="file"
                 error={ticketResponseForm.formState.errors[field.name]?.message?.toString()}
                 optional={!field.is_required}
-                helperText={field.helper_text ?? undefined}
+                helperText={field.helper_text}
               />
             )}
           </div>
         ))}
       </div>
       <div className="mt-4 flex gap-2 justify-end">
-        <Button onClick={onCancel} variant="plain" type="button" className="text-red-500">
+        <Button
+          type="button"
+          variant="white"
+          severity="danger"
+          leading={(props) => <XCircle {...props} />}
+          onClick={onCancel}
+        >
           Discard
         </Button>
-        <Button variant="primary" type="submit">
+        <Button
+          type="submit"
+          variant="filled"
+          severity="primary"
+          leading={(props) => <CheckCircle {...props} />}
+        >
           Submit
         </Button>
       </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { FadeInContainer } from '../base/fade-in-container';
 import { useTitle, useTitleTemplate } from 'hoofd';
 

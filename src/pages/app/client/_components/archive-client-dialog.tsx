@@ -29,7 +29,7 @@ export function ArchiveClientDialog({
       description="Are you sure you want to archive this client? After archiving, the
       client will not be listed in the client list"
       destructive
-      isLoading={archiveClientMutation.isLoading}
+      isLoading={archiveClientMutation.isPending}
       isSuccess={archiveClientMutation.isSuccess}
       buttonLabel="Archive"
       buttonOnClick={() => archiveClientMutation.mutate()}
@@ -67,8 +67,8 @@ function useArchiveClientMutation({ clientId }: UseArchiveClientMutationParams) 
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['client', 'index']);
-      await queryClient.invalidateQueries(['client', 'show', clientId]);
+      await queryClient.invalidateQueries({ queryKey: ['client', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['client', 'show', clientId] });
     },
   });
 }

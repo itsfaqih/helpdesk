@@ -1,13 +1,13 @@
 import { AdminSchema, Admin } from '@/schemas/admin.schema';
 import { LoginSchema, RegisterSchema } from '@/schemas/auth.schema';
 import localforage from 'localforage';
-import { rest } from 'msw';
+import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import { successResponse, errorResponse } from '../mock-utils';
 
 export const authHandlers = [
-  rest.post('/api/login', async (req, _, ctx) => {
-    const data = LoginSchema.parse(await req.json());
+  http.post('/api/login', async ({ request }) => {
+    const data = LoginSchema.parse(await request.json());
     const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
     const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
@@ -19,7 +19,11 @@ export const authHandlers = [
       return successResponse({
         data: admin,
         message: 'Successfully authenticated',
-        transformers: [ctx.cookie('sessionId', admin.id)],
+        httpResponseInit: {
+          headers: {
+            'Set-Cookie': `sessionId=${admin.id}`,
+          },
+        },
       });
     }
 
@@ -28,8 +32,8 @@ export const authHandlers = [
       status: 401,
     });
   }),
-  rest.post('/api/register', async (req, _, ctx) => {
-    const data = RegisterSchema.parse(await req.json());
+  http.post('/api/register', async ({ request }) => {
+    const data = RegisterSchema.parse(await request.json());
     const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
     const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
@@ -63,16 +67,18 @@ export const authHandlers = [
     return successResponse({
       data: newAdminWithoutPassword,
       message: 'Successfully registered admin',
-      transformers: [ctx.cookie('sessionId', newAdmin.id)],
+      httpResponseInit: {
+        headers: {
+          'Set-Cookie': `sessionId=${newAdmin.id}`,
+        },
+      },
     });
   }),
-  rest.get('/api/me', async (req) => {
-    const { sessionId } = req.cookies;
-
+  http.get('/api/me', async ({ cookies }) => {
     const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
     const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-    const loggedInAdmin = storedAdmins.find((admin) => admin.id === sessionId);
+    const loggedInAdmin = storedAdmins.find((admin) => admin.id === cookies.sessionId);
 
     if (!loggedInAdmin) {
       return errorResponse({
@@ -86,11 +92,15 @@ export const authHandlers = [
       message: 'Successfully retrieved current admin',
     });
   }),
-  rest.post('/api/logout', async (_, __, ctx) => {
+  http.post('/api/logout', async () => {
     return successResponse({
       message: 'Successfully logged out',
       data: null,
-      transformers: [ctx.cookie('sessionId', '', { maxAge: 0 })],
+      httpResponseInit: {
+        headers: {
+          'Set-Cookie': `sessionId=; Max-Age=0`,
+        },
+      },
     });
   }),
 ];

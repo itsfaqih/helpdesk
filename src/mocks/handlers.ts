@@ -6,8 +6,9 @@ import { ticketCategoryHandlers } from './handlers/ticket-category.handler';
 import { ticketHandlers } from './handlers/ticket.handler';
 import { actionHandlers } from './handlers/action.handler';
 import { actionFieldHandlers } from './handlers/action-field.handler';
+import { RequestHandler } from 'msw';
 
-export const handlers = [
+export const handlers: RequestHandler[] = [
   ...adminHandlers,
   ...authHandlers,
   ...clientHandlers,

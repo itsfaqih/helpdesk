@@ -1,14 +1,14 @@
 import { AdminSchema, AdminWithoutPasswordSchema } from '@/schemas/admin.schema';
 import { BaseResponseError, ForbiddenError, UnauthorizedError } from '@/utils/error.util';
 import localforage from 'localforage';
-import { response, context, ResponseTransformer } from 'msw';
+import { HttpResponse, HttpResponseInit } from 'msw';
 import { z } from 'zod';
 
 type BaseResponseParams<TData = unknown> = {
   data?: TData;
   message: string;
   status?: number;
-  transformers?: ResponseTransformer[];
+  httpResponseInit?: HttpResponseInit;
 };
 
 type SuccessResponseParams<TData> = BaseResponseParams & {
@@ -30,17 +30,14 @@ export function successResponse<TData>({
   message,
   meta,
   status = 200,
-  transformers,
+  httpResponseInit,
 }: SuccessResponseParams<TData>) {
-  return response(
-    ...(transformers ?? []),
-    context.json({
-      data,
-      message,
-      meta,
-    }),
-    context.status(status),
-    context.delay(),
+  return HttpResponse.json(
+    { data, message, meta },
+    {
+      ...httpResponseInit,
+      status,
+    },
   );
 }
 
@@ -48,21 +45,22 @@ export function errorResponse({
   data = null,
   message,
   status = 200,
-  transformers,
+  httpResponseInit,
 }: BaseResponseParams) {
-  return response(
-    ...(transformers ?? []),
-    context.json({
+  return HttpResponse.json(
+    {
       data,
       message,
-    }),
-    context.status(status),
-    context.delay(),
+    },
+    {
+      ...httpResponseInit,
+      status,
+    },
   );
 }
 
 type AllowAuthenticatedOnlyParams = {
-  sessionId: string;
+  sessionId: string | string[];
 };
 
 export async function allowAuthenticatedOnly({ sessionId }: AllowAuthenticatedOnlyParams) {
@@ -79,7 +77,7 @@ export async function allowAuthenticatedOnly({ sessionId }: AllowAuthenticatedOn
 }
 
 type AllowSuperAdminOnlyParams = {
-  sessionId: string;
+  sessionId: string | string[];
 };
 
 export async function allowSuperAdminOnly({ sessionId }: AllowSuperAdminOnlyParams) {

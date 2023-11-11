@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Card } from '@/components/base/card';
 import { Archive, CheckFat, HourglassMedium, Ticket } from '@phosphor-icons/react';
 import { cn } from '@/libs/cn.lib';

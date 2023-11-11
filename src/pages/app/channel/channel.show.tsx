@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
@@ -82,7 +82,7 @@ export function ChannelShowPage() {
                 trigger={
                   <Button
                     type="button"
-                    variant="plain"
+                    variant="white"
                     leading={(props) => <ClockClockwise {...props} />}
                     data-testid="btn-restore-channel"
                   >
@@ -140,8 +140,9 @@ export function ChannelShowPage() {
               <Button
                 form="update-channel-form"
                 type="submit"
-                variant="primary"
-                loading={updateChannelMutation.isLoading}
+                variant="filled"
+                severity="primary"
+                loading={updateChannelMutation.isPending}
                 success={updateChannelMutation.isSuccess && !updateChannelForm.formState.isDirty}
                 data-testid="btn-update-channel"
               >
@@ -177,7 +178,7 @@ function useUpdateChannelMutation({ channelId }: UseUpdateChannelMutationParams)
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['channel', 'index']);
+      await queryClient.invalidateQueries({ queryKey: ['channel', 'index'] });
     },
   });
 }

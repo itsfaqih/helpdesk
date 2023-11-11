@@ -64,7 +64,7 @@ export function TicketCategoryCreatePage() {
                 {...createTicketCategoryForm.register('name')}
                 label="Name"
                 placeholder="Enter name"
-                disabled={createTicketCategoryMutation.isLoading}
+                disabled={createTicketCategoryMutation.isPending}
                 error={createTicketCategoryForm.formState.errors.name?.message}
                 srOnlyLabel
                 data-testid="textbox-name"
@@ -78,7 +78,7 @@ export function TicketCategoryCreatePage() {
                 {...createTicketCategoryForm.register('description')}
                 label="Description"
                 placeholder="Enter description"
-                disabled={createTicketCategoryMutation.isLoading}
+                disabled={createTicketCategoryMutation.isPending}
                 error={createTicketCategoryForm.formState.errors.description?.message}
                 srOnlyLabel
                 rows={3}
@@ -90,7 +90,7 @@ export function TicketCategoryCreatePage() {
             <SaveButton
               form="create-ticket-category-form"
               type="submit"
-              loading={createTicketCategoryMutation.isLoading}
+              loading={createTicketCategoryMutation.isPending}
               success={
                 createTicketCategoryMutation.isSuccess &&
                 !createTicketCategoryForm.formState.isDirty
@@ -122,7 +122,7 @@ function useCreateTicketCategoryMutation() {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['ticket-category', 'index']);
+      await queryClient.invalidateQueries({ queryKey: ['ticket-category', 'index'] });
     },
   });
 }

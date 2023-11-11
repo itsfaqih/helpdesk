@@ -29,8 +29,8 @@ export function DisableActionButton({
         disableActionMutation.mutate();
         onClick?.(e);
       }}
-      disabled={disableActionMutation.isLoading}
-      data-loading={disableActionMutation.isLoading}
+      disabled={disableActionMutation.isPending}
+      data-loading={disableActionMutation.isPending}
     />
   );
 }
@@ -60,8 +60,8 @@ function useDisableActionMutation({ actionId }: UseDisableActionMutationParams) 
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['action', 'index']);
-      await queryClient.invalidateQueries(['action', 'show', actionId]);
+      await queryClient.invalidateQueries({ queryKey: ['action', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['action', 'show', actionId] });
     },
   });
 }

@@ -1,6 +1,6 @@
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import React from 'react';
+import * as React from 'react';
 import { Button, IconButton } from '../base/button';
 import { Popover, PopoverCloseTrigger, PopoverContent, PopoverTrigger } from '../base/popover';
 import { Upload, X } from '@phosphor-icons/react';
@@ -43,7 +43,7 @@ export const IconPicker = React.forwardRef<React.ElementRef<typeof Picker>, Icon
               <IconButton
                 id={id}
                 type="button"
-                variant="plain"
+                variant="white"
                 icon={() => {
                   if (selectedEmojiId) {
                     return <em-emoji id={finalEmojiId}></em-emoji>;
@@ -88,7 +88,7 @@ export const IconPicker = React.forwardRef<React.ElementRef<typeof Picker>, Icon
                   <form className="w-[15.25rem] p-2.5">
                     <Input type="file" className="w-full" />
                     <div className="flex justify-end mt-3">
-                      <Button variant="plain" leading={(props) => <Upload {...props} />}>
+                      <Button variant="white" leading={(props) => <Upload {...props} />}>
                         Upload
                       </Button>
                     </div>

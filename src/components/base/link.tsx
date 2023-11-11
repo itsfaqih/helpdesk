@@ -1,6 +1,6 @@
 import { cn } from '@/libs/cn.lib';
 import { VariantProps, cva } from 'class-variance-authority';
-import React from 'react';
+import * as React from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 
 export const linkClass = cva(

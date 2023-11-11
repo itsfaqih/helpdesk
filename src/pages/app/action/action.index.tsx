@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
   Archive,
   ArrowCounterClockwise,
@@ -150,7 +150,8 @@ export function ActionIndexPage() {
               <Button
                 as={Link}
                 to="/actions/create"
-                variant="primary"
+                variant="filled"
+                severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
                 data-testid="link-create-action"

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Button } from '../base/button';
 import {
   Dialog,
@@ -78,7 +78,8 @@ export function ConfirmationDialog({
           <Button
             type="button"
             leading={buttonLeadingIcon}
-            variant={destructive ? 'danger' : 'primary'}
+            variant="filled"
+            severity={destructive ? 'danger' : 'primary'}
             loading={isLoading}
             success={isSuccess}
             onClick={buttonOnClick}

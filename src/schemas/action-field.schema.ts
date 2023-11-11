@@ -30,6 +30,7 @@ export const ActionFieldSchema = z.object({
   placeholder: z.string(),
   helper_text: z.string(),
   is_required: z.boolean().default(true),
+  order: z.number(),
 });
 
 export type ActionField = z.infer<typeof ActionFieldSchema>;
@@ -43,6 +44,32 @@ export const CreateActionFieldSchema = ActionFieldSchema.pick({
   helper_text: true,
   is_required: true,
 });
+
+export type CreateActionFieldSchema = z.infer<typeof CreateActionFieldSchema>;
+
+export const UpdateActionFieldSchema = CreateActionFieldSchema.pick({
+  name: true,
+  label: true,
+  type: true,
+  placeholder: true,
+  helper_text: true,
+  is_required: true,
+})
+  .partial()
+  .extend({
+    id: ActionFieldSchema.shape.id,
+    action_id: ActionSchema.shape.id,
+    order: ActionFieldSchema.shape.order.optional(),
+  });
+
+export type UpdateActionFieldSchema = z.infer<typeof UpdateActionFieldSchema>;
+
+export const DeleteActionFieldSchema = ActionFieldSchema.pick({
+  id: true,
+  action_id: true,
+});
+
+export type DeleteActionFieldSchema = z.infer<typeof DeleteActionFieldSchema>;
 
 export const CreateActionFieldFormSchema = z.object({
   action_id: z.string().min(1, { message: 'Please select an action' }).default(''),

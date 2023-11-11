@@ -28,7 +28,7 @@ export function RestoreClientDialog({
       title="Restore Client"
       description="Are you sure you want to restore this client? After archiving, the
       client will be listed in the client list"
-      isLoading={restoreClientMutation.isLoading}
+      isLoading={restoreClientMutation.isPending}
       isSuccess={restoreClientMutation.isSuccess}
       buttonLabel="Restore"
       buttonOnClick={() => restoreClientMutation.mutate()}
@@ -66,8 +66,8 @@ function useRestoreClientMutation({ clientId }: UseRestoreClientMutationParams) 
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['client', 'index']);
-      await queryClient.invalidateQueries(['client', 'show', clientId]);
+      await queryClient.invalidateQueries({ queryKey: ['client', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['client', 'show', clientId] });
     },
   });
 }

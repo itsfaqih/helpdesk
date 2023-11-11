@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { CaretRight } from '@phosphor-icons/react';
 import { Controller, useForm } from 'react-hook-form';
 import qs from 'qs';
@@ -67,7 +67,7 @@ TicketIndexPage.loader = loader;
 const ticketStatusOptions = [
   {
     label: 'All status',
-    value: '',
+    value: 'all',
   },
   ...TicketStatusEnum.options.map((status) => ({
     label: ticketStatusToLabel(status),
@@ -89,7 +89,11 @@ export function TicketIndexPage() {
 
   const filtersForm = useForm<TicketIndexRequest>({
     resolver: zodResolver(TicketIndexRequestSchema),
-    defaultValues: loaderData.data.request,
+    defaultValues: {
+      ...loaderData.data.request,
+      status: loaderData.data.request.status ?? 'all',
+      category_id: loaderData.data.request.category_id ?? 'all',
+    },
   });
 
   filtersForm.watch((data, { name }) => {
@@ -99,6 +103,14 @@ export function TicketIndexPage() {
 
     if (name !== 'page') {
       data.page = undefined;
+    }
+
+    if (data.status === 'all') {
+      data.status = undefined;
+    }
+
+    if (data.category_id === 'all') {
+      data.category_id = undefined;
     }
 
     const queryStrings = qs.stringify(data);
@@ -124,7 +136,7 @@ export function TicketIndexPage() {
   const ticketCategoryOptions = [
     {
       label: 'All category',
-      value: '',
+      value: 'all',
     },
     ...(ticketCategoryIndexQuery.data?.data.map((category) => ({
       label: category.name,
@@ -175,11 +187,12 @@ export function TicketIndexPage() {
               <Select
                 name={field.name}
                 items={ticketStatusOptions}
+                value={field.value ? [field.value] : undefined}
                 onChange={(e) => {
                   const value = e?.value[0];
 
                   if (
-                    value === '' ||
+                    value === 'all' ||
                     value === 'open' ||
                     value === 'in_progress' ||
                     value === 'resolved' ||
@@ -207,6 +220,7 @@ export function TicketIndexPage() {
               <Select
                 name={field.name}
                 items={ticketCategoryOptions}
+                value={field.value ? [field.value] : undefined}
                 onChange={(e) => {
                   const value = e?.value[0];
 

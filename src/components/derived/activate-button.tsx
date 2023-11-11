@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Button } from '../base/button';
 import { Power } from '@phosphor-icons/react';
 import { cn } from '@/libs/cn.lib';
@@ -15,7 +15,7 @@ export const ActivateButton = React.forwardRef<
   return (
     <Button
       ref={ref}
-      variant="plain"
+      variant="white"
       leading={({ className, ...props }) => (
         <Power className={cn(className, 'text-brand-600')} {...props} />
       )}

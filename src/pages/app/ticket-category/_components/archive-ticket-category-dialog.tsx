@@ -31,7 +31,7 @@ export function ArchiveTicketCategoryDialog({
       description="Are you sure you want to archive this ticket category? After archiving, the
       ticket category will no longer be listed in the ticket category list"
       destructive
-      isLoading={archiveTicketCategoryMutation.isLoading}
+      isLoading={archiveTicketCategoryMutation.isPending}
       isSuccess={archiveTicketCategoryMutation.isSuccess}
       buttonLabel="Archive"
       buttonOnClick={() => archiveTicketCategoryMutation.mutate()}
@@ -72,8 +72,10 @@ function useArchiveTicketCategoryMutation({
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['ticket-category', 'index']);
-      await queryClient.invalidateQueries(['ticket-category', 'show', ticketCategoryId]);
+      await queryClient.invalidateQueries({ queryKey: ['ticket-category', 'index'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['ticket-category', 'show', ticketCategoryId],
+      });
     },
   });
 }

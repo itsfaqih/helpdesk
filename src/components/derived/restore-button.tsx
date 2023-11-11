@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Button } from '../base/button';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
 import { cn } from '@/libs/cn.lib';
@@ -13,7 +13,7 @@ export const RestoreButton = React.forwardRef<React.ElementRef<typeof Button>, R
     return (
       <Button
         ref={ref}
-        variant="plain"
+        variant="white"
         leading={({ className, ...props }) => (
           <ArrowCounterClockwise className={cn(className, 'text-brand-600')} {...props} />
         )}

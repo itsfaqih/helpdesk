@@ -6,7 +6,7 @@ import {
   UpdateTicketCategorySchema,
 } from '@/schemas/ticket.schema';
 import localforage from 'localforage';
-import { rest } from 'msw';
+import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import { allowAuthenticatedOnly, handleResponseError, successResponse } from '../mock-utils';
 import { NotFoundError } from '@/utils/error.util';
@@ -14,11 +14,11 @@ import { generatePaginationMeta } from '@/utils/api.util';
 import { getTicketCategories } from '../records/ticket-category.record';
 
 export const ticketCategoryHandlers = [
-  rest.post('/api/ticket-categories', async (req) => {
+  http.post('/api/ticket-categories', async ({ cookies, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const data = CreateTicketCategorySchema.parse(await req.json());
+      const data = CreateTicketCategorySchema.parse(await request.json());
 
       const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
@@ -46,11 +46,11 @@ export const ticketCategoryHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/ticket-categories', async (req) => {
+  http.get('/api/ticket-categories', async ({ request }) => {
     try {
       const storedTicketCategories = await getTicketCategories();
 
-      const unparsedFilters = Object.fromEntries(req.url.searchParams);
+      const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = TicketCategoryIndexRequestSchema.parse(unparsedFilters);
 
       const filteredTicketCategories = storedTicketCategories.filter((ticketCategory) => {
@@ -105,16 +105,16 @@ export const ticketCategoryHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/ticket-categories/:ticketCategoryId', async (req) => {
+  http.get('/api/ticket-categories/:ticketCategoryId', async ({ cookies, params }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
         unparsedStoredTicketCategories,
       );
 
-      const ticketCategoryId = req.params.ticketCategoryId;
+      const ticketCategoryId = params.ticketCategoryId;
 
       const ticketCategory = storedTicketCategories.find(
         (ticketCategory) => ticketCategory.id === ticketCategoryId,
@@ -132,18 +132,18 @@ export const ticketCategoryHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/ticket-categories/:ticketCategoryId', async (req) => {
+  http.put('/api/ticket-categories/:ticketCategoryId', async ({ cookies, params, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const data = UpdateTicketCategorySchema.parse(await req.json());
+      const data = UpdateTicketCategorySchema.parse(await request.json());
 
       const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
         unparsedStoredTicketCategories,
       );
 
-      const ticketCategoryId = req.params.ticketCategoryId;
+      const ticketCategoryId = params.ticketCategoryId;
 
       const ticketCategoryToUpdate = storedTicketCategories.find(
         (ticketCategory) => ticketCategory.id === ticketCategoryId,
@@ -173,16 +173,16 @@ export const ticketCategoryHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/ticket-categories/:ticketCategoryId/archive', async (req) => {
+  http.put('/api/ticket-categories/:ticketCategoryId/archive', async ({ cookies, params }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
         unparsedStoredTicketCategories,
       );
 
-      const ticketCategoryId = req.params.ticketCategoryId;
+      const ticketCategoryId = params.ticketCategoryId;
 
       const ticketCategoryToUpdate = storedTicketCategories.find(
         (ticketCategory) => ticketCategory.id === ticketCategoryId,
@@ -212,14 +212,14 @@ export const ticketCategoryHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/ticket-categories/:ticketCategoryId/restore', async (req) => {
+  http.put('/api/ticket-categories/:ticketCategoryId/restore', async ({ params }) => {
     try {
       const unparsedStoredTicketCategories = (await localforage.getItem('ticket_categories')) ?? [];
       const storedTicketCategories = TicketCategorySchema.array().parse(
         unparsedStoredTicketCategories,
       );
 
-      const ticketCategoryId = req.params.ticketCategoryId;
+      const ticketCategoryId = params.ticketCategoryId;
 
       const ticketCategoryToUpdate = storedTicketCategories.find(
         (ticketCategory) => ticketCategory.id === ticketCategoryId,

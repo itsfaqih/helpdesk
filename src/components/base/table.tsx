@@ -29,7 +29,7 @@ export function Table({
     <div className={cn('flow-root', className)} data-testid={`table-${id}`} {...props}>
       <div className="-mx-6 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-6">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-6">
-          <div className="overflow-hidden shadow-haptic-gray-300 sm:rounded-md">
+          <div className="overflow-hidden shadow-haptic-gray-300 sm:rounded-xl">
             <table className="min-w-full text-sm divide-y divide-gray-300">
               <thead>
                 <tr data-testid={`table-${id}-heading`}>

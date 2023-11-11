@@ -2,7 +2,7 @@ import { api } from '@/libs/api.lib';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { Channel, ChannelSchema } from '@/schemas/channel.schema';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import React from 'react';
+import * as React from 'react';
 import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
 
@@ -29,7 +29,7 @@ export function RestoreChannelDialog({
       title="Restore Channel"
       description="Are you sure you want to restore this channel? After restoring the
     channel will be listed in the channel list"
-      isLoading={restoreChannelMutation.isLoading}
+      isLoading={restoreChannelMutation.isPending}
       isSuccess={restoreChannelMutation.isSuccess}
       buttonLabel="Restore"
       buttonOnClick={() => restoreChannelMutation.mutate()}
@@ -67,8 +67,8 @@ function useRestoreChannelMutation({ channelId }: UseRestoreChannelMutationParam
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['channel', 'index']);
-      await queryClient.invalidateQueries(['channel', 'show', channelId]);
+      await queryClient.invalidateQueries({ queryKey: ['channel', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['channel', 'show', channelId] });
     },
   });
 }

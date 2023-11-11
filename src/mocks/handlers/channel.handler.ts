@@ -2,7 +2,7 @@ import { ChannelIndexRequestSchema } from '@/queries/channel.query';
 import { CreateChannelSchema, ChannelSchema, Channel } from '@/schemas/channel.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
 import localforage from 'localforage';
-import { rest } from 'msw';
+import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
   allowAuthenticatedOnly,
@@ -13,11 +13,11 @@ import {
 import { NotFoundError, UnprocessableEntityError } from '@/utils/error.util';
 
 export const channelHandlers = [
-  rest.post('/api/channels', async (req) => {
+  http.post('/api/channels', async ({ cookies, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const data = CreateChannelSchema.parse(await req.json());
+      const data = CreateChannelSchema.parse(await request.json());
 
       const unparsedStoredAdmins = (await localforage.getItem('channels')) ?? [];
       const storedAdmins = ChannelSchema.array().parse(unparsedStoredAdmins);
@@ -49,14 +49,14 @@ export const channelHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/channels', async (req) => {
+  http.get('/api/channels', async ({ cookies, request }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredChannels = (await localforage.getItem('channels')) ?? [];
       const storedChannels = ChannelSchema.array().parse(unparsedStoredChannels);
 
-      const unparsedFilters = Object.fromEntries(req.url.searchParams);
+      const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = ChannelIndexRequestSchema.parse(unparsedFilters);
 
       const filteredChannels = storedChannels.filter((channel) => {
@@ -111,14 +111,14 @@ export const channelHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.get('/api/channels/:channelId', async (req) => {
+  http.get('/api/channels/:channelId', async ({ cookies, params }) => {
     try {
-      await allowAuthenticatedOnly({ sessionId: req.cookies.sessionId });
+      await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredChannels = (await localforage.getItem('channels')) ?? [];
       const storedChannels = ChannelSchema.array().parse(unparsedStoredChannels);
 
-      const channelId = req.params.channelId;
+      const channelId = params.channelId;
 
       const channel = storedChannels.find((channel) => channel.id === channelId);
 
@@ -134,14 +134,14 @@ export const channelHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/channels/:channelId/archive', async (req) => {
+  http.put('/api/channels/:channelId/archive', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredChannel = (await localforage.getItem('channels')) ?? [];
       const storedChannels = ChannelSchema.array().parse(unparsedStoredChannel);
 
-      const channelId = req.params.channelId;
+      const channelId = params.channelId;
 
       const channelToUpdate = storedChannels.find((channel) => channel.id === channelId);
 
@@ -169,14 +169,14 @@ export const channelHandlers = [
       return handleResponseError(error);
     }
   }),
-  rest.put('/api/channels/:channelId/restore', async (req) => {
+  http.put('/api/channels/:channelId/restore', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: req.cookies.sessionId });
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
       const unparsedStoredChannels = (await localforage.getItem('channels')) ?? [];
       const storedChannels = ChannelSchema.array().parse(unparsedStoredChannels);
 
-      const channelId = req.params.channelId;
+      const channelId = params.channelId;
 
       const channelToUpdate = storedChannels.find((channel) => channel.id === channelId);
 

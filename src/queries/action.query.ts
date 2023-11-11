@@ -3,7 +3,6 @@ import { APIResponseSchema } from '@/schemas/api.schema';
 import { ActionSchema } from '@/schemas/action.schema';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
-import qs from 'qs';
 import { ChannelSchema } from '@/schemas/channel.schema';
 import { UserError } from '@/utils/error.util';
 import { ActionFieldSchema } from '@/schemas/action-field.schema';
@@ -25,8 +24,7 @@ export function actionIndexQuery(request: ActionIndexRequest = {}) {
   return {
     queryKey: ['action', 'index', request],
     async queryFn() {
-      const queryStrings = qs.stringify(request);
-      const res = await api.get(`/actions?${queryStrings}`);
+      const res = await api.query(request).get('/actions');
 
       return ActionIndexResponseSchema.parse(res);
     },
@@ -68,11 +66,13 @@ const ActionShowResponseSchema = APIResponseSchema({
   }),
 });
 
+export type ActionShowResponse = z.infer<typeof ActionShowResponseSchema>;
+
 export function actionShowQuery(request: ActionShowRequest) {
-  const { id, ...requestWithoutId } = request;
+  const { id } = request;
 
   return {
-    queryKey: ['action', 'show', id, requestWithoutId],
+    queryKey: ['action', 'show', id],
     async queryFn() {
       const res = await api.get(`/actions/${id}`);
 

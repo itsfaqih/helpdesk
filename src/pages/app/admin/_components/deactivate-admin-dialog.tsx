@@ -29,7 +29,7 @@ export function DeactivateAdminDialog({
       description="Are you sure you want to deactivate this admin? After deactivating,
       the admin will not be able to login to the system"
       destructive
-      isLoading={deactivateAdminMutation.isLoading}
+      isLoading={deactivateAdminMutation.isPending}
       isSuccess={deactivateAdminMutation.isSuccess}
       buttonLabel="Deactivate Admin"
       buttonOnClick={() => deactivateAdminMutation.mutate()}
@@ -70,8 +70,8 @@ function useDeactivateAdminMutation({ adminId }: UseDeactivateAdminMutationParam
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries(['admin', 'index']);
-      await queryClient.invalidateQueries(['admin', 'show', adminId]);
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'show', adminId] });
     },
   });
 }
