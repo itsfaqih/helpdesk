@@ -1,12 +1,6 @@
 import { ClientIndexRequestSchema } from '@/queries/client.query';
-import {
-  CreateClientSchema,
-  ClientSchema,
-  Client,
-  UpdateClientSchema,
-} from '@/schemas/client.schema';
+import { CreateClientSchema, Client, UpdateClientSchema } from '@/schemas/client.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
-import localforage from 'localforage';
 import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
@@ -16,6 +10,7 @@ import {
   successResponse,
 } from '../mock-utils';
 import { NotFoundError, UnprocessableEntityError } from '@/utils/error.util';
+import { db } from '../records/db';
 
 export const clientHandlers = [
   http.post('/api/clients', async ({ cookies, request }) => {
@@ -24,10 +19,7 @@ export const clientHandlers = [
 
       const data = CreateClientSchema.parse(await request.json());
 
-      const unparsedStoredAdmins = (await localforage.getItem('clients')) ?? [];
-      const storedAdmins = ClientSchema.array().parse(unparsedStoredAdmins);
-
-      const isClientExisted = storedAdmins.some((client) => client.full_name === data.full_name);
+      const isClientExisted = (await db.clients.where({ full_name: data.full_name }).count()) > 0;
 
       if (isClientExisted) {
         throw new UnprocessableEntityError('Client with the same name is already registered');
@@ -41,9 +33,7 @@ export const clientHandlers = [
         updated_at: new Date().toISOString(),
       };
 
-      const newClients = [...storedAdmins, newClient];
-
-      await localforage.setItem('clients', newClients);
+      await db.clients.add(newClient);
 
       return successResponse({
         data: newClient,
@@ -59,28 +49,18 @@ export const clientHandlers = [
 
       const data = UpdateClientSchema.parse(await request.json());
 
-      const unparsedStoredClients = (await localforage.getItem('clients')) ?? [];
-      const storedClients = ClientSchema.array().parse(unparsedStoredClients);
-
       const clientId = params.clientId;
 
-      const clientToUpdate = storedClients.find((client) => client.id === clientId);
+      const updatedRecordsCount = await db.clients.update(clientId, {
+        full_name: data.full_name,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!clientToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Client is not found');
       }
 
-      const updatedClient: Client = {
-        ...clientToUpdate,
-        full_name: data.full_name,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newClients = storedClients.map((client) =>
-        client.id === clientId ? updatedClient : client,
-      );
-
-      await localforage.setItem('clients', newClients);
+      const updatedClient = await db.clients.get(clientId);
 
       return successResponse({
         data: updatedClient,
@@ -94,8 +74,7 @@ export const clientHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredClients = (await localforage.getItem('clients')) ?? [];
-      const storedClients = ClientSchema.array().parse(unparsedStoredClients);
+      const storedClients = await db.clients.toArray();
 
       const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = ClientIndexRequestSchema.parse(unparsedFilters);
@@ -156,12 +135,9 @@ export const clientHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredClients = (await localforage.getItem('clients')) ?? [];
-      const storedClients = ClientSchema.array().parse(unparsedStoredClients);
-
       const clientId = params.clientId;
 
-      const client = storedClients.find((client) => client.id === clientId);
+      const client = await db.clients.get(clientId);
 
       if (!client) {
         throw new NotFoundError('Client is not found');
@@ -179,28 +155,18 @@ export const clientHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredClient = (await localforage.getItem('clients')) ?? [];
-      const storedClients = ClientSchema.array().parse(unparsedStoredClient);
-
       const clientId = params.clientId;
 
-      const clientToUpdate = storedClients.find((client) => client.id === clientId);
+      const updatedRecordsCount = await db.clients.update(clientId, {
+        is_archived: true,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!clientToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Client is not found');
       }
 
-      const updatedClient: Client = {
-        ...clientToUpdate,
-        is_archived: true,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newClients = storedClients.map((client) =>
-        client.id === clientId ? updatedClient : client,
-      );
-
-      await localforage.setItem('clients', newClients);
+      const updatedClient = await db.clients.get(clientId);
 
       return successResponse({
         data: updatedClient,
@@ -214,28 +180,18 @@ export const clientHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredClients = (await localforage.getItem('clients')) ?? [];
-      const storedClients = ClientSchema.array().parse(unparsedStoredClients);
-
       const clientId = params.clientId;
 
-      const clientToUpdate = storedClients.find((client) => client.id === clientId);
+      const updatedRecordsCount = await db.clients.update(clientId, {
+        is_archived: false,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!clientToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Client is not found');
       }
 
-      const updatedClient: Client = {
-        ...clientToUpdate,
-        is_archived: false,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newClients = storedClients.map((client) =>
-        client.id === clientId ? updatedClient : client,
-      );
-
-      await localforage.setItem('clients', newClients);
+      const updatedClient = await db.clients.get(clientId);
 
       return successResponse({
         data: updatedClient,

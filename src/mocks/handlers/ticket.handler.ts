@@ -4,11 +4,8 @@ import {
   CreateTicketSchema,
   Ticket,
   TicketAssignment,
-  TicketAssignmentSchema,
-  TicketSchema,
 } from '@/schemas/ticket.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
-import localforage from 'localforage';
 import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
@@ -19,6 +16,7 @@ import {
 } from '../mock-utils';
 import { NotFoundError } from '@/utils/error.util';
 import { getTicketWithRelationsById, getTicketsWithRelations } from '../records/ticket.record';
+import { db } from '../records/db';
 
 export const ticketHandlers = [
   http.post('/api/tickets', async ({ cookies, request }) => {
@@ -27,9 +25,6 @@ export const ticketHandlers = [
 
       const data = CreateTicketSchema.parse(await request.json());
 
-      const unparsedStoredAdmins = (await localforage.getItem('tickets')) ?? [];
-      const storedAdmins = TicketSchema.array().parse(unparsedStoredAdmins);
-
       const newTicket: Ticket = {
         id: nanoid(),
         title: data.title,
@@ -37,14 +32,11 @@ export const ticketHandlers = [
         is_archived: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        category_id: data.category_id,
         channel_id: data.channel_id,
         client_id: data.client_id,
       };
 
-      const newTickets = [...storedAdmins, newTicket];
-
-      await localforage.setItem('tickets', newTickets);
+      await db.tickets.add(newTicket);
 
       return successResponse({
         data: newTicket,
@@ -80,11 +72,7 @@ export const ticketHandlers = [
           }
         }
 
-        if (filters.category_id) {
-          if (ticket.category_id !== filters.category_id) {
-            return false;
-          }
-        }
+        // TODO: Add filter by tags
 
         if (filters.is_archived) {
           if (filters.is_archived === '1' && !ticket.is_archived) {
@@ -133,9 +121,6 @@ export const ticketHandlers = [
 
       const ticket = await getTicketWithRelationsById({
         ticketId: params.ticketId as string,
-        assignments: {
-          withTrash: true,
-        },
       });
 
       return successResponse({
@@ -150,28 +135,18 @@ export const ticketHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredTickets = (await localforage.getItem('tickets')) ?? [];
-      const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
-
       const ticketId = params.ticketId;
 
-      const ticketToUpdate = storedTickets.find((ticket) => ticket.id === ticketId);
+      const updatedRecordsCount = await db.tickets.update(ticketId, {
+        is_archived: true,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!ticketToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Ticket is not found');
       }
 
-      const updatedTicket: Ticket = {
-        ...ticketToUpdate,
-        is_archived: true,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newTickets = storedTickets.map((ticket) =>
-        ticket.id === ticketId ? updatedTicket : ticket,
-      );
-
-      await localforage.setItem('tickets', newTickets);
+      const updatedTicket = await db.tickets.get(ticketId);
 
       return successResponse({
         data: updatedTicket,
@@ -185,32 +160,22 @@ export const ticketHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredTickets = (await localforage.getItem('tickets')) ?? [];
-      const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
-
       const ticketId = params.ticketId;
 
-      const ticketToUpdate = storedTickets.find((ticket) => ticket.id === ticketId);
+      const updatedRecordsCount = await db.tickets.update(ticketId, {
+        is_archived: false,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!ticketToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Ticket is not found');
       }
 
-      const updatedTicket: Ticket = {
-        ...ticketToUpdate,
-        is_archived: false,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newTickets = storedTickets.map((ticket) =>
-        ticket.id === ticketId ? updatedTicket : ticket,
-      );
-
-      await localforage.setItem('tickets', newTickets);
+      const updatedTicket = await db.tickets.get(ticketId);
 
       return successResponse({
         data: updatedTicket,
-        message: 'Successfully activated ticket',
+        message: 'Successfully restored ticket',
       });
     } catch (error) {
       return handleResponseError(error);
@@ -220,12 +185,9 @@ export const ticketHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredTickets = (await localforage.getItem('tickets')) ?? [];
-      const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
-
       const ticketId = params.ticketId;
 
-      const ticketToUpdate = storedTickets.find((ticket) => ticket.id === ticketId);
+      const ticketToUpdate = await db.tickets.get(ticketId);
 
       if (!ticketToUpdate) {
         throw new NotFoundError('Ticket is not found');
@@ -237,12 +199,6 @@ export const ticketHandlers = [
         throw new Error('Ticket ID is not match');
       }
 
-      const unparsedStoredTicketAssignments =
-        (await localforage.getItem('ticket_assignments')) ?? [];
-      const storedTicketAssignments = TicketAssignmentSchema.array().parse(
-        unparsedStoredTicketAssignments,
-      );
-
       const newTicketAssignment: TicketAssignment = {
         id: nanoid(),
         ticket_id: data.ticket_id,
@@ -250,9 +206,7 @@ export const ticketHandlers = [
         created_at: new Date().toISOString(),
       };
 
-      const newTicketAssignments = [...storedTicketAssignments, newTicketAssignment];
-
-      await localforage.setItem('ticket_assignments', newTicketAssignments);
+      await db.ticket_assignments.add(newTicketAssignment);
 
       return successResponse({
         data: newTicketAssignment,
@@ -268,34 +222,35 @@ export const ticketHandlers = [
       try {
         await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-        const unparsedStoredTicketAssignments = await localforage.getItem('ticket_assignments');
-        const storedTicketAssignments = TicketAssignmentSchema.array().parse(
-          unparsedStoredTicketAssignments,
-        );
+        const ticketId = params.ticketId;
+
+        const ticketToUpdate = await db.tickets.get(ticketId);
+
+        if (!ticketToUpdate) {
+          throw new NotFoundError('Ticket is not found');
+        }
 
         const ticketAssignmentId = params.ticketAssignmentId;
 
-        const ticketAssignmentToDelete = storedTicketAssignments.find(
-          (ticketAssignment) => ticketAssignment.id === ticketAssignmentId,
-        );
+        const ticketAssignmentToDelete = await db.ticket_assignments.get(ticketAssignmentId);
 
         if (!ticketAssignmentToDelete) {
           throw new NotFoundError('Ticket assignment is not found');
         }
 
-        const softDeletedTicketAssignment: TicketAssignment = {
-          ...ticketAssignmentToDelete,
-          deleted_at: new Date().toISOString(),
-        };
+        if (ticketAssignmentToDelete.ticket_id !== ticketId) {
+          throw new Error('Ticket ID is not match');
+        }
 
-        const newTicketAssignments = storedTicketAssignments.map((ticketAssignment) => {
-          if (ticketAssignment.id !== ticketAssignmentId) {
-            return ticketAssignment;
-          }
-          return softDeletedTicketAssignment;
+        const updatedRecordsCount = await db.ticket_assignments.update(ticketAssignmentId, {
+          deleted_at: new Date().toISOString(),
         });
 
-        await localforage.setItem('ticket_assignments', newTicketAssignments);
+        if (updatedRecordsCount === 0) {
+          throw new NotFoundError('Ticket assignment is not found');
+        }
+
+        const softDeletedTicketAssignment = await db.ticket_assignments.get(ticketAssignmentId);
 
         return successResponse({
           data: softDeletedTicketAssignment,

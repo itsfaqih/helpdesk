@@ -85,8 +85,7 @@ export function TicketShowPage() {
   const loggedInAdminQuery = useLoggedInAdminQuery();
   const createTicketAssignmentMutation = useCreateTicketAssignmentMutation();
 
-  const activeTicketAssigments =
-    ticket?.assignments.filter((assignment) => !assignment.deleted_at) ?? [];
+  const activeTicketAssigments = ticket?.assignments ?? [];
 
   const [actionSearch, setActionSearch] = React.useState('');
 
@@ -117,19 +116,21 @@ export function TicketShowPage() {
               )}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
-              <span className="font-medium text-gray-600">Category</span>
+              <span className="font-medium text-gray-600">Tags</span>
               {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-              {ticket && (
-                <Link
-                  to={`/ticket-categories/${ticket.category_id}`}
-                  target="_blank"
-                  title={ticket.category.name}
-                  className="inline-flex items-center gap-1"
-                >
-                  <span className="w-40 text-right truncate">{ticket.category.name}</span>{' '}
-                  <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
-                </Link>
-              )}
+              {ticket &&
+                ticket.tags.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    to={`/ticket-tags/${tag.id}`}
+                    target="_blank"
+                    title={tag.name}
+                    className="inline-flex items-center gap-1"
+                  >
+                    <span className="w-40 text-right truncate">{tag.name}</span>{' '}
+                    <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
+                  </Link>
+                ))}
             </div>
             <div className="flex items-center gap-1.5 justify-between">
               <span className="font-medium text-gray-600">Client</span>
@@ -248,20 +249,22 @@ export function TicketShowPage() {
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-2 font-medium text-gray-600">Category</td>
+                  <td className="py-2 font-medium text-gray-600">tag</td>
                   <td className="py-2 text-right text-gray-800">
                     {ticketShowQuery.isLoading && <Skeleton className="w-20" />}
-                    {ticket && (
-                      <Link
-                        to={`/ticket-categories/${ticket.category_id}`}
-                        target="_blank"
-                        title={ticket.category.name}
-                        className="inline-flex items-center gap-1"
-                      >
-                        <span className="w-40 text-right truncate">{ticket.category.name}</span>{' '}
-                        <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
-                      </Link>
-                    )}
+                    {ticket &&
+                      ticket.tags.map((tag) => (
+                        <Link
+                          key={tag.id}
+                          to={`/ticket-tags/${tag.id}`}
+                          target="_blank"
+                          title={tag.name}
+                          className="inline-flex items-center gap-1"
+                        >
+                          <span className="w-40 text-right truncate">{tag.name}</span>{' '}
+                          <ArrowSquareOut className="flex-shrink-0 w-4 h-4" />
+                        </Link>
+                      ))}
                   </td>
                 </tr>
                 <tr>

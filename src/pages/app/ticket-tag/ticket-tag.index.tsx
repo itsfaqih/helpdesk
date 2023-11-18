@@ -13,10 +13,10 @@ import { TabIndicator, TabList, TabTrigger, Tabs } from '@/components/base/tabs'
 import { zodResolver } from '@hookform/resolvers/zod';
 import { QueryClient } from '@tanstack/react-query';
 import {
-  TicketCategoryIndexRequestSchema,
-  TicketCategoryIndexRequest,
-  fetchTicketCategoryIndexQuery,
-  useTicketCategoryIndexQuery,
+  TicketTagIndexRequestSchema,
+  TicketTagIndexRequest,
+  fetchTicketTagIndexQuery,
+  useTicketTagIndexQuery,
 } from '@/queries/ticket.query';
 import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
@@ -37,43 +37,43 @@ import { formatDateTime } from '@/utils/date';
 import { AppPageContainer } from '@/components/derived/app-page-container';
 import { AppPageResetButton } from '../_components/page-reset-button';
 import { AppPageSearchBox } from '../_components/page-search-box';
-import { RestoreTicketCategoryDialog } from './_components/restore-ticket-category-dialog';
-import { ArchiveTicketCategoryDialog } from './_components/archive-ticket-category-dialog';
+import { RestoreTicketTagDialog } from './_components/restore-ticket-tag-dialog';
+import { ArchiveTicketTagDialog } from './_components/archive-ticket-tag-dialog';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
-    const requestData = TicketCategoryIndexRequestSchema.parse(
+    const requestData = TicketTagIndexRequestSchema.parse(
       Object.fromEntries(new URL(request.url).searchParams),
     );
 
-    fetchTicketCategoryIndexQuery({ queryClient, request: requestData }).catch((err) => {
+    fetchTicketTagIndexQuery({ queryClient, request: requestData }).catch((err) => {
       console.error(err);
     });
 
     return loaderResponse({
-      pageTitle: 'Ticket Categories',
+      pageTitle: 'Ticket Tags',
       data: { request: requestData },
     });
   };
 }
 
-TicketCategoryIndexPage.loader = loader;
+TicketTagIndexPage.loader = loader;
 
-export function TicketCategoryIndexPage() {
+export function TicketTagIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
   const [actionDialogState, setActionDialogState] = React.useState<{
-    ticketCategoryId: string | null;
+    ticketTagId: string | null;
     action: 'archive' | 'restore' | null;
   }>({
-    ticketCategoryId: null,
+    ticketTagId: null,
     action: null,
   });
 
   const loggedInAdminQuery = useLoggedInAdminQuery();
   const loggedInAdmin = loggedInAdminQuery.data?.data;
 
-  const ticketCategoryQuery = useTicketCategoryIndexQuery(loaderData.data.request);
+  const ticketTagQuery = useTicketTagIndexQuery(loaderData.data.request);
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
@@ -81,8 +81,8 @@ export function TicketCategoryIndexPage() {
     filtersForm.setValue('search', search);
   }, 500);
 
-  const filtersForm = useForm<TicketCategoryIndexRequest>({
-    resolver: zodResolver(TicketCategoryIndexRequestSchema),
+  const filtersForm = useForm<TicketTagIndexRequest>({
+    resolver: zodResolver(TicketTagIndexRequestSchema),
     defaultValues: loaderData.data.request,
   });
 
@@ -105,20 +105,20 @@ export function TicketCategoryIndexPage() {
     }
   }, [filtersForm, loaderData.data.request]);
 
-  const archiveTicketCategory = React.useCallback((ticketCategoryId: string) => {
+  const archiveTicketTag = React.useCallback((ticketTagId: string) => {
     return () =>
       setActionDialogState((prev) => ({
         ...prev,
-        ticketCategoryId,
+        ticketTagId,
         action: 'archive',
       }));
   }, []);
 
-  const restoreTicketCategory = React.useCallback((ticketCategoryId: string) => {
+  const restoreTicketTag = React.useCallback((ticketTagId: string) => {
     return () =>
       setActionDialogState((prev) => ({
         ...prev,
-        ticketCategoryId,
+        ticketTagId,
         action: 'restore',
       }));
   }, []);
@@ -127,9 +127,9 @@ export function TicketCategoryIndexPage() {
     <>
       {loggedInAdmin?.role === 'super_admin' && (
         <Link
-          to="/ticket-categories/create"
+          to="/ticket-tags/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
-          data-testid="mobile:link-create-ticket-category"
+          data-testid="mobile:link-create-ticket-tag"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -141,14 +141,14 @@ export function TicketCategoryIndexPage() {
             loggedInAdmin?.role === 'super_admin' && (
               <Button
                 as={Link}
-                to="/ticket-categories/create"
+                to="/ticket-tags/create"
                 variant="filled"
                 severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
-                data-testid="link-create-ticket-category"
+                data-testid="link-create-ticket-tag"
               >
-                Add Category
+                Add tag
               </Button>
             )
           }
@@ -194,7 +194,7 @@ export function TicketCategoryIndexPage() {
 
             <AppPageResetButton
               to={{
-                pathname: '/ticket-categories',
+                pathname: '/ticket-tags',
                 search: loaderData.data.request.is_archived
                   ? `is_archived=${loaderData.data.request.is_archived}`
                   : undefined,
@@ -205,54 +205,54 @@ export function TicketCategoryIndexPage() {
           </div>
         </div>
         <Table
-          id="ticket-categories"
-          loading={ticketCategoryQuery.isLoading}
-          error={ticketCategoryQuery.isError}
+          id="ticket-tags"
+          loading={ticketTagQuery.isLoading}
+          error={ticketTagQuery.isError}
           errorMessage={
-            (typeof ticketCategoryQuery.error === 'object' &&
-              ticketCategoryQuery.error instanceof Error &&
-              ticketCategoryQuery.error.message) ||
+            (typeof ticketTagQuery.error === 'object' &&
+              ticketTagQuery.error instanceof Error &&
+              ticketTagQuery.error.message) ||
             undefined
           }
-          refetch={ticketCategoryQuery.refetch}
+          refetch={ticketTagQuery.refetch}
           headings={['Name', 'Date created']}
-          rows={ticketCategoryQuery.data?.data.map((category, index) => [
-            category.name,
-            formatDateTime(category.created_at),
+          rows={ticketTagQuery.data?.data.map((tag, index) => [
+            tag.name,
+            formatDateTime(tag.created_at),
             <div className="flex items-center justify-end gap-x-1">
-              {!category.is_archived ? (
+              {!tag.is_archived ? (
                 <>
                   <IconButton
                     as={Link}
-                    to={`/ticket-categories/${category.id}`}
+                    to={`/ticket-tags/${tag.id}`}
                     icon={(props) => <PencilSimple {...props} />}
                     label="Edit"
-                    data-testid={`link-edit-ticket-category-${index}`}
+                    data-testid={`link-edit-ticket-tag-${index}`}
                   />
 
                   <IconButton
                     icon={(props) => <Archive {...props} />}
                     label="Archive"
-                    onClick={archiveTicketCategory(category.id)}
+                    onClick={archiveTicketTag(tag.id)}
                     className="text-red-600"
-                    data-testid={`btn-archive-ticket-category-${index}`}
+                    data-testid={`btn-archive-ticket-tag-${index}`}
                   />
                 </>
               ) : (
                 <>
                   <IconButton
                     as={Link}
-                    to={`/ticket-categories/${category.id}`}
+                    to={`/ticket-tags/${tag.id}`}
                     icon={(props) => <CaretRight {...props} />}
                     label="View"
-                    data-testid={`link-view-ticket-category-${index}`}
+                    data-testid={`link-view-ticket-tag-${index}`}
                   />
                   <IconButton
                     icon={(props) => <ArrowCounterClockwise {...props} />}
                     label="Restore"
-                    onClick={restoreTicketCategory(category.id)}
+                    onClick={restoreTicketTag(tag.id)}
                     className="text-brand-600"
-                    data-testid={`btn-restore-ticket-category-${index}`}
+                    data-testid={`btn-restore-ticket-tag-${index}`}
                   />
                 </>
               )}
@@ -260,7 +260,7 @@ export function TicketCategoryIndexPage() {
           ])}
           className="mt-5"
         />
-        {ticketCategoryQuery.isSuccess && ticketCategoryQuery.data.data.length > 0 && (
+        {ticketTagQuery.isSuccess && ticketTagQuery.data.data.length > 0 && (
           <div className="mt-5">
             <Controller
               control={filtersForm.control}
@@ -268,8 +268,8 @@ export function TicketCategoryIndexPage() {
               render={({ field }) => (
                 <Pagination
                   page={field.value ?? 1}
-                  count={ticketCategoryQuery.data.meta?.pagination?.total ?? 1}
-                  pageSize={ticketCategoryQuery.data.meta?.pagination?.per_page ?? 1}
+                  count={ticketTagQuery.data.meta?.pagination?.total ?? 1}
+                  pageSize={ticketTagQuery.data.meta?.pagination?.per_page ?? 1}
                   onChange={({ page }) => {
                     field.onChange(page);
                   }}
@@ -303,24 +303,24 @@ export function TicketCategoryIndexPage() {
           </div>
         )}
       </AppPageContainer>
-      <ArchiveTicketCategoryDialog
-        key={`archive-${actionDialogState.ticketCategoryId ?? 'null'}`}
-        ticketCategoryId={actionDialogState.ticketCategoryId ?? ''}
+      <ArchiveTicketTagDialog
+        key={`archive-${actionDialogState.ticketTagId ?? 'null'}`}
+        ticketTagId={actionDialogState.ticketTagId ?? ''}
         isOpen={actionDialogState.action === 'archive'}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
-            ticketCategoryId: open ? prev.ticketCategoryId : null,
+            ticketTagId: open ? prev.ticketTagId : null,
             action: open ? 'archive' : null,
           }));
         }}
       />
-      <RestoreTicketCategoryDialog
-        key={`restore-${actionDialogState.ticketCategoryId ?? 'null'}`}
-        ticketCategoryId={actionDialogState.ticketCategoryId ?? ''}
+      <RestoreTicketTagDialog
+        key={`restore-${actionDialogState.ticketTagId ?? 'null'}`}
+        ticketTagId={actionDialogState.ticketTagId ?? ''}
         isOpen={actionDialogState.action === 'restore'}
         onOpenChange={(open) => {
           setActionDialogState((prev) => ({
-            ticketCategoryId: open ? prev.ticketCategoryId : null,
+            ticketTagId: open ? prev.ticketTagId : null,
             action: open ? 'restore' : null,
           }));
         }}

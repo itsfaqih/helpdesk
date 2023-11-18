@@ -1,7 +1,6 @@
 import { AdminIndexRequestSchema } from '@/queries/admin.query';
-import { CreateAdminSchema, AdminSchema, Admin, UpdateAdminSchema } from '@/schemas/admin.schema';
+import { CreateAdminSchema, Admin, UpdateAdminSchema } from '@/schemas/admin.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
-import localforage from 'localforage';
 import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
@@ -15,6 +14,7 @@ import { NotFoundError, UnprocessableEntityError } from '@/utils/error.util';
 import { getAdmins } from '../records/admin.record';
 import { getTicketAssignmentsWithRelationsByTicketId } from '../records/ticket-assignment.record';
 import { TicketAssignmentWithRelations } from '@/schemas/ticket.schema';
+import { db } from '../records/db';
 
 export const adminHandlers = [
   http.post('/api/admins', async ({ cookies, request }) => {
@@ -23,10 +23,7 @@ export const adminHandlers = [
 
       const data = CreateAdminSchema.parse(await request.json());
 
-      const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
-      const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
-
-      const isAdminExisted = storedAdmins.some((admin) => admin.email === data.email);
+      const isAdminExisted = (await db.admins.where('email').equals(data.email).count()) > 0;
 
       if (isAdminExisted) {
         throw new UnprocessableEntityError('Email is already registered');
@@ -43,12 +40,9 @@ export const adminHandlers = [
         updated_at: new Date().toISOString(),
       };
 
-      const newAdmins = [...storedAdmins, newAdmin];
+      await db.admins.add(newAdmin);
 
-      await localforage.setItem('admins', newAdmins);
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...newAdminWithoutPassword } = newAdmin;
+      const { password: _, ...newAdminWithoutPassword } = newAdmin;
 
       return successResponse({
         data: newAdminWithoutPassword,
@@ -64,30 +58,25 @@ export const adminHandlers = [
 
       const data = UpdateAdminSchema.parse(await request.json());
 
-      const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
-      const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
-
       const adminId = params.adminId;
 
-      const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
-
-      if (!adminToUpdate) {
-        throw new NotFoundError('Admin is not found');
-      }
-
-      const updatedAdmin: Admin = {
-        ...adminToUpdate,
+      const updatedRecordsCount = await db.admins.update(adminId, {
         full_name: data.full_name,
         role: data.role,
         updated_at: new Date().toISOString(),
-      };
+      });
 
-      const newAdmins = storedAdmins.map((admin) => (admin.id === adminId ? updatedAdmin : admin));
+      if (updatedRecordsCount === 0) {
+        throw new NotFoundError('Admin is not found');
+      }
 
-      await localforage.setItem('admins', newAdmins);
+      const updatedAdmin = await db.admins.get(adminId);
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...updatedAdminWithoutPassword } = updatedAdmin;
+      if (!updatedAdmin) {
+        throw new NotFoundError('Admin is not found');
+      }
+
+      const { password: _, ...updatedAdminWithoutPassword } = updatedAdmin;
 
       return successResponse({
         data: updatedAdminWithoutPassword,
@@ -216,28 +205,24 @@ export const adminHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const storedAdmins = await getAdmins();
-
       const adminId = params.adminId;
 
-      const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
+      const updatedRecordsCount = await db.admins.update(adminId, {
+        is_active: false,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!adminToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Admin is not found');
       }
 
-      const updatedAdmin: Admin = {
-        ...adminToUpdate,
-        is_active: false,
-        updated_at: new Date().toISOString(),
-      };
+      const updatedAdmin = await db.admins.get(adminId);
 
-      const newAdmins = storedAdmins.map((admin) => (admin.id === adminId ? updatedAdmin : admin));
+      if (!updatedAdmin) {
+        throw new NotFoundError('Admin is not found');
+      }
 
-      await localforage.setItem('admins', newAdmins);
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...updatedAdminWithoutPassword } = updatedAdmin;
+      const { password: _, ...updatedAdminWithoutPassword } = updatedAdmin;
 
       return successResponse({
         data: updatedAdminWithoutPassword,
@@ -251,32 +236,24 @@ export const adminHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
-      const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
-
       const adminId = params.adminId;
 
-      const adminToUpdate = storedAdmins.find((admin) => admin.id === adminId);
-
-      if (!adminToUpdate) {
-        return errorResponse({
-          message: 'Admin is not found',
-          status: 404,
-        });
-      }
-
-      const updatedAdmin: Admin = {
-        ...adminToUpdate,
+      const updatedRecordsCount = await db.admins.update(adminId, {
         is_active: true,
         updated_at: new Date().toISOString(),
-      };
+      });
 
-      const newAdmins = storedAdmins.map((admin) => (admin.id === adminId ? updatedAdmin : admin));
+      if (updatedRecordsCount === 0) {
+        throw new NotFoundError('Admin is not found');
+      }
 
-      await localforage.setItem('admins', newAdmins);
+      const updatedAdmin = await db.admins.get(adminId);
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...updatedAdminWithoutPassword } = updatedAdmin;
+      if (!updatedAdmin) {
+        throw new NotFoundError('Admin is not found');
+      }
+
+      const { password: _, ...updatedAdminWithoutPassword } = updatedAdmin;
 
       return successResponse({
         data: updatedAdminWithoutPassword,

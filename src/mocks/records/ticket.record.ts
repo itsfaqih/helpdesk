@@ -1,16 +1,14 @@
-import { Ticket, TicketSchema, TicketWithRelations } from '@/schemas/ticket.schema';
+import { Ticket, TicketWithRelations } from '@/schemas/ticket.schema';
 import { nanoid } from 'nanoid';
 import { getClientById, mockClientRecords } from './client.record';
-import { getTicketCategoryById, mockTicketCategoryRecords } from './ticket-category.record';
-import { getChannelByid, mockChannelRecords } from './channel.record';
-import localforage from 'localforage';
+import { getChannelById, mockChannelRecords } from './channel.record';
 import { getTicketAssignmentsWithRelationsByTicketId } from './ticket-assignment.record';
+import { db } from './db';
 import { NotFoundError } from '@/utils/error.util';
 
 export const mockTicketRecords: Ticket[] = [
   {
     id: nanoid(),
-    category_id: mockTicketCategoryRecords[0].id,
     channel_id: mockChannelRecords[0].id,
     client_id: mockClientRecords[0].id,
     title: 'Staf kurang ramah',
@@ -22,7 +20,6 @@ export const mockTicketRecords: Ticket[] = [
   },
   {
     id: nanoid(),
-    category_id: mockTicketCategoryRecords[2].id,
     channel_id: mockChannelRecords[1].id,
     client_id: mockClientRecords[0].id,
     title: 'Saran Menu Makanan: Sate Ayam',
@@ -33,7 +30,6 @@ export const mockTicketRecords: Ticket[] = [
   },
   {
     id: nanoid(),
-    category_id: mockTicketCategoryRecords[0].id,
     channel_id: mockChannelRecords[2].id,
     client_id: mockClientRecords[1].id,
     title: 'Staf kurang ramah, pelayanan lelet',
@@ -45,7 +41,6 @@ export const mockTicketRecords: Ticket[] = [
   },
   {
     id: nanoid(),
-    category_id: mockTicketCategoryRecords[1].id,
     channel_id: mockChannelRecords[3].id,
     client_id: mockClientRecords[1].id,
     title: 'Makanannya basi',
@@ -56,73 +51,81 @@ export const mockTicketRecords: Ticket[] = [
   },
 ];
 
-export async function getTickets(): Promise<Ticket[]> {
-  const unparsedStoredTickets = await localforage.getItem('tickets');
-  const storedTickets = TicketSchema.array().parse(unparsedStoredTickets);
-
-  return storedTickets;
-}
-
-export async function getTicketById(ticketId: Ticket['id']): Promise<Ticket> {
-  const storedTickets = await getTickets();
-
-  const ticket = storedTickets.find((ticket) => ticket.id === ticketId);
-
-  if (!ticket) {
-    throw new NotFoundError(`Ticket with id ${ticketId} not found`);
-  }
-
-  return ticket;
-}
-
 type GetTicketWithRelationsByIdOptions = {
   ticketId: Ticket['id'];
-  assignments?: {
-    withTrash?: boolean;
-  };
 };
 
 export async function getTicketWithRelationsById(
   options: GetTicketWithRelationsByIdOptions,
-): Promise<TicketWithRelations> {
-  const ticket = await getTicketById(options.ticketId);
+): Promise<TicketWithRelations | null> {
+  const ticket = await db.tickets.where('id').equals(options.ticketId).first();
+
+  if (!ticket) {
+    return null;
+  }
+
+  const channel = await getChannelById(ticket.channel_id);
+
+  if (!channel) {
+    throw new NotFoundError(
+      `Ticket ${options.ticketId}: channel with id ${ticket.channel_id} is not found`,
+    );
+  }
+
+  const client = await getClientById(ticket.client_id);
+
+  if (!client) {
+    throw new NotFoundError(`Client with id ${ticket.client_id} is not found`);
+  }
+
+  const tagIds = (await db.ticket_taggings.where({ ticket_id: ticket.id }).toArray()).map(
+    (ticketTagging) => ticketTagging.ticket_tag_id,
+  );
 
   const ticketWithRelations: TicketWithRelations = {
     ...ticket,
     assignments: await getTicketAssignmentsWithRelationsByTicketId({
       ticketId: ticket.id,
-      withTrash: options.assignments?.withTrash,
     }),
-    category: await getTicketCategoryById(ticket.category_id),
-    channel: await getChannelByid(ticket.channel_id),
-    client: await getClientById(ticket.client_id),
+    tags: (await db.ticket_tags.bulkGet(tagIds)).filter(Boolean),
+    channel,
+    client,
   };
 
   return ticketWithRelations;
 }
 
-type GetTicketsWithRelationsOptions = {
-  assignments?: {
-    withTrash?: boolean;
-  };
-};
-
-export async function getTicketsWithRelations(
-  options?: GetTicketsWithRelationsOptions,
-): Promise<TicketWithRelations[]> {
-  const storedTickets = await getTickets();
+export async function getTicketsWithRelations(): Promise<TicketWithRelations[]> {
+  const storedTickets = await db.tickets.toArray();
 
   const storedTicketsWithRelations: TicketWithRelations[] = await Promise.all(
     storedTickets.map(async (ticket) => {
+      const channel = await getChannelById(ticket.channel_id);
+
+      if (!channel) {
+        throw new NotFoundError(
+          `Ticket ${ticket.id}: channel with id ${ticket.channel_id} is not found`,
+        );
+      }
+
+      const client = await getClientById(ticket.client_id);
+
+      if (!client) {
+        throw new NotFoundError(`Client with id ${ticket.client_id} is not found`);
+      }
+
+      const tagIds = (await db.ticket_taggings.where('ticket_id').equals(ticket.id).toArray()).map(
+        (ticketTagging) => ticketTagging.ticket_tag_id,
+      );
+
       const ticketWithRelations: TicketWithRelations = {
         ...ticket,
         assignments: await getTicketAssignmentsWithRelationsByTicketId({
           ticketId: ticket.id,
-          withTrash: options?.assignments?.withTrash,
         }),
-        category: await getTicketCategoryById(ticket.category_id),
-        channel: await getChannelByid(ticket.channel_id),
-        client: await getClientById(ticket.client_id),
+        tags: (await db.ticket_tags.bulkGet(tagIds)).filter(Boolean),
+        channel,
+        client,
       };
 
       return ticketWithRelations;

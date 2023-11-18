@@ -1,6 +1,5 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom/client';
-import localforage from 'localforage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import data from '@emoji-mart/data';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -27,17 +26,17 @@ import {
   Ticket,
   TicketAssignment,
   TicketAssignmentSchema,
-  TicketCategory,
-  TicketCategorySchema,
+  TicketTag,
+  TicketTagSchema,
   TicketSchema,
 } from './schemas/ticket.schema';
 import { TicketShowPage } from './pages/app/ticket/ticket.show';
-import { TicketCategoryIndexPage } from './pages/app/ticket-category/ticket-category.index';
-import { TicketCategoryShowPage } from './pages/app/ticket-category/ticket-category.show';
-import { TicketCategoryCreatePage } from './pages/app/ticket-category/ticket-category.create';
+import { TicketTagIndexPage } from './pages/app/ticket-tag/ticket-tag.index';
+import { TicketTagShowPage } from './pages/app/ticket-tag/ticket-tag.show';
+import { TicketTagCreatePage } from './pages/app/ticket-tag/ticket-tag.create';
 import { mockAdminRecords } from './mocks/records/admin.record';
 import { mockClientRecords } from './mocks/records/client.record';
-import { mockTicketCategoryRecords } from './mocks/records/ticket-category.record';
+import { mockTicketTagRecords } from './mocks/records/ticket-tag.record';
 import { mockTicketRecords } from './mocks/records/ticket.record';
 import { ChannelIndexPage } from './pages/app/channel/channel.index';
 import { Channel, ChannelSchema } from './schemas/channel.schema';
@@ -53,6 +52,7 @@ import { ActionIndexPage } from './pages/app/action/action.index';
 import { ActionCreatePage } from './pages/app/action/action.create';
 import { ActionShowPage } from './pages/app/action/action.show';
 import { ActionField, ActionFieldSchema } from './schemas/action-field.schema';
+import { db } from './mocks/records/db';
 
 async function prepare() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -62,103 +62,113 @@ async function prepare() {
 
   // seed dummy data to indexeddb
   let existingAdmins: Admin[] = [];
-  const unparsedAdmins = await localforage.getItem<Admin[]>('admins');
+  const unparsedAdmins = await db.admins.toArray();
 
   const existingAdminsParsing = AdminSchema.array().safeParse(unparsedAdmins);
 
-  if (!existingAdminsParsing.success) {
+  if (!existingAdminsParsing.success || existingAdminsParsing.data.length === 0) {
     existingAdmins = mockAdminRecords;
 
-    await localforage.setItem('admins', existingAdmins);
+    await db.admins.clear();
+    await db.admins.bulkAdd(existingAdmins);
   } else {
     existingAdmins = existingAdminsParsing.data;
   }
 
   let existingChannels: Channel[] = [];
-  const unparsedChannels = await localforage.getItem<Channel[]>('channels');
+  const unparsedChannels = await db.channels.toArray();
 
   const existingChannelsParsing = ChannelSchema.array().safeParse(unparsedChannels);
 
-  if (!existingChannelsParsing.success) {
+  if (!existingChannelsParsing.success || existingChannelsParsing.data.length === 0) {
     existingChannels = mockChannelRecords;
 
-    await localforage.setItem('channels', existingChannels);
+    await db.channels.clear();
+    await db.channels.bulkAdd(existingChannels);
   } else {
     existingChannels = existingChannelsParsing.data;
   }
 
   let existingClients: Client[] = [];
-  const unparsedClients = await localforage.getItem<Client[]>('clients');
+  const unparsedClients = await db.clients.toArray();
 
   const existingClientsParsing = ClientSchema.array().safeParse(unparsedClients);
-  if (!existingClientsParsing.success) {
+  if (!existingClientsParsing.success || existingClientsParsing.data.length === 0) {
     existingClients = mockClientRecords;
 
-    await localforage.setItem('clients', existingClients);
+    await db.clients.clear();
+    await db.clients.bulkAdd(existingClients);
   } else {
     existingClients = existingClientsParsing.data;
   }
 
-  let existingTicketCategories: TicketCategory[] = [];
-  const unparsedTicketCategories = await localforage.getItem<TicketCategory[]>('ticket_categories');
+  let existingTicketTags: TicketTag[] = [];
+  const unparsedTicketTags = await db.ticket_tags.toArray();
 
-  const existingTicketCategoriesParsing =
-    TicketCategorySchema.array().safeParse(unparsedTicketCategories);
-  if (!existingTicketCategoriesParsing.success) {
-    existingTicketCategories = mockTicketCategoryRecords;
+  const existingTicketTagsParsing = TicketTagSchema.array().safeParse(unparsedTicketTags);
+  if (!existingTicketTagsParsing.success || existingTicketTagsParsing.data.length === 0) {
+    existingTicketTags = mockTicketTagRecords;
 
-    await localforage.setItem('ticket_categories', existingTicketCategories);
+    await db.ticket_tags.clear();
+    await db.ticket_tags.bulkAdd(existingTicketTags);
   } else {
-    existingTicketCategories = existingTicketCategoriesParsing.data;
+    existingTicketTags = existingTicketTagsParsing.data;
   }
 
   let existingTickets: Ticket[] = [];
-  const unparsedExistingTickets = await localforage.getItem('tickets');
+  const unparsedExistingTickets = await db.tickets.toArray();
 
   const existingTicketsParsing = TicketSchema.array().safeParse(unparsedExistingTickets);
-  if (!existingTicketsParsing.success) {
+  if (!existingTicketsParsing.success || existingTicketsParsing.data.length === 0) {
     existingTickets = mockTicketRecords;
 
-    await localforage.setItem('tickets', existingTickets);
+    await db.tickets.clear();
+    await db.tickets.bulkAdd(existingTickets);
   } else {
     existingTickets = existingTicketsParsing.data;
   }
 
   let existingTicketAssignments: TicketAssignment[] = [];
-  const unparsedExistingTicketAssignments = await localforage.getItem('ticket_assignments');
+  const unparsedExistingTicketAssignments = await db.ticket_assignments.toArray();
 
   const existingTicketAssignmentsParsing = TicketAssignmentSchema.array().safeParse(
     unparsedExistingTicketAssignments,
   );
-  if (!existingTicketAssignmentsParsing.success) {
+  if (
+    !existingTicketAssignmentsParsing.success ||
+    existingTicketAssignmentsParsing.data.length === 0
+  ) {
     existingTicketAssignments = mockTicketAssignments();
 
-    await localforage.setItem('ticket_assignments', existingTicketAssignments);
+    await db.ticket_assignments.clear();
+    await db.ticket_assignments.bulkAdd(existingTicketAssignments);
   } else {
     existingTicketAssignments = existingTicketAssignmentsParsing.data;
   }
 
   let existingActions: Action[] = [];
-  const unparsedExistingActions = await localforage.getItem('actions');
+  const unparsedExistingActions = await db.actions.toArray();
 
   const actionsParsing = ActionSchema.array().safeParse(unparsedExistingActions);
-  if (!actionsParsing.success) {
+  if (!actionsParsing.success || actionsParsing.data.length === 0) {
     existingActions = mockActionRecords;
 
-    await localforage.setItem('actions', existingActions);
+    await db.actions.clear();
+    await db.actions.bulkAdd(existingActions);
   } else {
     existingActions = actionsParsing.data;
   }
 
   let existingActionFields: ActionField[] = [];
-  const unparsedActionFields = await localforage.getItem('action_fields');
+  const unparsedActionFields = await db.action_fields.toArray();
 
   const existingActionFieldsParsing = ActionFieldSchema.array().safeParse(unparsedActionFields);
 
-  if (!existingActionFieldsParsing.success) {
+  if (!existingActionFieldsParsing.success || existingActionFieldsParsing.data.length === 0) {
     existingActionFields = mockActionFieldRecords();
 
-    await localforage.setItem('action_fields', existingActionFields);
+    await db.action_fields.clear();
+    await db.action_fields.bulkAdd(existingActionFields);
   } else {
     existingActionFields = existingActionFieldsParsing.data;
   }
@@ -312,22 +322,22 @@ prepare()
             ],
           },
           {
-            path: 'ticket-categories',
+            path: 'ticket-tags',
             children: [
               {
-                element: <TicketCategoryIndexPage />,
-                loader: TicketCategoryIndexPage.loader(queryClient),
+                element: <TicketTagIndexPage />,
+                loader: TicketTagIndexPage.loader(queryClient),
                 index: true,
               },
               {
                 path: ':id',
-                loader: TicketCategoryShowPage.loader(queryClient),
-                element: <TicketCategoryShowPage />,
+                loader: TicketTagShowPage.loader(queryClient),
+                element: <TicketTagShowPage />,
               },
               {
                 path: 'create',
-                loader: TicketCategoryCreatePage.loader(),
-                element: <TicketCategoryCreatePage />,
+                loader: TicketTagCreatePage.loader(),
+                element: <TicketTagCreatePage />,
               },
             ],
           },

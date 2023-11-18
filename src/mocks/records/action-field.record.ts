@@ -1,9 +1,6 @@
-import { Action, ActionSchema } from '@/schemas/action.schema';
 import { nanoid } from 'nanoid';
-import localforage from 'localforage';
-import { NotFoundError } from '@/utils/error.util';
 import { mockActionRecords } from './action.record';
-import { ActionField, ActionFieldSchema } from '@/schemas/action-field.schema';
+import { ActionField } from '@/schemas/action-field.schema';
 
 export function mockActionFieldRecords(): ActionField[] {
   return [
@@ -42,27 +39,4 @@ export function mockActionFieldRecords(): ActionField[] {
       order: 3,
     },
   ];
-}
-
-export async function getActionFieldsByActionId(actionId: Action['id']) {
-  const unparsedStoredActions = await localforage.getItem('actions');
-
-  const storedActions = ActionSchema.array().parse(unparsedStoredActions);
-
-  const action = storedActions.find((action) => action.id === actionId);
-
-  if (!action) {
-    throw new NotFoundError(`Action with id ${actionId} not found`);
-  }
-
-  const unparsedStoredActionFields = await localforage.getItem('action_fields');
-  const storedActionFields = ActionFieldSchema.array().parse(unparsedStoredActionFields);
-
-  const filteredActionFields = storedActionFields.filter(
-    (actionField) => actionField.action_id === actionId,
-  );
-
-  const sortedActionFields = filteredActionFields.sort((a, b) => a.order - b.order);
-
-  return sortedActionFields;
 }

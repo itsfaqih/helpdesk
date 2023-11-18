@@ -32,9 +32,9 @@ const mainMenus = [
     label: 'Tickets',
   },
   {
-    to: '/ticket-categories',
+    to: '/ticket-tags',
     icon: Tag,
-    label: 'Ticket Categories',
+    label: 'Ticket Tags',
   },
   {
     to: '/clients',

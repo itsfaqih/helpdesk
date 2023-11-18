@@ -4,12 +4,10 @@ import { AppPageContainer } from '@/components/derived/app-page-container';
 import { Textbox } from '@/components/derived/textbox';
 import { api } from '@/libs/api.lib';
 import { AuthResponseSchema, RegisterSchema } from '@/schemas/auth.schema';
-import { sleep } from '@/utils/delay.util';
 import { UnprocessableEntityError } from '@/utils/error.util';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import localforage from 'localforage';
 import { useForm } from 'react-hook-form';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -36,10 +34,7 @@ export function RegisterPage() {
 
   const onSubmit = registerForm.handleSubmit((data) => {
     registerMutation.mutate(data, {
-      async onSuccess(res) {
-        await localforage.setItem('logged_in_admin', res.data);
-
-        await sleep(1000);
+      async onSuccess() {
         navigate('/');
       },
       onError(error) {

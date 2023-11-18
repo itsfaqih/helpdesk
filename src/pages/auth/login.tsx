@@ -4,11 +4,9 @@ import { Checkbox } from '@/components/derived/checkbox';
 import { Textbox } from '@/components/derived/textbox';
 import { api } from '@/libs/api.lib';
 import { AuthResponseSchema, LoginSchema } from '@/schemas/auth.schema';
-import { sleep } from '@/utils/delay.util';
 import { UnauthorizedError } from '@/utils/error.util';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import localforage from 'localforage';
 import { Controller, useForm } from 'react-hook-form';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
@@ -38,10 +36,7 @@ export function LoginPage() {
 
   const onSubmit = loginForm.handleSubmit((data) => {
     loginMutation.mutate(data, {
-      async onSuccess(res) {
-        await localforage.setItem('logged_in_admin', res.data);
-
-        await sleep(1000);
+      async onSuccess() {
         navigate('/');
       },
       onError(error) {

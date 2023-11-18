@@ -1,19 +1,20 @@
-import { AdminSchema, Admin } from '@/schemas/admin.schema';
+import { Admin } from '@/schemas/admin.schema';
 import { LoginSchema, RegisterSchema } from '@/schemas/auth.schema';
-import localforage from 'localforage';
 import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import { successResponse, errorResponse } from '../mock-utils';
+import { db } from '../records/db';
 
 export const authHandlers = [
   http.post('/api/login', async ({ request }) => {
     const data = LoginSchema.parse(await request.json());
-    const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
-    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-    const admin = storedAdmins.find(
-      (admin) => admin.email === data.email && admin.password === data.password,
-    );
+    const admin = await db.admins
+      .where({
+        email: data.email,
+        password: data.password,
+      })
+      .first();
 
     if (admin) {
       return successResponse({
@@ -34,10 +35,8 @@ export const authHandlers = [
   }),
   http.post('/api/register', async ({ request }) => {
     const data = RegisterSchema.parse(await request.json());
-    const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
-    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
 
-    const isAdminExisted = storedAdmins.some((admin) => admin.email === data.email);
+    const isAdminExisted = (await db.admins.where({ email: data.email }).count()) > 0;
 
     if (isAdminExisted) {
       return errorResponse({
@@ -57,12 +56,9 @@ export const authHandlers = [
       updated_at: new Date().toISOString(),
     };
 
-    const newAdmins = [...storedAdmins, newAdmin];
+    await db.admins.add(newAdmin);
 
-    await localforage.setItem('admins', newAdmins);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...newAdminWithoutPassword } = newAdmin;
+    const { password: _, ...newAdminWithoutPassword } = newAdmin;
 
     return successResponse({
       data: newAdminWithoutPassword,
@@ -75,10 +71,7 @@ export const authHandlers = [
     });
   }),
   http.get('/api/me', async ({ cookies }) => {
-    const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
-    const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
-
-    const loggedInAdmin = storedAdmins.find((admin) => admin.id === cookies.sessionId);
+    const loggedInAdmin = await db.admins.where({ id: cookies.sessionId }).first();
 
     if (!loggedInAdmin) {
       return errorResponse({

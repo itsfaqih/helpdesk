@@ -1,8 +1,8 @@
 import { AppPageTitle } from '../_components/page-title.app';
 import {
-  CreateTicketCategorySchema,
-  TicketCategorySchema,
-  UpdateTicketCategorySchema,
+  CreateTicketTagSchema,
+  TicketTagSchema,
+  UpdateTicketTagSchema,
 } from '@/schemas/ticket.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -22,50 +22,46 @@ import { SaveButton } from '@/components/derived/save-button';
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: 'Create Ticket Category',
+      pageTitle: 'Create Ticket tag',
     });
   };
 }
 
-TicketCategoryCreatePage.loader = loader;
+TicketTagCreatePage.loader = loader;
 
-export function TicketCategoryCreatePage() {
+export function TicketTagCreatePage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
 
   const navigate = useNavigate();
-  const createTicketCategoryForm = useForm<CreateTicketCategorySchema>({
-    resolver: zodResolver(CreateTicketCategorySchema),
+  const createTicketTagForm = useForm<CreateTicketTagSchema>({
+    resolver: zodResolver(CreateTicketTagSchema),
   });
 
-  const createTicketCategoryMutation = useCreateTicketCategoryMutation();
+  const createTicketTagMutation = useCreateTicketTagMutation();
 
-  const onSubmit = createTicketCategoryForm.handleSubmit((data) => {
-    createTicketCategoryMutation.mutate(data, {
+  const onSubmit = createTicketTagForm.handleSubmit((data) => {
+    createTicketTagMutation.mutate(data, {
       onSuccess(res) {
-        navigate(`/ticket-categories/${res.data.id}`);
+        navigate(`/ticket-tags/${res.data.id}`);
       },
     });
   });
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
-      <AppPageBackLink to="/ticket-categories" />
+      <AppPageBackLink to="/ticket-tags" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-6 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
-        <form
-          id="create-ticket-category-form"
-          onSubmit={onSubmit}
-          className="flex flex-col gap-y-4"
-        >
+        <form id="create-ticket-tag-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="name">Name</Label>
             <div className="col-span-3">
               <Textbox
-                {...createTicketCategoryForm.register('name')}
+                {...createTicketTagForm.register('name')}
                 label="Name"
                 placeholder="Enter name"
-                disabled={createTicketCategoryMutation.isPending}
-                error={createTicketCategoryForm.formState.errors.name?.message}
+                disabled={createTicketTagMutation.isPending}
+                error={createTicketTagForm.formState.errors.name?.message}
                 srOnlyLabel
                 data-testid="textbox-name"
               />
@@ -75,11 +71,11 @@ export function TicketCategoryCreatePage() {
             <Label htmlFor="description">Description</Label>
             <div className="col-span-3">
               <TextAreabox
-                {...createTicketCategoryForm.register('description')}
+                {...createTicketTagForm.register('description')}
                 label="Description"
                 placeholder="Enter description"
-                disabled={createTicketCategoryMutation.isPending}
-                error={createTicketCategoryForm.formState.errors.description?.message}
+                disabled={createTicketTagMutation.isPending}
+                error={createTicketTagForm.formState.errors.description?.message}
                 srOnlyLabel
                 rows={3}
                 data-testid="textbox-description"
@@ -88,14 +84,11 @@ export function TicketCategoryCreatePage() {
           </div>
           <div className="flex justify-end">
             <SaveButton
-              form="create-ticket-category-form"
+              form="create-ticket-tag-form"
               type="submit"
-              loading={createTicketCategoryMutation.isPending}
-              success={
-                createTicketCategoryMutation.isSuccess &&
-                !createTicketCategoryForm.formState.isDirty
-              }
-              data-testid="btn-create-ticket-category"
+              loading={createTicketTagMutation.isPending}
+              success={createTicketTagMutation.isSuccess && !createTicketTagForm.formState.isDirty}
+              data-testid="btn-create-ticket-tag"
             />
           </div>
         </form>
@@ -104,25 +97,25 @@ export function TicketCategoryCreatePage() {
   );
 }
 
-const CreateTicketCategoryResponseSchema = APIResponseSchema({
-  schema: TicketCategorySchema,
+const CreateTicketTagResponseSchema = APIResponseSchema({
+  schema: TicketTagSchema,
 });
 
-function useCreateTicketCategoryMutation() {
+function useCreateTicketTagMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    async mutationFn(data: UpdateTicketCategorySchema) {
+    async mutationFn(data: UpdateTicketTagSchema) {
       try {
-        const res = await api.post(data, '/ticket-categories');
+        const res = await api.post(data, '/ticket-tags');
 
-        return CreateTicketCategoryResponseSchema.parse(res);
+        return CreateTicketTagResponseSchema.parse(res);
       } catch (error) {
         throw new Error('Something went wrong. Please contact the administrator');
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ['ticket-category', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['ticket-tag', 'index'] });
     },
   });
 }

@@ -1,8 +1,8 @@
-import { AdminSchema, AdminWithoutPasswordSchema } from '@/schemas/admin.schema';
+import { AdminWithoutPasswordSchema } from '@/schemas/admin.schema';
 import { BaseResponseError, ForbiddenError, UnauthorizedError } from '@/utils/error.util';
-import localforage from 'localforage';
 import { HttpResponse, HttpResponseInit } from 'msw';
 import { z } from 'zod';
+import { db } from './records/db';
 
 type BaseResponseParams<TData = unknown> = {
   data?: TData;
@@ -64,10 +64,7 @@ type AllowAuthenticatedOnlyParams = {
 };
 
 export async function allowAuthenticatedOnly({ sessionId }: AllowAuthenticatedOnlyParams) {
-  const unparsedStoredAdmins = (await localforage.getItem('admins')) ?? [];
-  const storedAdmins = AdminSchema.array().parse(unparsedStoredAdmins);
-
-  const loggedInAdmin = storedAdmins.find((admin) => admin.id === sessionId);
+  const loggedInAdmin = await db.admins.where('id').equals(sessionId).first();
 
   if (!loggedInAdmin) {
     throw new UnauthorizedError();

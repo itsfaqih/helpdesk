@@ -1,7 +1,6 @@
 import { ChannelIndexRequestSchema } from '@/queries/channel.query';
-import { CreateChannelSchema, ChannelSchema, Channel } from '@/schemas/channel.schema';
+import { CreateChannelSchema, Channel } from '@/schemas/channel.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
-import localforage from 'localforage';
 import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
@@ -11,6 +10,7 @@ import {
   successResponse,
 } from '../mock-utils';
 import { NotFoundError, UnprocessableEntityError } from '@/utils/error.util';
+import { db } from '../records/db';
 
 export const channelHandlers = [
   http.post('/api/channels', async ({ cookies, request }) => {
@@ -19,10 +19,7 @@ export const channelHandlers = [
 
       const data = CreateChannelSchema.parse(await request.json());
 
-      const unparsedStoredAdmins = (await localforage.getItem('channels')) ?? [];
-      const storedAdmins = ChannelSchema.array().parse(unparsedStoredAdmins);
-
-      const isChannelExisted = storedAdmins.some((channel) => channel.name === data.name);
+      const isChannelExisted = (await db.channels.where({ name: data.name }).count()) > 0;
 
       if (isChannelExisted) {
         throw new UnprocessableEntityError('Channel with the same name is already registered');
@@ -37,9 +34,7 @@ export const channelHandlers = [
         updated_at: new Date().toISOString(),
       };
 
-      const newChannels = [...storedAdmins, newChannel];
-
-      await localforage.setItem('channels', newChannels);
+      await db.channels.add(newChannel);
 
       return successResponse({
         data: newChannel,
@@ -53,8 +48,7 @@ export const channelHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredChannels = (await localforage.getItem('channels')) ?? [];
-      const storedChannels = ChannelSchema.array().parse(unparsedStoredChannels);
+      const storedChannels = await db.channels.toArray();
 
       const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = ChannelIndexRequestSchema.parse(unparsedFilters);
@@ -115,12 +109,9 @@ export const channelHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredChannels = (await localforage.getItem('channels')) ?? [];
-      const storedChannels = ChannelSchema.array().parse(unparsedStoredChannels);
-
       const channelId = params.channelId;
 
-      const channel = storedChannels.find((channel) => channel.id === channelId);
+      const channel = await db.channels.get(channelId);
 
       if (!channel) {
         throw new NotFoundError('Channel is not found');
@@ -138,28 +129,18 @@ export const channelHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredChannel = (await localforage.getItem('channels')) ?? [];
-      const storedChannels = ChannelSchema.array().parse(unparsedStoredChannel);
-
       const channelId = params.channelId;
 
-      const channelToUpdate = storedChannels.find((channel) => channel.id === channelId);
+      const updatedRecordsCount = await db.channels.update(channelId, {
+        is_archived: true,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!channelToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Channel is not found');
       }
 
-      const updatedChannel: Channel = {
-        ...channelToUpdate,
-        is_archived: true,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newChannels = storedChannels.map((channel) =>
-        channel.id === channelId ? updatedChannel : channel,
-      );
-
-      await localforage.setItem('channels', newChannels);
+      const updatedChannel = await db.channels.get(channelId);
 
       return successResponse({
         data: updatedChannel,
@@ -173,28 +154,18 @@ export const channelHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredChannels = (await localforage.getItem('channels')) ?? [];
-      const storedChannels = ChannelSchema.array().parse(unparsedStoredChannels);
-
       const channelId = params.channelId;
 
-      const channelToUpdate = storedChannels.find((channel) => channel.id === channelId);
+      const updatedRecordsCount = await db.channels.update(channelId, {
+        is_archived: false,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!channelToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Channel is not found');
       }
 
-      const updatedChannel: Channel = {
-        ...channelToUpdate,
-        is_archived: false,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newChannels = storedChannels.map((channel) =>
-        channel.id === channelId ? updatedChannel : channel,
-      );
-
-      await localforage.setItem('channels', newChannels);
+      const updatedChannel = await db.channels.get(channelId);
 
       return successResponse({
         data: updatedChannel,

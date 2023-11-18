@@ -7,7 +7,6 @@ import {
   successResponse,
 } from '../mock-utils';
 import { generatePaginationMeta } from '@/utils/api.util';
-import localforage from 'localforage';
 import {
   Action,
   ActionSchema,
@@ -15,35 +14,26 @@ import {
   UpdateActionSchema,
 } from '@/schemas/action.schema';
 import { ActionIndexRequestSchema } from '@/queries/action.query';
-import { ActionChannelSchema } from '@/schemas/action-channel.schema';
 import { NotFoundError, UnprocessableEntityError } from '@/utils/error.util';
 import { nanoid } from 'nanoid';
 import { ActionFieldSchema } from '@/schemas/action-field.schema';
+import { db } from '../records/db';
 
 export const actionHandlers = [
   http.get('/api/actions', async ({ cookies, request }) => {
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
+      const unparsedStoredActions = await db.actions.toArray();
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
 
       const unparsedFilters = Object.fromEntries(new URL(request.url).searchParams);
       const filters = ActionIndexRequestSchema.parse(unparsedFilters);
 
       const filteredActions = matchSorter(
-        storedActions.filter((action) => {
+        storedActions.filter((_) => {
           if (filters.channel_id) {
-            const unparsedStoredActionChannels = localforage.getItem('action_channel');
-            const storedActionChannels = ActionChannelSchema.array().parse(
-              unparsedStoredActionChannels,
-            );
-
-            const actionChannels = storedActionChannels.filter(
-              (actionChannel) => actionChannel.channel_id === filters.channel_id,
-            );
-
-            return actionChannels.some((actionChannel) => actionChannel.action_id === action.id);
+            // TODO: Implement this
           }
 
           return true;
@@ -76,7 +66,7 @@ export const actionHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
+      const unparsedStoredActions = await db.actions.where('id').equals(params.actionId).toArray();
       const storedActions = ActionSchema.array().parse(unparsedStoredActions);
 
       const actionId = params.actionId;
@@ -87,7 +77,7 @@ export const actionHandlers = [
         throw new NotFoundError('Action is not found');
       }
 
-      const unparsedFields = (await localforage.getItem('action_fields')) ?? [];
+      const unparsedFields = await db.action_fields.toArray();
       const storedFields = ActionFieldSchema.array().parse(unparsedFields);
 
       const fields = storedFields
@@ -108,10 +98,7 @@ export const actionHandlers = [
 
       const data = CreateActionSchema.parse(await request.json());
 
-      const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
-      const storedActions = ActionSchema.array().parse(unparsedStoredActions);
-
-      const isActionExisted = storedActions.some((action) => action.label === data.label);
+      const isActionExisted = (await db.actions.where({ label: data.label }).count()) > 0;
 
       if (isActionExisted) {
         throw new UnprocessableEntityError('Action with the same name is already registered');
@@ -131,9 +118,7 @@ export const actionHandlers = [
         updated_at: new Date().toISOString(),
       };
 
-      const newActions = [...storedActions, newAction];
-
-      await localforage.setItem('actions', newActions);
+      await db.actions.add(newAction);
 
       return successResponse({
         data: newAction,
@@ -149,28 +134,24 @@ export const actionHandlers = [
 
       const data = UpdateActionSchema.parse(await request.json());
 
-      const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
-      const storedActions = ActionSchema.array().parse(unparsedStoredActions);
+      const isActionExisted = (await db.actions.where({ label: data.label }).count()) > 0;
+
+      if (isActionExisted) {
+        throw new UnprocessableEntityError('Action with the same name is already registered');
+      }
 
       const actionId = params.actionId;
 
-      const actionToUpdate = storedActions.find((action) => action.id === actionId);
+      const updatedRecords = await db.actions.update(actionId, {
+        ...data,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!actionToUpdate) {
+      if (updatedRecords === 0) {
         throw new NotFoundError('Action is not found');
       }
 
-      const updatedAction: Action = {
-        ...actionToUpdate,
-        ...data,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newActions = storedActions.map((action) =>
-        action.id === actionId ? updatedAction : action,
-      );
-
-      await localforage.setItem('actions', newActions);
+      const updatedAction = await db.actions.get(actionId);
 
       return successResponse({
         data: updatedAction,
@@ -184,28 +165,18 @@ export const actionHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredAction = (await localforage.getItem('actions')) ?? [];
-      const storedActions = ActionSchema.array().parse(unparsedStoredAction);
-
       const actionId = params.actionId;
 
-      const actionToUpdate = storedActions.find((action) => action.id === actionId);
+      const updatedRecordsCount = await db.actions.update(actionId, {
+        is_archived: true,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!actionToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Action is not found');
       }
 
-      const updatedAction: Action = {
-        ...actionToUpdate,
-        is_archived: true,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newActions = storedActions.map((action) =>
-        action.id === actionId ? updatedAction : action,
-      );
-
-      await localforage.setItem('actions', newActions);
+      const updatedAction = await db.actions.get(actionId);
 
       return successResponse({
         data: updatedAction,
@@ -219,28 +190,18 @@ export const actionHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
-      const storedActions = ActionSchema.array().parse(unparsedStoredActions);
-
       const actionId = params.actionId;
 
-      const actionToUpdate = storedActions.find((action) => action.id === actionId);
+      const updatedRecordsCount = await db.actions.update(actionId, {
+        is_archived: false,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!actionToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Action is not found');
       }
 
-      const updatedAction: Action = {
-        ...actionToUpdate,
-        is_archived: false,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newActions = storedActions.map((action) =>
-        action.id === actionId ? updatedAction : action,
-      );
-
-      await localforage.setItem('actions', newActions);
+      const updatedAction = await db.actions.get(actionId);
 
       return successResponse({
         data: updatedAction,
@@ -254,28 +215,18 @@ export const actionHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
-      const storedActions = ActionSchema.array().parse(unparsedStoredActions);
-
       const actionId = params.actionId;
 
-      const actionToUpdate = storedActions.find((action) => action.id === actionId);
+      const updatedRecordsCount = await db.actions.update(actionId, {
+        is_disabled: false,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!actionToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Action is not found');
       }
 
-      const updatedAction: Action = {
-        ...actionToUpdate,
-        is_disabled: false,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newActions = storedActions.map((action) =>
-        action.id === actionId ? updatedAction : action,
-      );
-
-      await localforage.setItem('actions', newActions);
+      const updatedAction = await db.actions.get(actionId);
 
       return successResponse({
         data: updatedAction,
@@ -289,28 +240,18 @@ export const actionHandlers = [
     try {
       await allowSuperAdminOnly({ sessionId: cookies.sessionId });
 
-      const unparsedStoredActions = (await localforage.getItem('actions')) ?? [];
-      const storedActions = ActionSchema.array().parse(unparsedStoredActions);
-
       const actionId = params.actionId;
 
-      const actionToUpdate = storedActions.find((action) => action.id === actionId);
+      const updatedRecordsCount = await db.actions.update(actionId, {
+        is_disabled: true,
+        updated_at: new Date().toISOString(),
+      });
 
-      if (!actionToUpdate) {
+      if (updatedRecordsCount === 0) {
         throw new NotFoundError('Action is not found');
       }
 
-      const updatedAction: Action = {
-        ...actionToUpdate,
-        is_disabled: true,
-        updated_at: new Date().toISOString(),
-      };
-
-      const newActions = storedActions.map((action) =>
-        action.id === actionId ? updatedAction : action,
-      );
-
-      await localforage.setItem('actions', newActions);
+      const updatedAction = await db.actions.get(actionId);
 
       return successResponse({
         data: updatedAction,

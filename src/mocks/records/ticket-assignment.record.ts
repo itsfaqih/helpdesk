@@ -1,12 +1,8 @@
-import {
-  Ticket,
-  TicketAssignmentSchema,
-  TicketAssignmentWithRelations,
-} from '@/schemas/ticket.schema';
+import { Ticket, TicketAssignmentWithRelations } from '@/schemas/ticket.schema';
 import { nanoid } from 'nanoid';
-import { getTicketById, mockTicketRecords } from './ticket.record';
-import { getAdminById, mockAdminRecords } from './admin.record';
-import localforage from 'localforage';
+import { mockTicketRecords } from './ticket.record';
+import { mockAdminRecords } from './admin.record';
+import { db } from './db';
 
 export function mockTicketAssignments() {
   return [
@@ -27,35 +23,33 @@ export function mockTicketAssignments() {
 
 type GetTicketAssignmentsWithRelationsByTicketIdOptions = {
   ticketId: Ticket['id'];
-  withTrash?: boolean;
 };
 
 export async function getTicketAssignmentsWithRelationsByTicketId(
   options: GetTicketAssignmentsWithRelationsByTicketIdOptions,
 ): Promise<TicketAssignmentWithRelations[]> {
-  const unparsedStoredTicketAssignments = await localforage.getItem('ticket_assignments');
-  const storedTicketAssignments = TicketAssignmentSchema.array().parse(
-    unparsedStoredTicketAssignments,
-  );
-
-  const filteredTicketAssignments = storedTicketAssignments.filter((ticketAssignment) => {
-    if (ticketAssignment.ticket_id !== options.ticketId) {
-      return false;
-    }
-
-    if (options.withTrash) {
-      return true;
-    } else {
-      return !ticketAssignment.deleted_at;
-    }
-  });
+  const ticketAssignments = await db.ticket_assignments
+    .where({ ticket_id: options.ticketId })
+    .toArray();
 
   const ticketAssignmentsWithRelations: TicketAssignmentWithRelations[] = await Promise.all(
-    filteredTicketAssignments.map(async (ticketAssignment) => {
+    ticketAssignments.map(async (ticketAssignment) => {
+      const admin = await db.admins.where('id').equals(ticketAssignment.admin_id).first();
+
+      if (!admin) {
+        throw new Error(`Admin with id ${ticketAssignment.admin_id} not found`);
+      }
+
+      const ticket = await db.tickets.where('id').equals(ticketAssignment.ticket_id).first();
+
+      if (!ticket) {
+        throw new Error(`Ticket with id ${ticketAssignment.ticket_id} not found`);
+      }
+
       const ticketAssignmentWithRelations: TicketAssignmentWithRelations = {
         ...ticketAssignment,
-        admin: await getAdminById(ticketAssignment.admin_id),
-        ticket: await getTicketById(ticketAssignment.ticket_id),
+        admin,
+        ticket,
       };
 
       return ticketAssignmentWithRelations;

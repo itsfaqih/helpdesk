@@ -1,15 +1,14 @@
 import { http } from 'msw';
 import { allowAuthenticatedOnly, handleResponseError, successResponse } from '../mock-utils';
-import { getActionFieldsByActionId } from '../records/action-field.record';
 import {
   ActionField,
   CreateActionFieldSchema,
   UpdateActionFieldSchema,
 } from '@/schemas/action-field.schema';
 import { nanoid } from 'nanoid';
-import localforage from 'localforage';
 import { NotFoundError } from '@/utils/error.util';
 import { arrayMove } from '@dnd-kit/sortable';
+import { db } from '../records/db';
 
 export const actionFieldHandlers = [
   http.get('/api/actions/:actionId/fields', async ({ cookies, params }) => {
@@ -18,7 +17,9 @@ export const actionFieldHandlers = [
 
       const actionId = params.actionId as string;
 
-      const storedActionFields = await getActionFieldsByActionId(actionId);
+      const storedActionFields = await db.action_fields
+        .where({ action_id: actionId })
+        .sortBy('order');
 
       return successResponse({
         data: storedActionFields,
@@ -34,7 +35,10 @@ export const actionFieldHandlers = [
 
       const actionId = params.actionId as string;
 
-      const storedActionFields = await getActionFieldsByActionId(actionId);
+      const storedActionFieldsLength = await db.action_fields
+        .where('action_id')
+        .equals(actionId)
+        .count();
 
       const data = CreateActionFieldSchema.parse(await request.json());
 
@@ -46,13 +50,11 @@ export const actionFieldHandlers = [
         placeholder: data.placeholder,
         is_required: data.is_required,
         helper_text: data.helper_text,
-        order: storedActionFields.length + 1,
+        order: storedActionFieldsLength + 1,
         action_id: data.action_id,
       };
 
-      const newActionFields = [...storedActionFields, newActionField];
-
-      await localforage.setItem(`action_fields`, newActionFields);
+      await db.action_fields.add(newActionField);
 
       return successResponse({
         data: newActionField,
@@ -69,7 +71,10 @@ export const actionFieldHandlers = [
       const actionId = params.actionId as string;
       const actionFieldId = params.actionFieldId as string;
 
-      const storedActionFields = await getActionFieldsByActionId(actionId);
+      const storedActionFields = await db.action_fields
+        .where('action_id')
+        .equals(actionId)
+        .toArray();
 
       const data = UpdateActionFieldSchema.parse(await request.json());
 
@@ -117,7 +122,7 @@ export const actionFieldHandlers = [
         throw new NotFoundError('Action field not found');
       }
 
-      await localforage.setItem(`action_fields`, newActionFields);
+      await db.action_fields.bulkPut(newActionFields);
 
       return successResponse({
         message: 'Successfully updated action field',
@@ -131,20 +136,9 @@ export const actionFieldHandlers = [
     try {
       await allowAuthenticatedOnly({ sessionId: cookies.sessionId });
 
-      const actionId = params.actionId as string;
       const actionFieldId = params.actionFieldId as string;
 
-      const storedActionFields = await getActionFieldsByActionId(actionId);
-
-      const newActionFields = storedActionFields.filter(
-        (actionField) => actionField.id !== actionFieldId,
-      );
-
-      if (newActionFields.length === storedActionFields.length) {
-        throw new NotFoundError('Action field not found');
-      }
-
-      await localforage.setItem(`action_fields`, newActionFields);
+      await db.action_fields.delete(actionFieldId);
 
       return successResponse({
         message: 'Successfully deleted action field',

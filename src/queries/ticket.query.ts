@@ -1,6 +1,6 @@
 import { api } from '@/libs/api.lib';
 import {
-  TicketCategorySchema,
+  TicketTagSchema,
   TicketStatusEnum,
   TicketWithRelationsSchema,
 } from '@/schemas/ticket.schema';
@@ -16,7 +16,7 @@ export const TicketIndexRequestSchema = z.object({
     .enum(['all', ...TicketStatusEnum.options])
     .optional()
     .catch(undefined),
-  category_id: z.string().optional().catch(undefined),
+  tag_id: z.string().optional().catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });
 
@@ -103,92 +103,92 @@ export async function fetchTicketShowQuery({ queryClient, request }: FetchTicket
     }));
 }
 
-export const TicketCategoryIndexRequestSchema = z.object({
+export const TicketTagIndexRequestSchema = z.object({
   search: z.string().optional().catch(undefined),
   is_archived: z.enum(['1', '0']).optional().catch(undefined),
   page: z.coerce.number().optional().catch(undefined),
 });
 
-export type TicketCategoryIndexRequest = z.infer<typeof TicketCategoryIndexRequestSchema>;
+export type TicketTagIndexRequest = z.infer<typeof TicketTagIndexRequestSchema>;
 
-export const TicketCategoryIndexResponseSchema = APIResponseSchema({
-  schema: TicketCategorySchema.array(),
+export const TicketTagIndexResponseSchema = APIResponseSchema({
+  schema: TicketTagSchema.array(),
 });
 
-export function ticketCategoryIndexQuery(request: TicketCategoryIndexRequest = {}) {
+export function ticketTagIndexQuery(request: TicketTagIndexRequest = {}) {
   return {
-    queryKey: ['ticket-category', 'index', request],
+    queryKey: ['ticket-tag', 'index', request],
     async queryFn() {
-      const res = await api.query(request).get('/ticket-categories');
+      const res = await api.query(request).get('/ticket-tags');
 
-      return TicketCategoryIndexResponseSchema.parse(res);
+      return TicketTagIndexResponseSchema.parse(res);
     },
   };
 }
 
-export function useTicketCategoryIndexQuery(request: TicketCategoryIndexRequest) {
-  return useQuery(ticketCategoryIndexQuery(request));
+export function useTicketTagIndexQuery(request: TicketTagIndexRequest) {
+  return useQuery(ticketTagIndexQuery(request));
 }
 
-type FetchTicketCategoryIndexQueryParams = {
+type FetchTicketTagIndexQueryParams = {
   queryClient: QueryClient;
-  request: TicketCategoryIndexRequest;
+  request: TicketTagIndexRequest;
 };
 
-export async function fetchTicketCategoryIndexQuery({
+export async function fetchTicketTagIndexQuery({
   queryClient,
   request,
-}: FetchTicketCategoryIndexQueryParams) {
-  const ticketCategoryIndexQueryOpt = ticketCategoryIndexQuery(request);
+}: FetchTicketTagIndexQueryParams) {
+  const ticketTagIndexQueryOpt = ticketTagIndexQuery(request);
 
-  queryClient.getQueryData(ticketCategoryIndexQueryOpt.queryKey) ??
-    (await queryClient.fetchQuery(ticketCategoryIndexQueryOpt).catch((error) => {
+  queryClient.getQueryData(ticketTagIndexQueryOpt.queryKey) ??
+    (await queryClient.fetchQuery(ticketTagIndexQueryOpt).catch((error) => {
       if (error instanceof UserError) {
         throw error;
       }
     }));
 }
 
-export const TicketCategoryShowRequestSchema = z.object({
+export const TicketTagShowRequestSchema = z.object({
   id: z.string(),
 });
 
-export type TicketCategoryShowRequest = z.infer<typeof TicketCategoryShowRequestSchema>;
+export type TicketTagShowRequest = z.infer<typeof TicketTagShowRequestSchema>;
 
-export const TicketCategoryShowResponseSchema = APIResponseSchema({
-  schema: TicketCategorySchema,
+export const TicketTagShowResponseSchema = APIResponseSchema({
+  schema: TicketTagSchema,
 });
 
-export function ticketCategoryShowQuery(request: TicketCategoryShowRequest) {
+export function ticketTagShowQuery(request: TicketTagShowRequest) {
   const { id, ...requestWithoutId } = request;
 
   return {
-    queryKey: ['ticket-category', 'show', id, requestWithoutId],
+    queryKey: ['ticket-tag', 'show', id, requestWithoutId],
     async queryFn() {
-      const res = await api.get(`/ticket-categories/${id}`);
+      const res = await api.get(`/ticket-tags/${id}`);
 
-      return TicketCategoryShowResponseSchema.parse(res);
+      return TicketTagShowResponseSchema.parse(res);
     },
   };
 }
 
-export function useTicketCategoryShowQuery(request: TicketCategoryShowRequest) {
-  return useQuery(ticketCategoryShowQuery(request));
+export function useTicketTagShowQuery(request: TicketTagShowRequest) {
+  return useQuery(ticketTagShowQuery(request));
 }
 
-type FetchTicketCategoryShowQueryParams = {
+type FetchTicketTagShowQueryParams = {
   queryClient: QueryClient;
-  request: TicketCategoryShowRequest;
+  request: TicketTagShowRequest;
 };
 
-export async function fetchTicketCategoryShowQuery({
+export async function fetchTicketTagShowQuery({
   queryClient,
   request,
-}: FetchTicketCategoryShowQueryParams) {
-  const ticketCategoryShowQueryOpt = ticketCategoryShowQuery(request);
+}: FetchTicketTagShowQueryParams) {
+  const ticketTagShowQueryOpt = ticketTagShowQuery(request);
 
-  queryClient.getQueryData(ticketCategoryShowQueryOpt.queryKey) ??
-    (await queryClient.fetchQuery(ticketCategoryShowQueryOpt).catch((error) => {
+  queryClient.getQueryData(ticketTagShowQueryOpt.queryKey) ??
+    (await queryClient.fetchQuery(ticketTagShowQueryOpt).catch((error) => {
       if (error instanceof UserError) {
         throw error;
       }

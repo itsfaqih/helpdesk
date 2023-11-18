@@ -11,7 +11,7 @@ import {
   TicketIndexRequest,
   TicketIndexRequestSchema,
   fetchTicketIndexQuery,
-  useTicketCategoryIndexQuery,
+  useTicketTagIndexQuery,
   useTicketIndexQuery,
 } from '@/queries/ticket.query';
 import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
@@ -92,7 +92,7 @@ export function TicketIndexPage() {
     defaultValues: {
       ...loaderData.data.request,
       status: loaderData.data.request.status ?? 'all',
-      category_id: loaderData.data.request.category_id ?? 'all',
+      tag_id: loaderData.data.request.tag_id ?? 'all',
     },
   });
 
@@ -109,8 +109,8 @@ export function TicketIndexPage() {
       data.status = undefined;
     }
 
-    if (data.category_id === 'all') {
-      data.category_id = undefined;
+    if (data.tag_id === 'all') {
+      data.tag_id = undefined;
     }
 
     const queryStrings = qs.stringify(data);
@@ -131,16 +131,16 @@ export function TicketIndexPage() {
     }
   }, [filtersForm, loaderData.data.request]);
 
-  const ticketCategoryIndexQuery = useTicketCategoryIndexQuery({});
+  const ticketTagIndexQuery = useTicketTagIndexQuery({});
 
-  const ticketCategoryOptions = [
+  const ticketTagOptions = [
     {
-      label: 'All category',
+      label: 'All tag',
       value: 'all',
     },
-    ...(ticketCategoryIndexQuery.data?.data.map((category) => ({
-      label: category.name,
-      value: category.id,
+    ...(ticketTagIndexQuery.data?.data.map((tag) => ({
+      label: tag.name,
+      value: tag.id,
     })) ?? []),
   ];
 
@@ -215,11 +215,11 @@ export function TicketIndexPage() {
 
           <Controller
             control={filtersForm.control}
-            name="category_id"
+            name="tag_id"
             render={({ field }) => (
               <Select
                 name={field.name}
-                items={ticketCategoryOptions}
+                items={ticketTagOptions}
                 value={field.value ? [field.value] : undefined}
                 onChange={(e) => {
                   const value = e?.value[0];
@@ -227,10 +227,10 @@ export function TicketIndexPage() {
                   field.onChange(value);
                 }}
               >
-                <SelectLabel className="sr-only">Category</SelectLabel>
-                <SelectTrigger placeholder="Select category" className="w-48" />
+                <SelectLabel className="sr-only">tag</SelectLabel>
+                <SelectTrigger placeholder="Select tag" className="w-48" />
                 <SelectContent>
-                  {ticketCategoryOptions.map((option) => (
+                  {ticketTagOptions.map((option) => (
                     <SelectOption key={option.value} item={option} />
                   ))}
                 </SelectContent>
@@ -261,11 +261,11 @@ export function TicketIndexPage() {
           undefined
         }
         refetch={ticketIndexQuery.refetch}
-        headings={['Title', 'Client', 'Category', 'Assignees', 'Status', 'Last updated']}
+        headings={['Title', 'Client', 'tag', 'Assignees', 'Status', 'Last updated']}
         rows={ticketIndexQuery.data?.data.map((ticket) => [
           ticket.title,
           ticket.client.full_name,
-          ticket.category.name,
+          ticket.tags.map((tag) => tag.name).join(', '),
           <div className="flex items-center justify-start -space-x-2">
             {ticket.assignments.length === 0 && <span className="text-gray-500">-</span>}
             {ticket.assignments.map((assignment) => (
