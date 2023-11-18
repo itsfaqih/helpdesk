@@ -88,21 +88,17 @@ export function AppRoot() {
             ))}
           </ul>
         </nav>
-        <Ark.Dialog
-          open={isSidebarOpen}
-          onOpen={() => setIsSidebarOpen(true)}
-          onClose={() => setIsSidebarOpen(false)}
-        >
+        <Ark.Dialog open={isSidebarOpen} onOpenChange={({ open }) => setIsSidebarOpen(open)}>
           <Ark.Portal>
-            <Ark.DialogBackdrop
+            <Ark.Dialog.Backdrop
               className={cn(
                 'fixed inset-0 bg-gray-900/70 lg:hidden',
                 'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300 data-[state=open]:ease-out',
                 'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-300 data-[state=closed]:ease-in',
               )}
             />
-            <Ark.DialogContainer>
-              <Ark.DialogContent asChild>
+            <Ark.Dialog.Positioner>
+              <Ark.Dialog.Content asChild>
                 <nav
                   className={cn(
                     'fixed top-0 left-0 z-10 w-64 h-full px-4 bg-white border-r border-gray-300 lg:hidden',
@@ -124,8 +120,8 @@ export function AppRoot() {
                     ))}
                   </ul>
                 </nav>
-              </Ark.DialogContent>
-            </Ark.DialogContainer>
+              </Ark.Dialog.Content>
+            </Ark.Dialog.Positioner>
           </Ark.Portal>
         </Ark.Dialog>
       </FadeInContainer>

@@ -16,15 +16,6 @@ import {
 } from '@/queries/ticket.query';
 import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
-import {
-  Pagination,
-  PaginationEllipsis,
-  PaginationList,
-  PaginationListItem,
-  PaginationNextPageTrigger,
-  PaginationPageTrigger,
-  PaginationPrevPageTrigger,
-} from '@/components/base/pagination';
 import { useDebounce } from '@/hooks/use-debounce';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Table } from '@/components/base/table';
@@ -44,6 +35,7 @@ import { AppPageResetButton } from '../_components/page-reset-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/base/avatar';
 import { getInitials } from '@/utils/text.util';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/base/tooltip';
+import { TablePagination } from '@/components/derived/table-pagination';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -154,7 +146,7 @@ export function TicketIndexPage() {
         render={({ field }) => (
           <Tabs
             value={field.value ?? '0'}
-            onChange={({ value }) => {
+            onValueChange={({ value }) => {
               if (value && (value === '1' || value === '0')) {
                 field.onChange(value);
               }
@@ -188,7 +180,7 @@ export function TicketIndexPage() {
                 name={field.name}
                 items={ticketStatusOptions}
                 value={field.value ? [field.value] : undefined}
-                onChange={(e) => {
+                onValueChange={(e) => {
                   const value = e?.value[0];
 
                   if (
@@ -221,7 +213,7 @@ export function TicketIndexPage() {
                 name={field.name}
                 items={ticketTagOptions}
                 value={field.value ? [field.value] : undefined}
-                onChange={(e) => {
+                onValueChange={(e) => {
                   const value = e?.value[0];
 
                   field.onChange(value);
@@ -303,38 +295,15 @@ export function TicketIndexPage() {
             control={filtersForm.control}
             name="page"
             render={({ field }) => (
-              <Pagination
+              <TablePagination
                 page={field.value ?? 1}
                 count={ticketIndexQuery.data.meta?.pagination?.total ?? 1}
                 pageSize={ticketIndexQuery.data.meta?.pagination?.per_page ?? 1}
-                onChange={({ page }) => {
+                onPageChange={({ page }) => {
                   field.onChange(page);
                 }}
                 className="justify-center"
-              >
-                {({ pages }) => (
-                  <PaginationList>
-                    <PaginationListItem>
-                      <PaginationPrevPageTrigger />
-                    </PaginationListItem>
-                    {/* temporarily cast type until it's properly typed */}
-                    {(pages as { type: 'page'; value: number }[]).map((page, index) =>
-                      page.type === 'page' ? (
-                        <PaginationListItem key={index}>
-                          <PaginationPageTrigger {...page}>{page.value}</PaginationPageTrigger>
-                        </PaginationListItem>
-                      ) : (
-                        <PaginationListItem key={index}>
-                          <PaginationEllipsis index={index}>&#8230;</PaginationEllipsis>
-                        </PaginationListItem>
-                      ),
-                    )}
-                    <PaginationListItem>
-                      <PaginationNextPageTrigger />
-                    </PaginationListItem>
-                  </PaginationList>
-                )}
-              </Pagination>
+              />
             )}
           />
         </div>

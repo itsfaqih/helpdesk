@@ -497,11 +497,8 @@ function AddTicketAssigneePopover({ ticketId, trigger }: AddTicketAssigneePopove
   return (
     <Popover
       open={open}
-      onOpen={() => {
-        setOpen(true);
-      }}
-      onClose={() => {
-        setOpen(false);
+      onOpenChange={({ open }) => {
+        setOpen(open);
       }}
       positioning={{ placement: 'bottom-end' }}
     >

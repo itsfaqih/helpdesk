@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Portal as ArkPortal, Select as ArkSelect } from '@ark-ui/react';
+import * as Ark from '@ark-ui/react';
 import { cn } from '@/libs/cn.lib';
 
 type SelectOptionType = { label: string; value: string };
@@ -8,7 +8,7 @@ export function Select({
   className,
   positioning,
   ...props
-}: Omit<React.ComponentPropsWithoutRef<typeof ArkSelect>, 'items'> & {
+}: React.ComponentPropsWithoutRef<typeof Ark.Select.Root> & {
   items: SelectOptionType[];
 }) {
   // const generatedId = React.useId()
@@ -16,7 +16,7 @@ export function Select({
   // const elementId = id || generatedId
 
   return (
-    <ArkSelect.Root
+    <Ark.Select.Root
       positioning={{ sameWidth: true, ...positioning }}
       className={cn('grid gap-1.5', className)}
       {...props}
@@ -25,22 +25,22 @@ export function Select({
 }
 
 export const SelectLabel = React.forwardRef<
-  React.ElementRef<typeof ArkSelect.Label>,
-  React.ComponentPropsWithoutRef<typeof ArkSelect.Label>
+  React.ElementRef<typeof Ark.Select.Label>,
+  React.ComponentPropsWithoutRef<typeof Ark.Select.Label>
 >(({ children, className, ...props }, ref) => (
-  <ArkSelect.Label
+  <Ark.Select.Label
     ref={ref}
     className={cn('block text-sm font-medium text-gray-700', className)}
     {...props}
   >
     {children}
-  </ArkSelect.Label>
+  </Ark.Select.Label>
 ));
 
-SelectLabel.displayName = ArkSelect.Label.displayName;
+SelectLabel.displayName = Ark.Select.Label.displayName;
 
 type SelectTriggerProps = Omit<
-  React.ComponentPropsWithoutRef<typeof ArkSelect.Trigger>,
+  React.ComponentPropsWithoutRef<typeof Ark.Select.Trigger>,
   'children'
 > & {
   placeholder: string;
@@ -48,12 +48,12 @@ type SelectTriggerProps = Omit<
 };
 
 export const SelectTrigger = React.forwardRef<
-  React.ElementRef<typeof ArkSelect.Trigger>,
+  React.ElementRef<typeof Ark.Select.Trigger>,
   SelectTriggerProps
 >(({ placeholder, error, className, ...props }, ref) => (
   <div className="grid gap-1.5">
-    <ArkSelect.Control className="relative">
-      <ArkSelect.Trigger
+    <Ark.Select.Control className="relative">
+      <Ark.Select.Trigger
         ref={ref}
         className={cn(
           'whitespace-nowrap flex w-full justify-between gap-4 cursor-default items-center rounded-lg bg-haptic-white px-2.5 py-1.5 text-sm font-medium transition focus:outline-2',
@@ -64,7 +64,7 @@ export const SelectTrigger = React.forwardRef<
         )}
         {...props}
       >
-        <ArkSelect.Value placeholder={placeholder} />
+        <Ark.Select.ValueText placeholder={placeholder} />
 
         <svg
           className="w-4.5 h-4.5 flex-shrink-0"
@@ -79,46 +79,46 @@ export const SelectTrigger = React.forwardRef<
             fill="black"
           />
         </svg>
-      </ArkSelect.Trigger>
-    </ArkSelect.Control>
+      </Ark.Select.Trigger>
+    </Ark.Select.Control>
     {error && <p className="text-sm text-rose-500">{error}</p>}
   </div>
 ));
 
-SelectTrigger.displayName = ArkSelect.Trigger.displayName;
+SelectTrigger.displayName = Ark.Select.Trigger.displayName;
 
-export const SelectClearTrigger = ArkSelect.ClearTrigger;
+export const SelectClearTrigger = Ark.Select.ClearTrigger;
 
 export const SelectContent = React.forwardRef<
-  React.ElementRef<typeof ArkSelect.Content>,
-  React.ComponentPropsWithoutRef<typeof ArkSelect.Content>
+  React.ElementRef<typeof Ark.Select.Content>,
+  React.ComponentPropsWithoutRef<typeof Ark.Select.Content>
 >(({ children, className, ...props }, ref) => (
-  <ArkPortal>
-    <ArkSelect.Positioner>
-      <ArkSelect.Content
+  <Ark.Portal>
+    <Ark.Select.Positioner>
+      <Ark.Select.Content
         ref={ref}
         className={cn('rounded-md bg-white shadow-menu focus:outline-none p-1', className)}
         {...props}
       >
         <div className="flex flex-col gap-1">{children}</div>
-      </ArkSelect.Content>
-    </ArkSelect.Positioner>
-  </ArkPortal>
+      </Ark.Select.Content>
+    </Ark.Select.Positioner>
+  </Ark.Portal>
 ));
 
-SelectContent.displayName = ArkSelect.Content.displayName;
+SelectContent.displayName = Ark.Select.Content.displayName;
 
-export const SelectItemGroup = ArkSelect.ItemGroup;
+export const SelectItemGroup = Ark.Select.ItemGroup;
 
-export const SelectItemGroupLabel = ArkSelect.ItemGroupLabel;
+export const SelectItemGroupLabel = Ark.Select.ItemGroupLabel;
 
 export const SelectOption = React.forwardRef<
-  React.ElementRef<typeof ArkSelect.Item>,
-  Omit<React.ComponentPropsWithoutRef<typeof ArkSelect.Item>, 'item'> & {
+  React.ElementRef<typeof Ark.Select.Item>,
+  Omit<React.ComponentPropsWithoutRef<typeof Ark.Select.Item>, 'item'> & {
     item: SelectOptionType;
   }
 >(({ className, item, ...props }, ref) => (
-  <ArkSelect.Item
+  <Ark.Select.Item
     ref={ref}
     item={item}
     className={cn(
@@ -131,9 +131,9 @@ export const SelectOption = React.forwardRef<
     )}
     {...props}
   >
-    <ArkSelect.ItemText>{item.label}</ArkSelect.ItemText>
-    <ArkSelect.ItemIndicator />
-  </ArkSelect.Item>
+    <Ark.Select.ItemText>{item.label}</Ark.Select.ItemText>
+    <Ark.Select.ItemIndicator />
+  </Ark.Select.Item>
 ));
 
 SelectOption.displayName = 'SelectOption';

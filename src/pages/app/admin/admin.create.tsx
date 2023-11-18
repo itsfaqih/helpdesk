@@ -113,7 +113,7 @@ export function AdminCreatePage() {
                     name={field.name}
                     disabled={createAdminMutation.isPending}
                     items={adminRoleOptions}
-                    onChange={(e) => {
+                    onValueChange={(e) => {
                       const value = e.value[0];
 
                       if (value === 'super_admin' || value === 'operator') {

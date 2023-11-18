@@ -14,15 +14,6 @@ import {
 } from '@/queries/channel.query';
 import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
-import {
-  Pagination,
-  PaginationEllipsis,
-  PaginationList,
-  PaginationListItem,
-  PaginationNextPageTrigger,
-  PaginationPageTrigger,
-  PaginationPrevPageTrigger,
-} from '@/components/base/pagination';
 import { useDebounce } from '@/hooks/use-debounce';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Table } from '@/components/base/table';
@@ -33,6 +24,7 @@ import { ArchiveChannelDialog } from './_components/archive-channel-dialog';
 import { RestoreChannelDialog } from './_components/restore-channel-dialog';
 import { AppPageSearchBox } from '../_components/page-search-box';
 import { AppPageResetButton } from '../_components/page-reset-button';
+import { TablePagination } from '@/components/derived/table-pagination';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -158,7 +150,7 @@ export function ChannelIndexPage() {
           render={({ field }) => (
             <Tabs
               value={field.value ?? '0'}
-              onChange={({ value }) => {
+              onValueChange={({ value }) => {
                 if (value && (value === '1' || value === '0')) {
                   field.onChange(value);
                   filtersForm.setValue('page', undefined);
@@ -253,38 +245,15 @@ export function ChannelIndexPage() {
               control={filtersForm.control}
               name="page"
               render={({ field }) => (
-                <Pagination
+                <TablePagination
                   page={field.value ?? 1}
                   count={channelIndexQuery.data.meta?.pagination?.total ?? 1}
                   pageSize={channelIndexQuery.data.meta?.pagination?.per_page ?? 1}
-                  onChange={({ page }) => {
+                  onPageChange={({ page }) => {
                     field.onChange(page);
                   }}
                   className="justify-center"
-                >
-                  {({ pages }) => (
-                    <PaginationList>
-                      <PaginationListItem>
-                        <PaginationPrevPageTrigger />
-                      </PaginationListItem>
-                      {/* temporarily cast type until it's properly typed */}
-                      {(pages as { type: 'page'; value: number }[]).map((page, index) =>
-                        page.type === 'page' ? (
-                          <PaginationListItem key={index}>
-                            <PaginationPageTrigger {...page}>{page.value}</PaginationPageTrigger>
-                          </PaginationListItem>
-                        ) : (
-                          <PaginationListItem key={index}>
-                            <PaginationEllipsis index={index}>&#8230;</PaginationEllipsis>
-                          </PaginationListItem>
-                        ),
-                      )}
-                      <PaginationListItem>
-                        <PaginationNextPageTrigger />
-                      </PaginationListItem>
-                    </PaginationList>
-                  )}
-                </Pagination>
+                />
               )}
             />
           </div>

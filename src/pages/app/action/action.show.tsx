@@ -449,7 +449,7 @@ function ActionFieldFormSection({
                   render={({ field }) => (
                     <Select
                       items={httpMethodOptions}
-                      onChange={(e) => {
+                      onValueChange={(e) => {
                         const value = e.value[0];
                         if (ActionFormMethodEnum.safeParse(value).success) {
                           field.onChange(value);
@@ -546,13 +546,14 @@ function ActionFieldItem({
       />
       <Popover
         open={isEditing}
-        onOpen={() => {
-          onClickEditButton(actionField);
-        }}
-        onClose={() => {
-          onCancelEdit();
-          updateActionFieldMutation.reset();
-          setIsShowingAdvanced(false);
+        onOpenChange={({ open }) => {
+          if (open) {
+            onClickEditButton(actionField);
+          } else {
+            onCancelEdit();
+            updateActionFieldMutation.reset();
+            setIsShowingAdvanced(false);
+          }
         }}
         positioning={{ placement: 'right-start' }}
         portalled
@@ -666,7 +667,7 @@ function ActionFieldItem({
                   render={({ field }) => (
                     <Select
                       value={[field.value]}
-                      onChange={(e) => {
+                      onValueChange={(e) => {
                         const value = e.value[0];
                         if (ActionFieldTypeEnum.safeParse(value).success) {
                           field.onChange(value);
@@ -694,7 +695,7 @@ function ActionFieldItem({
                     <Checkbox
                       label="Required"
                       checked={field.value === true}
-                      onChange={({ checked }) => {
+                      onCheckedChange={({ checked }) => {
                         field.onChange(checked === true);
                       }}
                       disabled={deleteActionFieldMutation.isPending}

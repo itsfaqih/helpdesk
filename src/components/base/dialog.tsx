@@ -3,18 +3,18 @@ import * as Ark from '@ark-ui/react';
 import { cn } from '@/libs/cn.lib';
 import { X } from '@phosphor-icons/react';
 
-export const Dialog = Ark.Dialog;
+export const Dialog = Ark.Dialog.Root;
 
-export const DialogTrigger = Ark.DialogTrigger;
+export const DialogTrigger = Ark.Dialog.Trigger;
 
-export const DialogCloseTrigger = Ark.DialogCloseTrigger;
+export const DialogCloseTrigger = Ark.Dialog.CloseTrigger;
 
 export const DialogTitle = React.forwardRef<
-  React.ElementRef<typeof Ark.DialogTitle>,
-  React.ComponentProps<typeof Ark.DialogTitle>
+  React.ElementRef<typeof Ark.Dialog.Title>,
+  React.ComponentProps<typeof Ark.Dialog.Title>
 >(({ className, ...props }, ref) => {
   return (
-    <Ark.DialogTitle
+    <Ark.Dialog.Title
       ref={ref}
       className={cn('text-lg font-semibold text-gray-800 pr-8', className)}
       {...props}
@@ -22,14 +22,14 @@ export const DialogTitle = React.forwardRef<
   );
 });
 
-DialogTitle.displayName = Ark.DialogTitle.displayName;
+DialogTitle.displayName = Ark.Dialog.Title.displayName;
 
 export const DialogDescription = React.forwardRef<
-  React.ElementRef<typeof Ark.DialogDescription>,
-  React.ComponentProps<typeof Ark.DialogDescription>
+  React.ElementRef<typeof Ark.Dialog.Description>,
+  React.ComponentProps<typeof Ark.Dialog.Description>
 >(({ className, ...props }, ref) => {
   return (
-    <Ark.DialogDescription
+    <Ark.Dialog.Description
       ref={ref}
       className={cn('text-sm text-gray-500', className)}
       {...props}
@@ -37,26 +37,26 @@ export const DialogDescription = React.forwardRef<
   );
 });
 
-DialogDescription.displayName = Ark.DialogDescription.displayName;
+DialogDescription.displayName = Ark.Dialog.Description.displayName;
 
 export const DialogContent = React.forwardRef<
-  React.ElementRef<typeof Ark.DialogContent>,
-  React.ComponentProps<typeof Ark.DialogContent>
+  React.ElementRef<typeof Ark.Dialog.Content>,
+  React.ComponentProps<typeof Ark.Dialog.Content>
 >(({ children, className, ...props }, ref) => {
   return (
     <Ark.Portal>
-      <Ark.DialogBackdrop
+      <Ark.Dialog.Backdrop
         className={cn(
           'fixed inset-0 bg-gray-900/70',
           'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300',
           'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-300',
         )}
       />
-      <Ark.DialogContainer className="fixed inset-0 [&:not([hidden])]:flex items-center justify-center">
-        <Ark.DialogContent
+      <Ark.Dialog.Positioner className="fixed inset-0 [&:not([hidden])]:flex items-center justify-center">
+        <Ark.Dialog.Content
           ref={ref}
           className={cn(
-            'relative flex flex-col py-5 px-6 bg-white rounded-lg shadow-lg',
+            'relative [&:not([hidden])]:flex flex-col py-5 px-6 bg-white rounded-lg shadow-lg',
             'data-[state=open]:animate-in data-[state=open]:duration-300 data-[state=open]:fade-in data-[state=open]:zoom-in-95',
             'data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
             className,
@@ -64,12 +64,12 @@ export const DialogContent = React.forwardRef<
           {...props}
         >
           {children}
-          <Ark.DialogCloseTrigger className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+          <Ark.Dialog.CloseTrigger className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
             <X className="w-5 h-5" />
             <span className="sr-only">Close</span>
-          </Ark.DialogCloseTrigger>
-        </Ark.DialogContent>
-      </Ark.DialogContainer>
+          </Ark.Dialog.CloseTrigger>
+        </Ark.Dialog.Content>
+      </Ark.Dialog.Positioner>
     </Ark.Portal>
   );
 });

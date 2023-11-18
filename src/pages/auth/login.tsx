@@ -80,8 +80,8 @@ export function LoginPage() {
                 label="Remember me"
                 name={field.name}
                 onBlur={field.onBlur}
-                onChange={({ checked }) => {
-                  field.onChange(typeof checked === 'boolean' ? checked : false);
+                onCheckedChange={({ checked }) => {
+                  field.onChange(checked === true);
                 }}
                 checked={field.value}
                 disabled={loginMutation.isPending}

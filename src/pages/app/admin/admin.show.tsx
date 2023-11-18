@@ -145,7 +145,7 @@ export function AdminShowPage() {
                       name={field.name}
                       disabled={updateAdminMutation.isPending}
                       items={adminRoleOptions}
-                      onChange={(e) => {
+                      onValueChange={(e) => {
                         const value = e?.value[0];
 
                         if (value === 'super_admin' || value === 'operator') {

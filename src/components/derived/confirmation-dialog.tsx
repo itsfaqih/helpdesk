@@ -52,18 +52,11 @@ export function ConfirmationDialog({
   return (
     <Dialog
       open={isOpen ?? open}
-      onClose={() => {
+      onOpenChange={({ open }) => {
         if (onOpenChange) {
-          onOpenChange(false);
+          onOpenChange(open);
         } else {
-          setOpen(false);
-        }
-      }}
-      onOpen={() => {
-        if (onOpenChange) {
-          onOpenChange(true);
-        } else {
-          setOpen(true);
+          setOpen(open);
         }
       }}
       data-testid={`dialog-${id}`}

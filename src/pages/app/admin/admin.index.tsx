@@ -23,15 +23,6 @@ import {
 } from '@/queries/admin.query';
 import { Link, LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
-import {
-  Pagination,
-  PaginationEllipsis,
-  PaginationList,
-  PaginationListItem,
-  PaginationNextPageTrigger,
-  PaginationPageTrigger,
-  PaginationPrevPageTrigger,
-} from '@/components/base/pagination';
 import { useDebounce } from '@/hooks/use-debounce';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Table } from '@/components/base/table';
@@ -41,6 +32,7 @@ import { AppPageResetButton } from '../_components/page-reset-button';
 import { DeactivateAdminDialog } from './_components/deactivate-admin-dialog';
 import { ActivateAdminDialog } from './_components/activate-admin-dialog';
 import { AppPageSearchBox } from '../_components/page-search-box';
+import { TablePagination } from '@/components/derived/table-pagination';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -180,7 +172,7 @@ export function AdminIndexPage() {
           render={({ field }) => (
             <Tabs
               value={field.value ?? '1'}
-              onChange={({ value }) => {
+              onValueChange={({ value }) => {
                 if (value && (value === '1' || value === '0')) {
                   field.onChange(value);
                 }
@@ -216,7 +208,7 @@ export function AdminIndexPage() {
                 <Select
                   name={field.name}
                   items={adminRoleOptions}
-                  onChange={(e) => {
+                  onValueChange={(e) => {
                     const value = e?.value[0];
 
                     if (value === '' || value === 'super_admin' || value === 'operator') {
@@ -320,38 +312,15 @@ export function AdminIndexPage() {
               control={filtersForm.control}
               name="page"
               render={({ field }) => (
-                <Pagination
+                <TablePagination
                   page={field.value ?? 1}
                   count={adminIndexQuery.data.meta?.pagination?.total ?? 1}
                   pageSize={adminIndexQuery.data.meta?.pagination?.per_page ?? 1}
-                  onChange={({ page }) => {
+                  onPageChange={({ page }) => {
                     field.onChange(page);
                   }}
                   className="justify-center"
-                >
-                  {({ pages }) => (
-                    <PaginationList>
-                      <PaginationListItem>
-                        <PaginationPrevPageTrigger />
-                      </PaginationListItem>
-                      {/* temporarily cast type until it's properly typed */}
-                      {(pages as { type: 'page'; value: number }[]).map((page, index) =>
-                        page.type === 'page' ? (
-                          <PaginationListItem key={index}>
-                            <PaginationPageTrigger {...page}>{page.value}</PaginationPageTrigger>
-                          </PaginationListItem>
-                        ) : (
-                          <PaginationListItem key={index}>
-                            <PaginationEllipsis index={index}>&#8230;</PaginationEllipsis>
-                          </PaginationListItem>
-                        ),
-                      )}
-                      <PaginationListItem>
-                        <PaginationNextPageTrigger />
-                      </PaginationListItem>
-                    </PaginationList>
-                  )}
-                </Pagination>
+                />
               )}
             />
           </div>

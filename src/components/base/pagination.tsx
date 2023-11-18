@@ -4,17 +4,17 @@ import { cn } from '@/libs/cn.lib';
 import { CaretLeft, CaretRight } from '@phosphor-icons/react';
 
 export const Pagination = React.forwardRef<
-  React.ElementRef<typeof Ark.Pagination>,
-  React.ComponentPropsWithoutRef<typeof Ark.Pagination>
+  React.ElementRef<typeof Ark.Pagination.Root>,
+  React.ComponentPropsWithoutRef<typeof Ark.Pagination.Root>
 >(({ className, ...props }, ref) => (
-  <Ark.Pagination ref={ref} className={cn('flex', className)} {...props} />
+  <Ark.Pagination.Root ref={ref} className={cn('flex', className)} {...props} />
 ));
 
 export const PaginationEllipsis = React.forwardRef<
-  React.ElementRef<typeof Ark.PaginationEllipsis>,
-  React.ComponentPropsWithoutRef<typeof Ark.PaginationEllipsis>
+  React.ElementRef<typeof Ark.Pagination.Ellipsis>,
+  React.ComponentPropsWithoutRef<typeof Ark.Pagination.Ellipsis>
 >(({ className, ...props }, ref) => (
-  <Ark.PaginationEllipsis
+  <Ark.Pagination.Ellipsis
     ref={ref}
     className={cn(
       'px-2 py-1 text-gray-800 text-sm w-8 h-8 flex items-center justify-center rounded-lg',
@@ -24,22 +24,11 @@ export const PaginationEllipsis = React.forwardRef<
   />
 ));
 
-export const PaginationListItem = Ark.PaginationListItem;
-
-export const PaginationList = React.forwardRef<
-  React.ElementRef<typeof Ark.PaginationList>,
-  React.ComponentPropsWithoutRef<typeof Ark.PaginationList>
->(({ className, ...props }, ref) => (
-  <Ark.PaginationList ref={ref} className={cn('flex gap-x-1', className)} {...props} />
-));
-
-PaginationList.displayName = Ark.PaginationList.displayName;
-
-export const PaginationPrevPageTrigger = React.forwardRef<
-  React.ElementRef<typeof Ark.PaginationPrevPageTrigger>,
-  React.ComponentPropsWithoutRef<typeof Ark.PaginationPrevPageTrigger>
+export const PaginationPrevTrigger = React.forwardRef<
+  React.ElementRef<typeof Ark.Pagination.PrevTrigger>,
+  React.ComponentPropsWithoutRef<typeof Ark.Pagination.PrevTrigger>
 >(({ children, className, ...props }, ref) => (
-  <Ark.PaginationPrevPageTrigger
+  <Ark.Pagination.PrevTrigger
     ref={ref}
     className={cn(
       'px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-lg w-8 h-8 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800 disabled:opacity-40',
@@ -48,16 +37,16 @@ export const PaginationPrevPageTrigger = React.forwardRef<
     {...props}
   >
     {children ?? <CaretLeft className="w-5 h-5" />}
-  </Ark.PaginationPrevPageTrigger>
+  </Ark.Pagination.PrevTrigger>
 ));
 
-PaginationPrevPageTrigger.displayName = Ark.PaginationPrevPageTrigger.displayName;
+PaginationPrevTrigger.displayName = Ark.Pagination.PrevTrigger.displayName;
 
-export const PaginationNextPageTrigger = React.forwardRef<
-  React.ElementRef<typeof Ark.PaginationNextPageTrigger>,
-  React.ComponentPropsWithoutRef<typeof Ark.PaginationNextPageTrigger>
+export const PaginationNextTrigger = React.forwardRef<
+  React.ElementRef<typeof Ark.Pagination.NextTrigger>,
+  React.ComponentPropsWithoutRef<typeof Ark.Pagination.NextTrigger>
 >(({ children, className, ...props }, ref) => (
-  <Ark.PaginationNextPageTrigger
+  <Ark.Pagination.NextTrigger
     ref={ref}
     className={cn(
       'px-2 py-1 enabled:hover:bg-gray-100 disabled:cursor-not-allowed rounded-lg w-8 h-8 flex items-center justify-center enabled:active:bg-gray-200 text-gray-800 disabled:opacity-40',
@@ -66,16 +55,16 @@ export const PaginationNextPageTrigger = React.forwardRef<
     {...props}
   >
     {children ?? <CaretRight className="w-5 h-5" />}
-  </Ark.PaginationNextPageTrigger>
+  </Ark.Pagination.NextTrigger>
 ));
 
-PaginationNextPageTrigger.displayName = Ark.PaginationNextPageTrigger.displayName;
+PaginationNextTrigger.displayName = Ark.Pagination.NextTrigger.displayName;
 
-export const PaginationPageTrigger = React.forwardRef<
-  React.ElementRef<typeof Ark.PaginationPageTrigger>,
-  React.ComponentPropsWithoutRef<typeof Ark.PaginationPageTrigger>
+export const PaginationItem = React.forwardRef<
+  React.ElementRef<typeof Ark.PaginationItem>,
+  React.ComponentPropsWithoutRef<typeof Ark.PaginationItem>
 >(({ className, ...props }, ref) => (
-  <Ark.PaginationPageTrigger
+  <Ark.PaginationItem
     ref={ref}
     className={cn(
       'tabular-nums aria-[current]:bg-haptic-brand-700 aria-[current]:text-white aria-[current]:hover:bg-haptic-brand-600 active:scale-95 text-gray-800 text-sm w-8 font-medium h-8 flex items-center justify-center disabled:cursor-not-allowed hover:bg-gray-100 rounded-lg',

@@ -34,8 +34,7 @@ export const IconPicker = React.forwardRef<React.ElementRef<typeof Picker>, Icon
       <div>
         <Popover
           open={isPopoverOpen}
-          onOpen={() => setIsPopoverOpen(true)}
-          onClose={() => setIsPopoverOpen(false)}
+          onOpenChange={({ open }) => setIsPopoverOpen(open)}
           closeOnInteractOutside={false}
         >
           <PopoverTrigger asChild>
