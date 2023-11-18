@@ -1,5 +1,5 @@
 import { mockAdminRecords } from '@/mocks/records/admin.record';
-import { test as setup } from '@playwright/test';
+import { expect, test as setup } from '@playwright/test';
 
 const superAdminFile = 'playwright/.auth/super-admin.json';
 
@@ -11,6 +11,8 @@ setup('authenticate as super admin', async ({ page }) => {
   await page.getByRole('button', { name: 'Login' }).click();
 
   await page.waitForURL('/');
+
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 
   await page.context().storageState({ path: superAdminFile });
 });
@@ -25,6 +27,8 @@ setup('authenticate as operator', async ({ page }) => {
   await page.getByRole('button', { name: 'Login' }).click();
 
   await page.waitForURL('/');
+
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 
   await page.context().storageState({ path: operatorFile });
 });

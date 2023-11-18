@@ -45,7 +45,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@playwright/test": "^1.39.0",
+    "@playwright/test": "^1.40.0",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/emoji-mart": "^3.0.10",
     "@types/qs": "^6.9.7",
@@ -58,7 +58,7 @@
     "eslint": "^8.44.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.1",
-    "msw": "^2.0.2",
+    "msw": "^2.0.8",
     "postcss": "^8.4.25",
     "prettier": "^3.0.3",
     "prettier-config-airbnb": "^1.0.0",

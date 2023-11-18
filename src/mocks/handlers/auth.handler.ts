@@ -22,7 +22,7 @@ export const authHandlers = [
         message: 'Successfully authenticated',
         httpResponseInit: {
           headers: {
-            'Set-Cookie': `sessionId=${admin.id}`,
+            'Set-Cookie': `sessionId=${admin.id}; Max-Age=3600`,
           },
         },
       });
@@ -65,12 +65,19 @@ export const authHandlers = [
       message: 'Successfully registered admin',
       httpResponseInit: {
         headers: {
-          'Set-Cookie': `sessionId=${newAdmin.id}`,
+          'Set-Cookie': `sessionId=${newAdmin.id}; Max-Age=3600`,
         },
       },
     });
   }),
   http.get('/api/me', async ({ cookies }) => {
+    if (!cookies.sessionId) {
+      return errorResponse({
+        message: 'Unauthorized',
+        status: 401,
+      });
+    }
+
     const loggedInAdmin = await db.admins.where({ id: cookies.sessionId }).first();
 
     if (!loggedInAdmin) {

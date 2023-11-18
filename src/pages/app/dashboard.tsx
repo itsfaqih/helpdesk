@@ -5,6 +5,7 @@ import { cn } from '@/libs/cn.lib';
 import { AppPageContainer } from '@/components/derived/app-page-container';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { useLoaderData } from 'react-router-dom';
+import { AppPageTitle } from './_components/page-title.app';
 
 function loader() {
   return async () => {
@@ -20,37 +21,37 @@ export function DashboardPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
 
   return (
-    <AppPageContainer
-      title={loaderData.pageTitle}
-      className="grid grid-cols-1 gap-4 sm:gap-8 sm:grid-cols-2 xl:grid-cols-4"
-    >
-      <OverviewCard
-        icon={Archive}
-        title="Total Tickets"
-        value="100"
-        classNames={{ iconContainer: 'bg-blue-100', icon: 'text-blue-700' }}
-      />
-      <OverviewCard
-        icon={Ticket}
-        title="Open Tickets"
-        value="100"
-        classNames={{ iconContainer: 'bg-rose-100', icon: 'text-rose-700' }}
-      />
-      <OverviewCard
-        icon={HourglassMedium}
-        title="Ongoing Tickets"
-        value="100"
-        classNames={{ iconContainer: 'bg-amber-100', icon: 'text-amber-700' }}
-      />
-      <OverviewCard
-        icon={CheckFat}
-        title="Resolved Tickets"
-        value="56"
-        classNames={{
-          iconContainer: 'bg-emerald-100',
-          icon: 'text-emerald-700',
-        }}
-      />
+    <AppPageContainer title={loaderData.pageTitle}>
+      <AppPageTitle title={loaderData.pageTitle} />
+      <div className="grid grid-cols-1 gap-4 sm:gap-8 sm:grid-cols-2 xl:grid-cols-4 mt-5">
+        <OverviewCard
+          icon={Archive}
+          title="Total Tickets"
+          value="100"
+          classNames={{ iconContainer: 'bg-blue-100', icon: 'text-blue-700' }}
+        />
+        <OverviewCard
+          icon={Ticket}
+          title="Open Tickets"
+          value="100"
+          classNames={{ iconContainer: 'bg-rose-100', icon: 'text-rose-700' }}
+        />
+        <OverviewCard
+          icon={HourglassMedium}
+          title="Ongoing Tickets"
+          value="100"
+          classNames={{ iconContainer: 'bg-amber-100', icon: 'text-amber-700' }}
+        />
+        <OverviewCard
+          icon={CheckFat}
+          title="Resolved Tickets"
+          value="56"
+          classNames={{
+            iconContainer: 'bg-emerald-100',
+            icon: 'text-emerald-700',
+          }}
+        />
+      </div>
     </AppPageContainer>
   );
 }
