@@ -1,5 +1,5 @@
 import { ChannelIndexRequestSchema } from '@/queries/channel.query';
-import { CreateChannelSchema, Channel } from '@/schemas/channel.schema';
+import { CreateChannelSchema, Channel, UpdateChannelSchema } from '@/schemas/channel.schema';
 import { generatePaginationMeta } from '@/utils/api.util';
 import { http } from 'msw';
 import { nanoid } from 'nanoid';
@@ -120,6 +120,33 @@ export const channelHandlers = [
       return successResponse({
         data: channel,
         message: 'Successfully retrieved channel',
+      });
+    } catch (error) {
+      return handleResponseError(error);
+    }
+  }),
+  http.put('/api/channels/:channelId', async ({ cookies, params, request }) => {
+    try {
+      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+
+      const channelId = params.channelId;
+
+      const data = UpdateChannelSchema.parse(await request.json());
+
+      const updatedRecordsCount = await db.channels.update(channelId, {
+        description: data.description,
+        updated_at: new Date().toISOString(),
+      });
+
+      if (updatedRecordsCount === 0) {
+        throw new NotFoundError('Channel is not found');
+      }
+
+      const updatedChannel = await db.channels.get(channelId);
+
+      return successResponse({
+        data: updatedChannel,
+        message: 'Successfully updated channel',
       });
     } catch (error) {
       return handleResponseError(error);

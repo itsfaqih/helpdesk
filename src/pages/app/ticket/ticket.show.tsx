@@ -185,7 +185,7 @@ export function TicketShowPage() {
                   trigger={
                     <IconButton
                       icon={(props) => <Plus weight="bold" {...props} />}
-                      label="Add agent"
+                      tooltip="Add agent"
                     />
                   }
                 />
@@ -332,7 +332,7 @@ export function TicketShowPage() {
                           trigger={
                             <IconButton
                               icon={(props) => <Plus weight="bold" {...props} />}
-                              label="Add agent"
+                              tooltip="Add agent"
                             />
                           }
                         />
@@ -620,7 +620,7 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
       </div>
       <IconButton
         icon={(props) => <X {...props} />}
-        label="Remove agent"
+        tooltip="Remove agent"
         onClick={() => {
           deleteTicketAssigmentMutation.mutate({
             id: assignment.id,

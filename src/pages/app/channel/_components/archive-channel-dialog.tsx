@@ -5,9 +5,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/libs/api.lib';
 import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
 import { Archive } from '@phosphor-icons/react';
+import { toast } from '@/components/base/toast';
 
 type ArchiveChannelDialogProps = {
   channelId: Channel['id'];
+  channelName: Channel['name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -15,6 +17,7 @@ type ArchiveChannelDialogProps = {
 
 export function ArchiveChannelDialog({
   channelId,
+  channelName,
   trigger,
   isOpen,
   onOpenChange,
@@ -26,7 +29,7 @@ export function ArchiveChannelDialog({
       id="archive-channel"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Archive Channel"
+      title={`Archive ${channelName}`}
       description="Are you sure you want to archive this channel? After archiving the
       channel will not be listed in the channel list"
       destructive
@@ -68,6 +71,11 @@ function useArchiveChannelMutation({ channelId }: UseArchiveChannelMutationParam
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Channel archived successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['channel', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['channel', 'show', channelId] });
     },

@@ -186,7 +186,7 @@ const buttonClass = cva(
       {
         variant: ['transparent'],
         severity: ['danger'],
-        className: 'text-red-600 hover:text-red-700 active:text-red-600',
+        className: 'text-red-600 hover:text-red-500 active:text-red-600',
       },
       {
         variant: ['transparent'],
@@ -251,6 +251,7 @@ const iconClass = cva('', {
 type IconButtonProps = {
   icon?: (props: { className: string }) => React.ReactNode;
   label?: string;
+  tooltip?: string;
   size?: VariantProps<typeof buttonClass>['size'];
   variant?: VariantProps<typeof buttonClass>['variant'];
   severity?: VariantProps<typeof buttonClass>['severity'];
@@ -264,6 +265,7 @@ function IconButtonComponent(
   {
     icon,
     label,
+    tooltip,
     as: Component = 'button',
     size = 'md',
     variant = 'transparent',
@@ -278,12 +280,13 @@ function IconButtonComponent(
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (
-    <Tooltip disabled={label === undefined || disabled || loading}>
+    <Tooltip disabled={tooltip === undefined || disabled || loading}>
       <TooltipTrigger asChild>
         <div className={cn('inline-flex', containerClassName)}>
           <Component
             ref={ref}
             disabled={loading || success || disabled}
+            aria-label={label}
             aria-disabled={disabled || loading}
             className={iconButtonClass({ size, variant, severity, loading, className })}
             {...props}
@@ -301,11 +304,10 @@ function IconButtonComponent(
                 className="absolute w-5 h-5 -translate-x-1/2 left-1/2 animate-in fade-in"
               />
             )}
-            <span className="sr-only">{label}</span>
           </Component>
         </div>
       </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
+      <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>
   );
 }

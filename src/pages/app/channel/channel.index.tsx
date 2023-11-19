@@ -37,7 +37,7 @@ function loader(queryClient: QueryClient) {
     });
 
     return loaderResponse({
-      pageTitle: 'Channel',
+      pageTitle: 'Channels',
       data: { request: requestData },
     });
   };
@@ -48,11 +48,16 @@ ChannelIndexPage.loader = loader;
 export function ChannelIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
-  const [actionDialogState, setActionDialogState] = React.useState<{
-    channelId: string | null;
-    action: 'archive' | 'restore' | null;
-  }>({
+  const [actionDialogState, setActionDialogState] = React.useState<
+    | {
+        channelId: string;
+        channelName: string;
+        action: 'archive' | 'restore';
+      }
+    | { channelId: null; channelName: null; action: null }
+  >({
     channelId: null,
+    channelName: null,
     action: null,
   });
 
@@ -95,28 +100,37 @@ export function ChannelIndexPage() {
     }
   }, [filtersForm, loaderData.data.request]);
 
-  const archiveChannel = React.useCallback((channelId: string) => {
-    return () =>
-      setActionDialogState((prev) => ({
-        ...prev,
-        channelId,
-        action: 'archive',
-      }));
-  }, []);
+  const archiveChannel = React.useCallback(
+    ({ channelId, channelName }: { channelId: string; channelName: string }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          channelId,
+          channelName,
+          action: 'archive',
+        }));
+    },
+    [],
+  );
 
-  const restoreChannel = React.useCallback((channelId: string) => {
-    return () =>
-      setActionDialogState((prev) => ({
-        ...prev,
-        channelId,
-        action: 'restore',
-      }));
-  }, []);
+  const restoreChannel = React.useCallback(
+    ({ channelId, channelName }: { channelId: string; channelName: string }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          channelId,
+          channelName,
+          action: 'restore',
+        }));
+    },
+    [],
+  );
 
   return (
     <>
       {loggedInAdmin?.role === 'super_admin' && (
         <Link
+          aria-label="Add Channel"
           to="/channels/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
           data-testid="mobile:link-create-channel"
@@ -214,24 +228,27 @@ export function ChannelIndexPage() {
                 as={Link}
                 to={`/channels/${channel.id}`}
                 icon={(props) => <PencilSimple {...props} />}
-                label="Edit Channel"
+                label={`Edit ${channel.name}`}
+                tooltip="Edit Channel"
                 data-testid={`link-edit-channel-${index}`}
               />
               {loggedInAdmin?.role === 'super_admin' &&
                 (!channel.is_archived ? (
                   <IconButton
                     icon={(props) => <Archive {...props} />}
-                    label="Archive Channel"
-                    onClick={archiveChannel(channel.id)}
-                    className="text-red-600"
+                    label={`Archive ${channel.name}`}
+                    tooltip="Archive channel"
+                    onClick={archiveChannel({ channelId: channel.id, channelName: channel.name })}
+                    severity="danger"
                     data-testid={`btn-archive-channel-${index}`}
                   />
                 ) : (
                   <IconButton
                     icon={(props) => <ArrowCounterClockwise {...props} />}
-                    label="Restore"
-                    onClick={restoreChannel(channel.id)}
-                    className="text-brand-600"
+                    label={`Restore ${channel.name}`}
+                    tooltip="Restore channel"
+                    onClick={restoreChannel({ channelId: channel.id, channelName: channel.name })}
+                    severity="primary"
                     data-testid={`btn-restore-channel-${index}`}
                   />
                 ))}
@@ -262,23 +279,31 @@ export function ChannelIndexPage() {
       <ArchiveChannelDialog
         key={`archive-${actionDialogState.channelId ?? 'null'}`}
         channelId={actionDialogState.channelId ?? ''}
+        channelName={actionDialogState.channelName ?? ''}
         isOpen={actionDialogState.action === 'archive'}
         onOpenChange={(open) => {
-          setActionDialogState((prev) => ({
-            channelId: open ? prev.channelId : null,
-            action: open ? 'archive' : null,
-          }));
+          if (!open) {
+            setActionDialogState(() => ({
+              channelId: null,
+              channelName: null,
+              action: null,
+            }));
+          }
         }}
       />
       <RestoreChannelDialog
         key={`restore-${actionDialogState.channelId ?? 'null'}`}
         channelId={actionDialogState.channelId ?? ''}
+        channelName={actionDialogState.channelName ?? ''}
         isOpen={actionDialogState.action === 'restore'}
         onOpenChange={(open) => {
-          setActionDialogState((prev) => ({
-            channelId: open ? prev.channelId : null,
-            action: open ? 'restore' : null,
-          }));
+          if (!open) {
+            setActionDialogState(() => ({
+              channelId: null,
+              channelName: null,
+              action: null,
+            }));
+          }
         }}
       />
     </>

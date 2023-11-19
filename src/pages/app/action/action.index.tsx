@@ -225,7 +225,7 @@ export function ActionIndexPage() {
             <div className="flex items-center justify-end gap-x-1">
               <Menu>
                 <MenuTrigger asChild>
-                  <IconButton icon={(props) => <DotsThree {...props} />} label="Action" />
+                  <IconButton icon={(props) => <DotsThree {...props} />} tooltip="Action" />
                 </MenuTrigger>
                 <MenuContent>
                   <MenuItem asChild id="edit" data-testid={`link-edit-action-${index}`}>

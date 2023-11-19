@@ -48,7 +48,7 @@ export const IconPicker = React.forwardRef<React.ElementRef<typeof Picker>, Icon
                     return <em-emoji id={finalEmojiId}></em-emoji>;
                   }
                 }}
-                label="Select Icon"
+                tooltip="Select Icon"
               />
             </div>
           </PopoverTrigger>
@@ -62,7 +62,7 @@ export const IconPicker = React.forwardRef<React.ElementRef<typeof Picker>, Icon
                     {/* <TabIndicator /> */}
                   </TabList>
                   <PopoverCloseTrigger asChild>
-                    <IconButton label="Close" icon={(props) => <X {...props} />} />
+                    <IconButton tooltip="Close" icon={(props) => <X {...props} />} />
                   </PopoverCloseTrigger>
                 </div>
                 <TabContent value="emoji">

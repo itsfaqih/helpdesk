@@ -214,7 +214,7 @@ export function ActionShowPage() {
                         <EnableActionButton actionId={action.id} asChild>
                           <IconButton
                             type="button"
-                            label="Disable"
+                            tooltip="Disable"
                             icon={({ className, ...props }) => (
                               <ArrowsClockwise
                                 className={cn(
@@ -236,7 +236,7 @@ export function ActionShowPage() {
                         <DisableActionButton actionId={action.id} asChild>
                           <IconButton
                             type="button"
-                            label="Enable"
+                            tooltip="Enable"
                             icon={({ className, ...props }) => (
                               <ArrowsClockwise
                                 className={cn(
@@ -538,7 +538,7 @@ function ActionFieldItem({
       <IconButton
         ref={setActivatorNodeRef}
         icon={(props) => <DotsSixVertical {...props} />}
-        label="Drag to reorder"
+        tooltip="Drag to reorder"
         {...listeners}
         {...attributes}
         className="cursor-grab active:cursor-grabbing"

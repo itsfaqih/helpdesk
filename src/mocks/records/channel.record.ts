@@ -46,7 +46,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: 'Email',
-    description: null,
+    description: '',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -54,7 +54,7 @@ export const mockChannelRecords: Channel[] = [
   {
     id: nanoid(),
     name: 'SMS',
-    description: null,
+    description: '',
     is_archived: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

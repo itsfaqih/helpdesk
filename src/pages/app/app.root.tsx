@@ -19,6 +19,7 @@ import { useLogOutMutation } from '@/mutations/log-out.mutation';
 import { FadeInContainer } from '@/components/base/fade-in-container';
 import { IconButton } from '@/components/base/button';
 import * as Ark from '@ark-ui/react';
+import { Toaster } from '@/components/base/toast';
 
 const mainMenus = [
   {
@@ -132,7 +133,7 @@ export function AppRoot() {
               <div className="flex items-center gap-4">
                 <IconButton
                   icon={(props) => <List {...props} />}
-                  label="Menu"
+                  tooltip="Menu"
                   onClick={() => {
                     setIsSidebarOpen(true);
                   }}
@@ -175,6 +176,7 @@ export function AppRoot() {
           </div>
         </div>
       </main>
+      <Toaster />
     </div>
   );
 }

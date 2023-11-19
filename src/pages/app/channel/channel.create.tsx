@@ -1,6 +1,10 @@
 import { AppPageTitle } from '../_components/page-title.app';
 import { APIResponseSchema } from '@/schemas/api.schema';
-import { ChannelSchema, CreateChannelSchema } from '@/schemas/channel.schema';
+import {
+  ChannelSchema,
+  CreateChannelFormSchema,
+  CreateChannelSchema,
+} from '@/schemas/channel.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { api } from '@/libs/api.lib';
@@ -15,6 +19,7 @@ import { AppPageBackLink } from '../_components/page-back-link';
 import { TextAreabox } from '@/components/derived/textareabox';
 import { UnprocessableEntityError } from '@/utils/error.util';
 import { SaveButton } from '@/components/derived/save-button';
+import { toast } from '@/components/base/toast';
 
 function loader() {
   return async () => {
@@ -30,8 +35,8 @@ export function ChannelCreatePage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
 
   const navigate = useNavigate();
-  const createChannelForm = useForm<CreateChannelSchema>({
-    resolver: zodResolver(CreateChannelSchema),
+  const createChannelForm = useForm<CreateChannelFormSchema>({
+    resolver: zodResolver(CreateChannelFormSchema),
   });
 
   const createChannelMutation = useCreateChannelMutation();
@@ -118,6 +123,11 @@ function useCreateChannelMutation() {
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Channel created successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['channel', 'index'] });
     },
   });

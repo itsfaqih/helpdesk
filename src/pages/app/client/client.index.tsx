@@ -224,13 +224,13 @@ export function ClientIndexPage() {
                       as={Link}
                       to={`/clients/${client.id}`}
                       icon={(props) => <PencilSimple {...props} />}
-                      label="Edit"
+                      tooltip="Edit"
                       data-testid={`link-edit-client-${index}`}
                     />
 
                     <IconButton
                       icon={(props) => <Archive {...props} />}
-                      label="Archive"
+                      tooltip="Archive"
                       onClick={archiveClient(client.id)}
                       className="text-red-600"
                       data-testid={`btn-archive-client-${index}`}
@@ -242,13 +242,13 @@ export function ClientIndexPage() {
                       as={Link}
                       to={`/clients/${client.id}`}
                       icon={(props) => <CaretRight {...props} />}
-                      label="View"
+                      tooltip="View"
                       data-testid={`link-view-client-${index}`}
                     />
 
                     <IconButton
                       icon={(props) => <ArrowCounterClockwise {...props} />}
-                      label="Restore"
+                      tooltip="Restore"
                       onClick={restoreClient(client.id)}
                       className="text-brand-600"
                       data-testid={`btn-restore-client-${index}`}

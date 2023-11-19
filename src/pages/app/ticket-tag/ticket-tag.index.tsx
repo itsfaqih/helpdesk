@@ -218,13 +218,13 @@ export function TicketTagIndexPage() {
                     as={Link}
                     to={`/ticket-tags/${tag.id}`}
                     icon={(props) => <PencilSimple {...props} />}
-                    label="Edit"
+                    tooltip="Edit"
                     data-testid={`link-edit-ticket-tag-${index}`}
                   />
 
                   <IconButton
                     icon={(props) => <Archive {...props} />}
-                    label="Archive"
+                    tooltip="Archive"
                     onClick={archiveTicketTag(tag.id)}
                     className="text-red-600"
                     data-testid={`btn-archive-ticket-tag-${index}`}
@@ -236,12 +236,12 @@ export function TicketTagIndexPage() {
                     as={Link}
                     to={`/ticket-tags/${tag.id}`}
                     icon={(props) => <CaretRight {...props} />}
-                    label="View"
+                    tooltip="View"
                     data-testid={`link-view-ticket-tag-${index}`}
                   />
                   <IconButton
                     icon={(props) => <ArrowCounterClockwise {...props} />}
-                    label="Restore"
+                    tooltip="Restore"
                     onClick={restoreTicketTag(tag.id)}
                     className="text-brand-600"
                     data-testid={`btn-restore-ticket-tag-${index}`}

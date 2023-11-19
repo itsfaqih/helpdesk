@@ -5,9 +5,11 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import * as React from 'react';
 import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
+import { toast } from '@/components/base/toast';
 
 type RestoreChannelDialogProps = {
   channelId: Channel['id'];
+  channelName: Channel['name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -15,6 +17,7 @@ type RestoreChannelDialogProps = {
 
 export function RestoreChannelDialog({
   channelId,
+  channelName,
   trigger,
   isOpen,
   onOpenChange,
@@ -26,7 +29,7 @@ export function RestoreChannelDialog({
       id="restore-channel"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Restore Channel"
+      title={`Restore ${channelName}`}
       description="Are you sure you want to restore this channel? After restoring the
     channel will be listed in the channel list"
       isLoading={restoreChannelMutation.isPending}
@@ -67,6 +70,11 @@ function useRestoreChannelMutation({ channelId }: UseRestoreChannelMutationParam
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Channel restored successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['channel', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['channel', 'show', channelId] });
     },

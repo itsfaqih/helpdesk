@@ -283,7 +283,7 @@ export function TicketIndexPage() {
               as={Link}
               to={`/tickets/${ticket.id}`}
               icon={(props) => <CaretRight {...props} />}
-              label="View"
+              tooltip="View"
             />
           </div>,
         ])}

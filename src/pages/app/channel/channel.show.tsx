@@ -20,11 +20,19 @@ import { AppPageBackLink } from '../_components/page-back-link';
 import { TextAreabox } from '@/components/derived/textareabox';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Channel, ChannelSchema, UpdateChannelSchema } from '@/schemas/channel.schema';
+import {
+  Channel,
+  ChannelSchema,
+  UpdateChannelFormSchema,
+  UpdateChannelSchema,
+} from '@/schemas/channel.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { api } from '@/libs/api.lib';
 import { ClockClockwise } from '@phosphor-icons/react';
 import { ArchiveButton } from '@/components/derived/archive-button';
+import { toast } from '@/components/base/toast';
+import { SaveButton } from '@/components/derived/save-button';
+import { RestoreButton } from '@/components/derived/restore-button';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -35,7 +43,7 @@ function loader(queryClient: QueryClient) {
     });
 
     return loaderResponse({
-      pageTitle: 'View Channel',
+      pageTitle: 'Edit Channel',
       data: { request: requestData },
     });
   };
@@ -51,8 +59,8 @@ export function ChannelShowPage() {
   });
   const channel = channelShowQuery.data?.data;
 
-  const updateChannelForm = useForm<UpdateChannelSchema>({
-    resolver: zodResolver(UpdateChannelSchema),
+  const updateChannelForm = useForm<UpdateChannelFormSchema>({
+    resolver: zodResolver(UpdateChannelFormSchema),
     defaultValues: channel,
   });
 
@@ -79,21 +87,14 @@ export function ChannelShowPage() {
             (channel.is_archived ? (
               <RestoreChannelDialog
                 channelId={channel.id}
-                trigger={
-                  <Button
-                    type="button"
-                    variant="white"
-                    leading={(props) => <ClockClockwise {...props} />}
-                    data-testid="btn-restore-channel"
-                  >
-                    Restore
-                  </Button>
-                }
+                channelName={channel.name}
+                trigger={<RestoreButton type="button" />}
               />
             ) : (
               <ArchiveChannelDialog
                 channelId={channel.id}
-                trigger={<ArchiveButton type="button" data-testid="btn-archive-channel" />}
+                channelName={channel.name}
+                trigger={<ArchiveButton type="button" />}
               />
             ))}
         </div>
@@ -112,7 +113,6 @@ export function ChannelShowPage() {
                   value={channel?.name}
                   readOnly
                   srOnlyLabel
-                  data-testid="textbox-name"
                 />
               )}
             </div>
@@ -123,13 +123,11 @@ export function ChannelShowPage() {
               {channelShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
               {channelShowQuery.isSuccess && (
                 <TextAreabox
-                  name="description"
+                  {...updateChannelForm.register('description')}
                   label="Description"
                   placeholder="Enter Description"
-                  value={channel?.description ?? ''}
                   srOnlyLabel
                   rows={3}
-                  data-testid="textbox-description"
                 />
               )}
             </div>
@@ -137,17 +135,12 @@ export function ChannelShowPage() {
 
           {!channel?.is_archived && (
             <div className="flex justify-end">
-              <Button
+              <SaveButton
                 form="update-channel-form"
                 type="submit"
-                variant="filled"
-                severity="primary"
                 loading={updateChannelMutation.isPending}
                 success={updateChannelMutation.isSuccess && !updateChannelForm.formState.isDirty}
-                data-testid="btn-update-channel"
-              >
-                Update Channel
-              </Button>
+              />
             </div>
           )}
         </form>
@@ -178,7 +171,19 @@ function useUpdateChannelMutation({ channelId }: UseUpdateChannelMutationParams)
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Channel updated successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['channel', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['channel', 'show', channelId] });
+    },
+    async onError() {
+      toast.create({
+        title: 'Failed to update channel',
+        type: 'error',
+      });
     },
   });
 }

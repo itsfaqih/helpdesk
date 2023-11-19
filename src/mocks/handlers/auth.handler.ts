@@ -22,7 +22,7 @@ export const authHandlers = [
         message: 'Successfully authenticated',
         httpResponseInit: {
           headers: {
-            'Set-Cookie': `sessionId=${admin.id}; Max-Age=3600`,
+            'Set-Cookie': `sessionId=${admin.id}; Max-Age=3600; Path=/`,
           },
         },
       });
@@ -65,7 +65,7 @@ export const authHandlers = [
       message: 'Successfully registered admin',
       httpResponseInit: {
         headers: {
-          'Set-Cookie': `sessionId=${newAdmin.id}; Max-Age=3600`,
+          'Set-Cookie': `sessionId=${newAdmin.id}; Max-Age=3600; Path=/`,
         },
       },
     });
@@ -98,7 +98,7 @@ export const authHandlers = [
       data: null,
       httpResponseInit: {
         headers: {
-          'Set-Cookie': `sessionId=; Max-Age=0`,
+          'Set-Cookie': `sessionId=; Max-Age=0; Path=/`,
         },
       },
     });

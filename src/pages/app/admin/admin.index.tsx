@@ -261,7 +261,7 @@ export function AdminIndexPage() {
                   as={Link}
                   to={`/profile`}
                   icon={(props) => <PencilSimple {...props} />}
-                  label="Edit"
+                  tooltip="Edit"
                 />
               )}
               {loggedInAdmin?.id !== admin.id &&
@@ -272,12 +272,12 @@ export function AdminIndexPage() {
                       as={Link}
                       to={`/admins/${admin.id}`}
                       icon={(props) => <PencilSimple {...props} />}
-                      label="Edit"
+                      tooltip="Edit"
                       data-testid={`link-edit-admin-${index}`}
                     />
                     <IconButton
                       icon={(props) => <Power {...props} />}
-                      label="Deactivate"
+                      tooltip="Deactivate"
                       onClick={deactivateAdmin(admin.id)}
                       className="text-red-600"
                       data-testid={`btn-deactivate-admin-${index}`}
@@ -289,13 +289,13 @@ export function AdminIndexPage() {
                       as={Link}
                       to={`/admins/${admin.id}`}
                       icon={(props) => <CaretRight {...props} />}
-                      label="View"
+                      tooltip="View"
                       data-testid={`link-view-admin-${index}`}
                     />
 
                     <IconButton
                       icon={(props) => <Power {...props} />}
-                      label="Reactivate"
+                      tooltip="Reactivate"
                       onClick={reactivateAdmin(admin.id)}
                       className="text-brand-600"
                       data-testid={`btn-reactivate-admin-${index}`}
