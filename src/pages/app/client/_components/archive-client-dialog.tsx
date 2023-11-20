@@ -22,7 +22,6 @@ export function ArchiveClientDialog({
 
   return (
     <ConfirmationDialog
-      id="archive-client"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Archive Client"

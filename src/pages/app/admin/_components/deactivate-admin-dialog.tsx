@@ -22,7 +22,6 @@ export function DeactivateAdminDialog({
 
   return (
     <ConfirmationDialog
-      id="deactivate-admin"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Deactivate Admin"

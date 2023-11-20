@@ -5,8 +5,10 @@ test.use({ storageState: 'playwright/.auth/super-admin.json' });
 test('admin management', async ({ page }) => {
   await page.goto('/admins');
 
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Administrators');
+
   // create admin
-  await page.getByTestId('link-create-admin').click();
+  await page.getByRole('link', { name: 'Add Admin', exact: true }).click();
 
   await page.waitForURL('/admins/create');
 

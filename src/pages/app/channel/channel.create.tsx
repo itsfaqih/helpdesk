@@ -65,7 +65,6 @@ export function ChannelCreatePage() {
                 disabled={createChannelMutation.isPending}
                 error={createChannelForm.formState.errors.name?.message}
                 srOnlyLabel
-                data-testid="textbox-name"
               />
             </div>
           </div>
@@ -80,7 +79,6 @@ export function ChannelCreatePage() {
                 error={createChannelForm.formState.errors.description?.message}
                 srOnlyLabel
                 rows={3}
-                data-testid="textbox-description"
               />
             </div>
           </div>
@@ -89,7 +87,6 @@ export function ChannelCreatePage() {
               type="submit"
               loading={createChannelMutation.isPending}
               success={createChannelMutation.isSuccess}
-              data-testid="btn-create-channel"
             />
           </div>
         </form>

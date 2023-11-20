@@ -141,7 +141,6 @@ export function AdminIndexPage() {
         <Link
           to="/admins/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
-          data-testid="mobile:link-create-admin"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -158,7 +157,6 @@ export function AdminIndexPage() {
                 severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
-                data-testid="link-create-admin"
               >
                 Add Admin
               </Button>
@@ -180,12 +178,8 @@ export function AdminIndexPage() {
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="1" data-testid="tab-is_deactivated-active">
-                  Active
-                </TabTrigger>
-                <TabTrigger value="0" data-testid="tab-is_deactivated-deactivated">
-                  Deactivated
-                </TabTrigger>
+                <TabTrigger value="1">Active</TabTrigger>
+                <TabTrigger value="0">Deactivated</TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -239,7 +233,6 @@ export function AdminIndexPage() {
           </div>
         </div>
         <Table
-          id="admins"
           loading={adminIndexQuery.isLoading}
           error={adminIndexQuery.isError}
           errorMessage={
@@ -250,7 +243,7 @@ export function AdminIndexPage() {
           }
           refetch={adminIndexQuery.refetch}
           headings={['Full Name', 'Email', 'Role', 'Date created']}
-          rows={adminIndexQuery.data?.data.map((admin, index) => [
+          rows={adminIndexQuery.data?.data.map((admin) => [
             admin.full_name,
             admin.email,
             adminRoleValueToLabel(admin.role),
@@ -273,14 +266,12 @@ export function AdminIndexPage() {
                       to={`/admins/${admin.id}`}
                       icon={(props) => <PencilSimple {...props} />}
                       tooltip="Edit"
-                      data-testid={`link-edit-admin-${index}`}
                     />
                     <IconButton
                       icon={(props) => <Power {...props} />}
                       tooltip="Deactivate"
                       onClick={deactivateAdmin(admin.id)}
                       className="text-red-600"
-                      data-testid={`btn-deactivate-admin-${index}`}
                     />
                   </>
                 ) : (
@@ -290,7 +281,6 @@ export function AdminIndexPage() {
                       to={`/admins/${admin.id}`}
                       icon={(props) => <CaretRight {...props} />}
                       tooltip="View"
-                      data-testid={`link-view-admin-${index}`}
                     />
 
                     <IconButton
@@ -298,7 +288,6 @@ export function AdminIndexPage() {
                       tooltip="Reactivate"
                       onClick={reactivateAdmin(admin.id)}
                       className="text-brand-600"
-                      data-testid={`btn-reactivate-admin-${index}`}
                     />
                   </>
                 ))}

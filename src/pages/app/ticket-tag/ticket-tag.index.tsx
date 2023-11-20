@@ -121,7 +121,6 @@ export function TicketTagIndexPage() {
         <Link
           to="/ticket-tags/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
-          data-testid="mobile:link-create-ticket-tag"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -138,7 +137,6 @@ export function TicketTagIndexPage() {
                 severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
-                data-testid="link-create-ticket-tag"
               >
                 Add tag
               </Button>
@@ -163,12 +161,8 @@ export function TicketTagIndexPage() {
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="0" data-testid="tab-is_archived-available">
-                  Available
-                </TabTrigger>
-                <TabTrigger value="1" data-testid="tab-is_archived-archived">
-                  Archived
-                </TabTrigger>
+                <TabTrigger value="0">Available</TabTrigger>
+                <TabTrigger value="1">Archived</TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -197,7 +191,6 @@ export function TicketTagIndexPage() {
           </div>
         </div>
         <Table
-          id="ticket-tags"
           loading={ticketTagQuery.isLoading}
           error={ticketTagQuery.isError}
           errorMessage={
@@ -208,7 +201,7 @@ export function TicketTagIndexPage() {
           }
           refetch={ticketTagQuery.refetch}
           headings={['Name', 'Date created']}
-          rows={ticketTagQuery.data?.data.map((tag, index) => [
+          rows={ticketTagQuery.data?.data.map((tag) => [
             tag.name,
             formatDateTime(tag.created_at),
             <div className="flex items-center justify-end gap-x-1">
@@ -219,7 +212,6 @@ export function TicketTagIndexPage() {
                     to={`/ticket-tags/${tag.id}`}
                     icon={(props) => <PencilSimple {...props} />}
                     tooltip="Edit"
-                    data-testid={`link-edit-ticket-tag-${index}`}
                   />
 
                   <IconButton
@@ -227,7 +219,6 @@ export function TicketTagIndexPage() {
                     tooltip="Archive"
                     onClick={archiveTicketTag(tag.id)}
                     className="text-red-600"
-                    data-testid={`btn-archive-ticket-tag-${index}`}
                   />
                 </>
               ) : (
@@ -237,14 +228,12 @@ export function TicketTagIndexPage() {
                     to={`/ticket-tags/${tag.id}`}
                     icon={(props) => <CaretRight {...props} />}
                     tooltip="View"
-                    data-testid={`link-view-ticket-tag-${index}`}
                   />
                   <IconButton
                     icon={(props) => <ArrowCounterClockwise {...props} />}
                     tooltip="Restore"
                     onClick={restoreTicketTag(tag.id)}
                     className="text-brand-600"
-                    data-testid={`btn-restore-ticket-tag-${index}`}
                   />
                 </>
               )}

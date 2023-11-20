@@ -22,7 +22,6 @@ export function RestoreClientDialog({
 
   return (
     <ConfirmationDialog
-      id="restore-client"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Restore Client"

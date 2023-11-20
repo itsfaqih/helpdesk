@@ -84,13 +84,10 @@ export function AdminShowPage() {
             (admin.is_active ? (
               <DeactivateAdminDialog
                 adminId={admin.id}
-                trigger={<DeactivateButton type="button" data-testid="btn-deactivate-admin" />}
+                trigger={<DeactivateButton type="button" />}
               />
             ) : (
-              <ActivateAdminDialog
-                adminId={admin.id}
-                trigger={<ActivateButton type="button" data-testid="btn-reactivate-client" />}
-              />
+              <ActivateAdminDialog adminId={admin.id} trigger={<ActivateButton type="button" />} />
             ))}
         </div>
       </div>
@@ -109,7 +106,6 @@ export function AdminShowPage() {
                   error={updateAdminForm.formState.errors.full_name?.message}
                   readOnly={!admin?.is_active}
                   srOnlyLabel
-                  data-testid="textbox-full-name"
                 />
               )}
             </div>
@@ -127,7 +123,6 @@ export function AdminShowPage() {
                   value={admin?.email}
                   readOnly
                   srOnlyLabel
-                  data-testid="textbox-email"
                 />
               )}
             </div>
@@ -162,16 +157,11 @@ export function AdminShowPage() {
                           error={updateAdminForm.formState.errors.role?.message}
                           placeholder="Select role"
                           className="w-full"
-                          data-testid="select-role"
                         />
                       </div>
                       <SelectContent className="w-full">
                         {adminRoleOptions.map((option) => (
-                          <SelectOption
-                            key={option.value}
-                            item={option}
-                            data-testid={`option-${option.value}`}
-                          />
+                          <SelectOption key={option.value} item={option} />
                         ))}
                       </SelectContent>
                     </Select>
@@ -187,7 +177,6 @@ export function AdminShowPage() {
                 type="submit"
                 loading={updateAdminMutation.isPending}
                 success={updateAdminMutation.isSuccess && !updateAdminForm.formState.isDirty}
-                data-testid="btn-update-admin"
               />
             </div>
           )}

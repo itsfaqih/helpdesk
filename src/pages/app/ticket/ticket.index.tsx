@@ -243,7 +243,6 @@ export function TicketIndexPage() {
         </div>
       </div>
       <Table
-        id="tickets"
         loading={ticketIndexQuery.isLoading}
         error={ticketIndexQuery.isError}
         errorMessage={

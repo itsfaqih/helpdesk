@@ -26,7 +26,6 @@ export function RestoreChannelDialog({
 
   return (
     <ConfirmationDialog
-      id="restore-channel"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title={`Restore ${channelName}`}

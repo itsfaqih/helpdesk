@@ -59,7 +59,6 @@ export function ClientCreatePage() {
                 disabled={createClientMutation.isPending}
                 error={createClientForm.formState.errors.full_name?.message}
                 srOnlyLabel
-                data-testid="textbox-full-name"
               />
             </div>
           </div>
@@ -68,7 +67,6 @@ export function ClientCreatePage() {
               type="submit"
               loading={createClientMutation.isPending}
               success={createClientMutation.isSuccess}
-              data-testid="btn-create-client"
             />
           </div>
         </form>

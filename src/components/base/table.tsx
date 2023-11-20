@@ -5,7 +5,6 @@ import { Skeleton } from './skeleton';
 import { linkClass } from './link';
 
 type TableProps = React.HTMLAttributes<HTMLDivElement> & {
-  id: string;
   headings: React.ReactNode[];
   rows?: React.ReactNode[][];
   loading?: boolean;
@@ -15,7 +14,6 @@ type TableProps = React.HTMLAttributes<HTMLDivElement> & {
 };
 
 export function Table({
-  id,
   headings,
   rows,
   loading,
@@ -26,13 +24,13 @@ export function Table({
   ...props
 }: TableProps) {
   return (
-    <div className={cn('flow-root', className)} data-testid={`table-${id}`} {...props}>
+    <div className={cn('flow-root', className)} {...props}>
       <div className="-mx-6 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-6">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-6">
           <div className="overflow-hidden shadow-haptic-gray-300 sm:rounded-xl">
             <table className="min-w-full text-sm divide-y divide-gray-300">
               <thead>
-                <tr data-testid={`table-${id}-heading`}>
+                <tr>
                   {headings.map((heading, index) => (
                     <th
                       key={index}
@@ -48,9 +46,9 @@ export function Table({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {loading && <TableSkeleton tableId={id} columnAmount={headings.length + 1} />}
+                {loading && <TableSkeleton columnAmount={headings.length + 1} />}
                 {error && (
-                  <tr data-testid={`table-${id}-error`}>
+                  <tr>
                     <td
                       colSpan={headings.length + 1}
                       className="py-2.5 text-sm text-center text-gray-500"
@@ -64,7 +62,7 @@ export function Table({
                   </tr>
                 )}
                 {rows?.length === 0 && (
-                  <tr data-testid={`table-${id}-empty`}>
+                  <tr>
                     <td
                       colSpan={headings.length + 1}
                       className="py-2.5 text-sm text-center text-gray-500"
@@ -75,11 +73,7 @@ export function Table({
                 )}
                 {rows &&
                   rows.map((row, rowIndex) => (
-                    <tr
-                      key={rowIndex}
-                      className="hover:bg-gray-50"
-                      data-testid={`table-${id}-${rowIndex}`}
-                    >
+                    <tr key={rowIndex} className="hover:bg-gray-50">
                       {row.map((data, index, arr) => (
                         <td
                           key={index}
@@ -104,14 +98,13 @@ export function Table({
 }
 
 type TableSkeletonProps = {
-  tableId: string;
   columnAmount: number;
 };
 
-function TableSkeleton({ tableId, columnAmount }: TableSkeletonProps) {
+function TableSkeleton({ columnAmount }: TableSkeletonProps) {
   return (
     <Loop amount={10}>
-      <tr data-testid={`table-${tableId}-loading`}>
+      <tr>
         {Array.from({ length: columnAmount }, (_, i) => (
           <td
             key={i}

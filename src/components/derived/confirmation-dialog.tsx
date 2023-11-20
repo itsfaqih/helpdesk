@@ -17,7 +17,6 @@ type ConfirmationDialogProps = {
   buttonOnClick: () => void;
   isLoading: boolean;
   isSuccess: boolean;
-  id: string;
   buttonLeadingIcon?: React.ComponentPropsWithoutRef<typeof Button>['leading'];
   destructive?: boolean;
   trigger?: React.ReactNode;
@@ -33,7 +32,6 @@ export function ConfirmationDialog({
   buttonOnClick,
   isLoading,
   isSuccess,
-  id,
   buttonLeadingIcon,
   destructive,
   trigger,
@@ -59,7 +57,6 @@ export function ConfirmationDialog({
           setOpen(open);
         }
       }}
-      data-testid={`dialog-${id}`}
     >
       {Boolean(trigger) && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="w-[36rem]">
@@ -76,7 +73,6 @@ export function ConfirmationDialog({
             loading={isLoading}
             success={isSuccess}
             onClick={buttonOnClick}
-            data-testid={`btn-confirm-${id}`}
           >
             {buttonLabel}
           </Button>

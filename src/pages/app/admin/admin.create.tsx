@@ -68,7 +68,6 @@ export function AdminCreatePage() {
                 disabled={createAdminMutation.isPending}
                 error={createAdminForm.formState.errors.full_name?.message}
                 srOnlyLabel
-                data-testid="textbox-full-name"
               />
             </div>
           </div>
@@ -83,7 +82,6 @@ export function AdminCreatePage() {
                 disabled={createAdminMutation.isPending}
                 error={createAdminForm.formState.errors.email?.message}
                 srOnlyLabel
-                data-testid="textbox-email"
               />
             </div>
           </div>
@@ -98,7 +96,6 @@ export function AdminCreatePage() {
                 disabled={createAdminMutation.isPending}
                 error={createAdminForm.formState.errors.password?.message}
                 srOnlyLabel
-                data-testid="textbox-password"
               />
             </div>
           </div>
@@ -129,16 +126,11 @@ export function AdminCreatePage() {
                         error={createAdminForm.formState.errors.role?.message}
                         placeholder="Select role"
                         className="w-full"
-                        data-testid="select-role"
                       />
                     </div>
                     <SelectContent>
                       {adminRoleOptions.map((option) => (
-                        <SelectOption
-                          key={option.value}
-                          item={option}
-                          data-testid={`option-${option.value}`}
-                        />
+                        <SelectOption key={option.value} item={option} />
                       ))}
                     </SelectContent>
                   </Select>
@@ -151,7 +143,6 @@ export function AdminCreatePage() {
               type="submit"
               loading={createAdminMutation.isPending}
               success={createAdminMutation.isSuccess}
-              data-testid="btn-create-admin"
             />
           </div>
         </form>

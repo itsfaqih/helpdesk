@@ -25,7 +25,6 @@ export function ArchiveActionDialog({
 
   return (
     <ConfirmationDialog
-      id="archive-action"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Archive Action"

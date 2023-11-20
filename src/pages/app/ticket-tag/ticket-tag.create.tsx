@@ -63,7 +63,6 @@ export function TicketTagCreatePage() {
                 disabled={createTicketTagMutation.isPending}
                 error={createTicketTagForm.formState.errors.name?.message}
                 srOnlyLabel
-                data-testid="textbox-name"
               />
             </div>
           </div>
@@ -78,7 +77,6 @@ export function TicketTagCreatePage() {
                 error={createTicketTagForm.formState.errors.description?.message}
                 srOnlyLabel
                 rows={3}
-                data-testid="textbox-description"
               />
             </div>
           </div>
@@ -88,7 +86,6 @@ export function TicketTagCreatePage() {
               type="submit"
               loading={createTicketTagMutation.isPending}
               success={createTicketTagMutation.isSuccess && !createTicketTagForm.formState.isDirty}
-              data-testid="btn-create-ticket-tag"
             />
           </div>
         </form>

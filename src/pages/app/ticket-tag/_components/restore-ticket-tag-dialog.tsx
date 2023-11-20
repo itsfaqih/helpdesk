@@ -24,7 +24,6 @@ export function RestoreTicketTagDialog({
 
   return (
     <ConfirmationDialog
-      id="restore-ticket-tag"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Restore Ticket tag"

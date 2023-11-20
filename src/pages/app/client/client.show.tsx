@@ -79,16 +79,13 @@ export function ClientShowPage() {
               <RestoreClientDialog
                 clientId={client.id}
                 trigger={
-                  <Button type="button" variant="white" data-testid="btn-restore-client">
+                  <Button type="button" variant="white">
                     Restore Client
                   </Button>
                 }
               />
             ) : (
-              <ArchiveClientDialog
-                clientId={client.id}
-                trigger={<ArchiveButton type="button" data-testid="btn-archive-client" />}
-              />
+              <ArchiveClientDialog clientId={client.id} trigger={<ArchiveButton type="button" />} />
             ))}
         </div>
       </div>
@@ -107,7 +104,6 @@ export function ClientShowPage() {
                   error={updateClientForm.formState.errors.full_name?.message}
                   readOnly={client?.is_archived}
                   srOnlyLabel
-                  data-testid="textbox-full-name"
                 />
               )}
             </div>
@@ -119,7 +115,6 @@ export function ClientShowPage() {
                 type="submit"
                 loading={updateClientMutation.isPending}
                 success={updateClientMutation.isSuccess && !updateClientForm.formState.isDirty}
-                data-testid="btn-update-client"
               />
             </div>
           )}

@@ -22,7 +22,6 @@ export function ActivateAdminDialog({
 
   return (
     <ConfirmationDialog
-      id="activate-admin"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Reactivate Admin"

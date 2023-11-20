@@ -10,12 +10,11 @@ export const AppPageSearchBox = React.forwardRef<
     <Textbox
       ref={ref}
       name="search"
-      label={'Search'}
+      label="Search"
       type="search"
       placeholder={placeholder ?? 'Search...'}
       srOnlyLabel
       className={cn('flex-1 min-w-[20rem]', className)}
-      data-testid="textbox-search"
       {...props}
     />
   );

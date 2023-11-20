@@ -23,7 +23,6 @@ export function RestoreActionDialog({
 
   return (
     <ConfirmationDialog
-      id="restore-action"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Restore Action"

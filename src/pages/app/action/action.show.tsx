@@ -145,10 +145,7 @@ export function ActionShowPage() {
             (action.is_archived ? (
               <RestoreActionDialog actionId={action.id} trigger={<RestoreButton type="button" />} />
             ) : (
-              <ArchiveActionDialog
-                actionId={action.id}
-                trigger={<ArchiveButton type="button" data-testid="btn-archive-channel" />}
-              />
+              <ArchiveActionDialog actionId={action.id} trigger={<ArchiveButton type="button" />} />
             ))}
         </div>
       </div>
@@ -183,7 +180,6 @@ export function ActionShowPage() {
                   disabled={updateActionMutation.isPending}
                   error={updateActionForm.formState.errors.label?.message}
                   srOnlyLabel
-                  data-testid="textbox-label"
                 />
               </div>
             </div>
@@ -199,7 +195,6 @@ export function ActionShowPage() {
                   error={updateActionForm.formState.errors.description?.message}
                   srOnlyLabel
                   rows={3}
-                  data-testid="textbox-description"
                 />
               </div>
             </div>
@@ -262,7 +257,6 @@ export function ActionShowPage() {
                 type="submit"
                 loading={updateActionMutation.isPending}
                 success={updateActionMutation.isSuccess && !updateActionForm.formState.isDirty}
-                data-testid="btn-update-action"
               />
             </div>
           </form>

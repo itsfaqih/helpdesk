@@ -129,7 +129,6 @@ export function ActionIndexPage() {
         <Link
           to="/actions/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
-          data-testid="mobile:link-create-action"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -146,7 +145,6 @@ export function ActionIndexPage() {
                 severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
-                data-testid="link-create-action"
               >
                 Add Action
               </Button>
@@ -171,12 +169,8 @@ export function ActionIndexPage() {
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="0" data-testid="tab-is_archived-available">
-                  Available
-                </TabTrigger>
-                <TabTrigger value="1" data-testid="tab-is_archived-archived">
-                  Archived
-                </TabTrigger>
+                <TabTrigger value="0">Available</TabTrigger>
+                <TabTrigger value="1">Archived</TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -205,7 +199,6 @@ export function ActionIndexPage() {
           </div>
         </div>
         <Table
-          id="actions"
           loading={actionIndexQuery.isLoading}
           error={actionIndexQuery.isError}
           errorMessage={
@@ -216,7 +209,7 @@ export function ActionIndexPage() {
           }
           refetch={actionIndexQuery.refetch}
           headings={['Icon', 'Label', 'Status', 'Date created']}
-          rows={actionIndexQuery.data?.data.map((action, index) => [
+          rows={actionIndexQuery.data?.data.map((action) => [
             (action.icon_type === 'emoji' && <em-emoji id={action.icon_value} />) ||
               (action.icon_type === 'image' && <img src={action.icon_value} alt="" />),
             action.label,
@@ -228,7 +221,7 @@ export function ActionIndexPage() {
                   <IconButton icon={(props) => <DotsThree {...props} />} tooltip="Action" />
                 </MenuTrigger>
                 <MenuContent>
-                  <MenuItem asChild id="edit" data-testid={`link-edit-action-${index}`}>
+                  <MenuItem asChild id="edit">
                     <Link to={`/actions/${action.id}`}>
                       <PencilSimple className="mr-2 w-4 h-4" />
                       Edit
@@ -236,21 +229,12 @@ export function ActionIndexPage() {
                   </MenuItem>
                   {loggedInAdmin?.role === 'super_admin' &&
                     (action.is_archived ? (
-                      <MenuItem
-                        id="restore"
-                        onClick={restoreAction(action.id)}
-                        data-testid={`btn-archive-action-${index}`}
-                      >
+                      <MenuItem id="restore" onClick={restoreAction(action.id)}>
                         <ArrowCounterClockwise className="mr-2 w-4 h-4" />
                         Restore
                       </MenuItem>
                     ) : (
-                      <MenuItem
-                        id="archive"
-                        onClick={archiveAction(action.id)}
-                        destructive
-                        data-testid={`btn-restore-action-${index}`}
-                      >
+                      <MenuItem id="archive" onClick={archiveAction(action.id)} destructive>
                         <Archive className="mr-2 w-4 h-4" />
                         Archive
                       </MenuItem>

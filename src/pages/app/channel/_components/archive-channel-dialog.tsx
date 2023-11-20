@@ -26,7 +26,6 @@ export function ArchiveChannelDialog({
 
   return (
     <ConfirmationDialog
-      id="archive-channel"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title={`Archive ${channelName}`}

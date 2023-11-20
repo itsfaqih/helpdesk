@@ -83,7 +83,6 @@ export function ActionCreatePage() {
                   disabled={createActionMutation.isPending}
                   error={createActionForm.formState.errors.label?.message}
                   srOnlyLabel
-                  data-testid="textbox-label"
                 />
               </div>
             </div>
@@ -98,7 +97,6 @@ export function ActionCreatePage() {
                   error={createActionForm.formState.errors.description?.message}
                   srOnlyLabel
                   rows={3}
-                  data-testid="textbox-description"
                 />
               </div>
             </div>
@@ -107,7 +105,6 @@ export function ActionCreatePage() {
                 type="submit"
                 loading={createActionMutation.isPending}
                 success={createActionMutation.isSuccess}
-                data-testid="btn-create-action"
               />
             </div>
           </form>

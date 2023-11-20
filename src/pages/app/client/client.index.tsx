@@ -126,7 +126,6 @@ export function ClientIndexPage() {
         <Link
           to="/clients/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
-          data-testid="mobile:link-create-client"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -143,7 +142,6 @@ export function ClientIndexPage() {
                 severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
-                data-testid="link-create-client"
               >
                 Add Client
               </Button>
@@ -168,12 +166,8 @@ export function ClientIndexPage() {
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="0" data-testid="tab-is_archived-available">
-                  Available
-                </TabTrigger>
-                <TabTrigger value="1" data-testid="tab-is_archived-archived">
-                  Archived
-                </TabTrigger>
+                <TabTrigger value="0">Available</TabTrigger>
+                <TabTrigger value="1">Archived</TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -202,7 +196,6 @@ export function ClientIndexPage() {
           </div>
         </div>
         <Table
-          id="clients"
           loading={clientIndexQuery.isLoading}
           error={clientIndexQuery.isError}
           errorMessage={
@@ -213,7 +206,7 @@ export function ClientIndexPage() {
           }
           refetch={clientIndexQuery.refetch}
           headings={['Full Name', 'Date created']}
-          rows={clientIndexQuery.data?.data.map((client, index) => [
+          rows={clientIndexQuery.data?.data.map((client) => [
             client.full_name,
             formatDateTime(client.created_at),
             <div className="flex items-center justify-end gap-x-1">
@@ -225,7 +218,6 @@ export function ClientIndexPage() {
                       to={`/clients/${client.id}`}
                       icon={(props) => <PencilSimple {...props} />}
                       tooltip="Edit"
-                      data-testid={`link-edit-client-${index}`}
                     />
 
                     <IconButton
@@ -233,7 +225,6 @@ export function ClientIndexPage() {
                       tooltip="Archive"
                       onClick={archiveClient(client.id)}
                       className="text-red-600"
-                      data-testid={`btn-archive-client-${index}`}
                     />
                   </>
                 ) : (
@@ -243,7 +234,6 @@ export function ClientIndexPage() {
                       to={`/clients/${client.id}`}
                       icon={(props) => <CaretRight {...props} />}
                       tooltip="View"
-                      data-testid={`link-view-client-${index}`}
                     />
 
                     <IconButton
@@ -251,7 +241,6 @@ export function ClientIndexPage() {
                       tooltip="Restore"
                       onClick={restoreClient(client.id)}
                       className="text-brand-600"
-                      data-testid={`btn-restore-client-${index}`}
                     />
                   </>
                 ))}

@@ -15,7 +15,6 @@ export const AppPageResetButton = React.forwardRef<
       severity="danger"
       className={className}
       {...props}
-      data-testid="btn-reset"
     >
       Reset
     </Button>

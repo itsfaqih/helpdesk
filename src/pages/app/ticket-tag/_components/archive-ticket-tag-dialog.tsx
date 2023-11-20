@@ -24,7 +24,6 @@ export function ArchiveTicketTagDialog({
 
   return (
     <ConfirmationDialog
-      id="archive-ticket-tag"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Archive Ticket tag"

@@ -82,12 +82,12 @@ export function TicketTagShowPage() {
             (ticketTag.is_archived ? (
               <RestoreTicketTagDialog
                 ticketTagId={ticketTag.id}
-                trigger={<RestoreButton type="button" data-testid="btn-restore-ticket-tag" />}
+                trigger={<RestoreButton type="button" />}
               />
             ) : (
               <ArchiveTicketTagDialog
                 ticketTagId={ticketTag.id}
-                trigger={<ArchiveButton type="button" data-testid="btn-archive-ticket-tag" />}
+                trigger={<ArchiveButton type="button" />}
               />
             ))}
         </div>
@@ -106,7 +106,6 @@ export function TicketTagShowPage() {
                   value={ticketTag?.name}
                   readOnly
                   srOnlyLabel
-                  data-testid="textbox-name"
                 />
               )}
             </div>
@@ -125,7 +124,6 @@ export function TicketTagShowPage() {
                   readOnly={ticketTag?.is_archived}
                   srOnlyLabel
                   rows={3}
-                  data-testid="textbox-description"
                 />
               )}
             </div>
@@ -139,7 +137,6 @@ export function TicketTagShowPage() {
                 success={
                   updateTicketTagMutation.isSuccess && !updateTicketTagForm.formState.isDirty
                 }
-                data-testid="btn-update-ticket-tag"
               />
             </div>
           )}

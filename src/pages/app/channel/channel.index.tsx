@@ -133,7 +133,6 @@ export function ChannelIndexPage() {
           aria-label="Add Channel"
           to="/channels/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
-          data-testid="mobile:link-create-channel"
         >
           <Plus className="w-6 h-6 text-white" />
         </Link>
@@ -150,7 +149,6 @@ export function ChannelIndexPage() {
                 severity="primary"
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
-                data-testid="link-create-channel"
               >
                 Add Channel
               </Button>
@@ -175,12 +173,8 @@ export function ChannelIndexPage() {
               className="mt-5"
             >
               <TabList>
-                <TabTrigger value="0" data-testid="tab-is_archived-available">
-                  Available
-                </TabTrigger>
-                <TabTrigger value="1" data-testid="tab-is_archived-archived">
-                  Archived
-                </TabTrigger>
+                <TabTrigger value="0">Available</TabTrigger>
+                <TabTrigger value="1">Archived</TabTrigger>
                 <TabIndicator />
               </TabList>
             </Tabs>
@@ -209,18 +203,15 @@ export function ChannelIndexPage() {
           </div>
         </div>
         <Table
-          id="channels"
           loading={channelIndexQuery.isLoading}
           error={channelIndexQuery.isError}
           errorMessage={
-            (typeof channelIndexQuery.error === 'object' &&
-              channelIndexQuery.error instanceof Error &&
-              channelIndexQuery.error.message) ||
+            (channelIndexQuery.error instanceof Error && channelIndexQuery.error.message) ||
             undefined
           }
           refetch={channelIndexQuery.refetch}
           headings={['Name', 'Date created']}
-          rows={channelIndexQuery.data?.data.map((channel, index) => [
+          rows={channelIndexQuery.data?.data.map((channel) => [
             channel.name,
             formatDateTime(channel.created_at),
             <div className="flex items-center justify-end gap-x-1">
@@ -230,7 +221,6 @@ export function ChannelIndexPage() {
                 icon={(props) => <PencilSimple {...props} />}
                 label={`Edit ${channel.name}`}
                 tooltip="Edit Channel"
-                data-testid={`link-edit-channel-${index}`}
               />
               {loggedInAdmin?.role === 'super_admin' &&
                 (!channel.is_archived ? (
@@ -240,7 +230,6 @@ export function ChannelIndexPage() {
                     tooltip="Archive channel"
                     onClick={archiveChannel({ channelId: channel.id, channelName: channel.name })}
                     severity="danger"
-                    data-testid={`btn-archive-channel-${index}`}
                   />
                 ) : (
                   <IconButton
@@ -249,7 +238,6 @@ export function ChannelIndexPage() {
                     tooltip="Restore channel"
                     onClick={restoreChannel({ channelId: channel.id, channelName: channel.name })}
                     severity="primary"
-                    data-testid={`btn-restore-channel-${index}`}
                   />
                 ))}
             </div>,
