@@ -103,7 +103,7 @@ export function ClientShowPage() {
                   disabled={updateClientMutation.isPending}
                   error={updateClientForm.formState.errors.full_name?.message}
                   readOnly={client?.is_archived}
-                  srOnlyLabel
+                  noLabel
                 />
               )}
             </div>

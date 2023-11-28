@@ -105,7 +105,7 @@ export function TicketTagShowPage() {
                   disabled={updateTicketTagMutation.isPending}
                   value={ticketTag?.name}
                   readOnly
-                  srOnlyLabel
+                  noLabel
                 />
               )}
             </div>
@@ -122,7 +122,7 @@ export function TicketTagShowPage() {
                   disabled={updateTicketTagMutation.isPending}
                   error={updateTicketTagForm.formState.errors.description?.message}
                   readOnly={ticketTag?.is_archived}
-                  srOnlyLabel
+                  noLabel
                   rows={3}
                 />
               )}

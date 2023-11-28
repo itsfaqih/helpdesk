@@ -1,14 +1,14 @@
-import { AdminRole, AdminRoleEnum } from '@/schemas/admin.schema';
+import { UserRole, UserRoleEnum } from '@/schemas/user.schema';
 
-export const adminRoleOptions = AdminRoleEnum.options.map((value) => ({
+export const userRoleOptions = UserRoleEnum.options.map((value) => ({
   value,
-  label: adminRoleValueToLabel(value),
+  label: userRoleValueToLabel(value),
 }));
 
-export function adminRoleValueToLabel(value: AdminRole | '') {
+export function userRoleValueToLabel(value: UserRole | '') {
   switch (value) {
     case 'super_admin':
-      return 'Super Admin';
+      return 'Super admin';
     case 'operator':
       return 'Operator';
     case '':
@@ -18,9 +18,9 @@ export function adminRoleValueToLabel(value: AdminRole | '') {
   }
 }
 
-export function adminRoleLabelToValue(label: string): AdminRole | '' {
+export function userRoleLabelToValue(label: string): UserRole | '' {
   switch (label) {
-    case 'Super Admin':
+    case 'Super admin':
       return 'super_admin';
     case 'Operator':
       return 'operator';

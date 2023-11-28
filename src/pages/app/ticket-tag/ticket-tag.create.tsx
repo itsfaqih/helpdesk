@@ -62,7 +62,7 @@ export function TicketTagCreatePage() {
                 placeholder="Enter name"
                 disabled={createTicketTagMutation.isPending}
                 error={createTicketTagForm.formState.errors.name?.message}
-                srOnlyLabel
+                noLabel
               />
             </div>
           </div>
@@ -75,7 +75,7 @@ export function TicketTagCreatePage() {
                 placeholder="Enter description"
                 disabled={createTicketTagMutation.isPending}
                 error={createTicketTagForm.formState.errors.description?.message}
-                srOnlyLabel
+                noLabel
                 rows={3}
               />
             </div>

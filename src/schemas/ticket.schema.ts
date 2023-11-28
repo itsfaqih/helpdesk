@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ClientSchema } from './client.schema';
 import { ChannelSchema } from './channel.schema';
-import { AdminSchema } from './admin.schema';
+import { UserSchema } from './user.schema';
 
 export const TicketStatusEnum = z.enum(['open', 'in_progress', 'resolved', 'unresolved']);
 
@@ -76,7 +76,7 @@ export type CreateTicketSchema = z.infer<typeof CreateTicketSchema>;
 export const TicketAssignmentSchema = z.object({
   id: z.string().nonempty(),
   ticket_id: TicketSchema.shape.id,
-  admin_id: AdminSchema.shape.id,
+  user_id: UserSchema.shape.id,
   created_at: z.string().datetime(),
 });
 
@@ -84,7 +84,7 @@ export type TicketAssignment = z.infer<typeof TicketAssignmentSchema>;
 
 export const CreateTicketAssignmentSchema = TicketAssignmentSchema.pick({
   ticket_id: true,
-  admin_id: true,
+  user_id: true,
 });
 
 export type CreateTicketAssignmentSchema = z.infer<typeof CreateTicketAssignmentSchema>;
@@ -98,7 +98,7 @@ export type DeleteTicketAssignmentSchema = z.infer<typeof DeleteTicketAssignment
 
 export const TicketAssignmentWithRelationsSchema = TicketAssignmentSchema.extend({
   ticket: z.lazy(() => TicketSchema),
-  admin: z.lazy(() => AdminSchema),
+  user: z.lazy(() => UserSchema),
 });
 
 export type TicketAssignmentWithRelations = z.infer<typeof TicketAssignmentWithRelationsSchema>;

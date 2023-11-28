@@ -23,7 +23,7 @@ import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { useDebounce } from '@/hooks/use-debounce';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Table } from '@/components/base/table';
-import { useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { useLoggedInUserQuery } from '@/queries/logged-in-user.query';
 import { formatDateTime } from '@/utils/date';
 import { AppPageContainer } from '@/components/derived/app-page-container';
 import { AppPageResetButton } from '../_components/page-reset-button';
@@ -62,8 +62,8 @@ export function TicketTagIndexPage() {
     action: null,
   });
 
-  const loggedInAdminQuery = useLoggedInAdminQuery();
-  const loggedInAdmin = loggedInAdminQuery.data?.data;
+  const loggedInUserQuery = useLoggedInUserQuery();
+  const loggedInUser = loggedInUserQuery.data?.data;
 
   const ticketTagQuery = useTicketTagIndexQuery(loaderData.data.request);
 
@@ -117,7 +117,7 @@ export function TicketTagIndexPage() {
 
   return (
     <>
-      {loggedInAdmin?.role === 'super_admin' && (
+      {loggedInUser?.role === 'super_admin' && (
         <Link
           to="/ticket-tags/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
@@ -129,7 +129,7 @@ export function TicketTagIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            loggedInAdmin?.role === 'super_admin' && (
+            loggedInUser?.role === 'super_admin' && (
               <Button
                 as={Link}
                 to="/ticket-tags/create"
@@ -225,15 +225,15 @@ export function TicketTagIndexPage() {
                 <>
                   <IconButton
                     as={Link}
+                    tooltip="View"
                     to={`/ticket-tags/${tag.id}`}
                     icon={(props) => <CaretRight {...props} />}
-                    tooltip="View"
                   />
                   <IconButton
-                    icon={(props) => <ArrowCounterClockwise {...props} />}
+                    severity="primary"
                     tooltip="Restore"
+                    icon={(props) => <ArrowCounterClockwise {...props} />}
                     onClick={restoreTicketTag(tag.id)}
-                    className="text-brand-600"
                   />
                 </>
               )}

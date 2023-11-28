@@ -27,7 +27,7 @@ export function useCreateTicketAssignmentMutation() {
     async onSuccess(res) {
       await queryClient.invalidateQueries({ queryKey: ['ticket', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['ticket', 'show', res.data.ticket_id] });
-      await queryClient.invalidateQueries({ queryKey: ['admin', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['user', 'index'] });
     },
   });
 }
@@ -52,7 +52,7 @@ export function useDeleteTicketAssignmentMutation() {
     async onSuccess(res) {
       await queryClient.invalidateQueries({ queryKey: ['ticket', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['ticket', 'show', res.data.ticket_id] });
-      await queryClient.invalidateQueries({ queryKey: ['admin', 'index'] });
+      await queryClient.invalidateQueries({ queryKey: ['user', 'index'] });
     },
   });
 }

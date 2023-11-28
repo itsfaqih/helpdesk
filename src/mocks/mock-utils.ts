@@ -1,4 +1,4 @@
-import { AdminWithoutPasswordSchema } from '@/schemas/admin.schema';
+import { UserWithoutPasswordSchema } from '@/schemas/user.schema';
 import { BaseResponseError, ForbiddenError, UnauthorizedError } from '@/utils/error.util';
 import { HttpResponse, HttpResponseInit } from 'msw';
 import { z } from 'zod';
@@ -64,29 +64,29 @@ type AllowAuthenticatedOnlyParams = {
 };
 
 export async function allowAuthenticatedOnly({ sessionId }: AllowAuthenticatedOnlyParams) {
-  const loggedInAdmin = await db.admins.where('id').equals(sessionId).first();
+  const loggedInUser = await db.users.where('id').equals(sessionId).first();
 
-  if (!loggedInAdmin) {
+  if (!loggedInUser) {
     throw new UnauthorizedError();
   }
 
-  return loggedInAdmin;
+  return loggedInUser;
 }
 
-type AllowSuperAdminOnlyParams = {
+type AllowSuperUserOnlyParams = {
   sessionId: string | string[];
 };
 
-export async function allowSuperAdminOnly({ sessionId }: AllowSuperAdminOnlyParams) {
-  const unparsedLoggedInAdmin = await allowAuthenticatedOnly({ sessionId });
+export async function allowSuperUserOnly({ sessionId }: AllowSuperUserOnlyParams) {
+  const unparsedLoggedInUser = await allowAuthenticatedOnly({ sessionId });
 
-  const loggedInAdmin = AdminWithoutPasswordSchema.parse(unparsedLoggedInAdmin);
+  const loggedInUser = UserWithoutPasswordSchema.parse(unparsedLoggedInUser);
 
-  if (loggedInAdmin.role !== 'super_admin') {
+  if (loggedInUser.role !== 'super_admin') {
     throw new ForbiddenError();
   }
 
-  return loggedInAdmin;
+  return loggedInUser;
 }
 
 export function handleResponseError(error: unknown) {

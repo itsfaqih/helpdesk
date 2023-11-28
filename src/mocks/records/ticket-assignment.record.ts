@@ -1,7 +1,7 @@
 import { Ticket, TicketAssignmentWithRelations } from '@/schemas/ticket.schema';
 import { nanoid } from 'nanoid';
 import { mockTicketRecords } from './ticket.record';
-import { mockAdminRecords } from './admin.record';
+import { mockUserRecords } from './user.record';
 import { db } from './db';
 
 export function mockTicketAssignments() {
@@ -9,13 +9,13 @@ export function mockTicketAssignments() {
     {
       id: nanoid(),
       ticket_id: mockTicketRecords[0].id,
-      admin_id: mockAdminRecords[0].id,
+      user_id: mockUserRecords[0].id,
       created_at: new Date().toISOString(),
     },
     {
       id: nanoid(),
       ticket_id: mockTicketRecords[1].id,
-      admin_id: mockAdminRecords[1].id,
+      user_id: mockUserRecords[1].id,
       created_at: new Date().toISOString(),
     },
   ];
@@ -34,10 +34,10 @@ export async function getTicketAssignmentsWithRelationsByTicketId(
 
   const ticketAssignmentsWithRelations: TicketAssignmentWithRelations[] = await Promise.all(
     ticketAssignments.map(async (ticketAssignment) => {
-      const admin = await db.admins.where('id').equals(ticketAssignment.admin_id).first();
+      const user = await db.users.where('id').equals(ticketAssignment.user_id).first();
 
-      if (!admin) {
-        throw new Error(`Admin with id ${ticketAssignment.admin_id} not found`);
+      if (!user) {
+        throw new Error(`User with id ${ticketAssignment.user_id} not found`);
       }
 
       const ticket = await db.tickets.where('id').equals(ticketAssignment.ticket_id).first();
@@ -48,7 +48,7 @@ export async function getTicketAssignmentsWithRelationsByTicketId(
 
       const ticketAssignmentWithRelations: TicketAssignmentWithRelations = {
         ...ticketAssignment,
-        admin,
+        user,
         ticket,
       };
 

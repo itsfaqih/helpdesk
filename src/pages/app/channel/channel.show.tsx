@@ -110,7 +110,7 @@ export function ChannelShowPage() {
                   placeholder="Enter Name"
                   value={channel?.name}
                   readOnly
-                  srOnlyLabel
+                  noLabel
                 />
               )}
             </div>
@@ -124,7 +124,7 @@ export function ChannelShowPage() {
                   {...updateChannelForm.register('description')}
                   label="Description"
                   placeholder="Enter Description"
-                  srOnlyLabel
+                  noLabel
                   rows={3}
                 />
               )}

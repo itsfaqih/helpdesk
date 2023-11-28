@@ -179,7 +179,7 @@ export function ActionShowPage() {
                   placeholder="Enter Label"
                   disabled={updateActionMutation.isPending}
                   error={updateActionForm.formState.errors.label?.message}
-                  srOnlyLabel
+                  noLabel
                 />
               </div>
             </div>
@@ -193,7 +193,7 @@ export function ActionShowPage() {
                   placeholder="Enter Description"
                   disabled={updateActionMutation.isPending}
                   error={updateActionForm.formState.errors.description?.message}
-                  srOnlyLabel
+                  noLabel
                   rows={3}
                 />
               </div>

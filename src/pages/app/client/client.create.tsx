@@ -58,7 +58,7 @@ export function ClientCreatePage() {
                 placeholder="Enter Full Name"
                 disabled={createClientMutation.isPending}
                 error={createClientForm.formState.errors.full_name?.message}
-                srOnlyLabel
+                noLabel
               />
             </div>
           </div>

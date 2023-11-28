@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { APIResponseSchema } from './api.schema';
-import { AdminWithoutPasswordSchema } from './admin.schema';
+import { UserWithoutPasswordSchema } from './user.schema';
 
 export const LoginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -27,5 +27,5 @@ export const RegisterSchema = z
 export type RegisterSchema = z.infer<typeof RegisterSchema>;
 
 export const AuthResponseSchema = APIResponseSchema({
-  schema: AdminWithoutPasswordSchema,
+  schema: UserWithoutPasswordSchema,
 });

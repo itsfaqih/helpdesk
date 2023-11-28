@@ -14,7 +14,7 @@ import {
   Ticket,
   Users,
 } from '@phosphor-icons/react';
-import { useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { useLoggedInUserQuery } from '@/queries/logged-in-user.query';
 import { useLogOutMutation } from '@/mutations/log-out.mutation';
 import { FadeInContainer } from '@/components/base/fade-in-container';
 import { IconButton } from '@/components/base/button';
@@ -53,9 +53,9 @@ const mainMenus = [
     label: 'Actions',
   },
   {
-    to: '/admins',
+    to: '/users',
     icon: Users,
-    label: 'Administrators',
+    label: 'Users',
   },
 ];
 
@@ -63,8 +63,8 @@ export function AppRoot() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
-  const loggedInAdminQuery = useLoggedInAdminQuery();
-  const loggedInAdmin = loggedInAdminQuery.data?.data;
+  const loggedInUserQuery = useLoggedInUserQuery();
+  const loggedInUser = loggedInUserQuery.data?.data;
 
   const logOutMutation = useLogOutMutation();
 
@@ -149,14 +149,14 @@ export function AppRoot() {
                     <Avatar>
                       <AvatarImage src={undefined} />
                       <AvatarFallback>
-                        {loggedInAdmin?.full_name ? getInitials(loggedInAdmin.full_name) : ''}
+                        {loggedInUser?.full_name ? getInitials(loggedInUser.full_name) : ''}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-col hidden text-left w-36 sm:flex">
                       <span className="text-sm font-medium text-gray-800 truncate">
-                        {loggedInAdmin?.full_name}
+                        {loggedInUser?.full_name}
                       </span>
-                      <span className="text-xs text-gray-600 truncate">{loggedInAdmin?.email}</span>
+                      <span className="text-xs text-gray-600 truncate">{loggedInUser?.email}</span>
                     </div>
                   </button>
                 </MenuTrigger>

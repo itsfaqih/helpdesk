@@ -5,7 +5,7 @@ import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
   allowAuthenticatedOnly,
-  allowSuperAdminOnly,
+  allowSuperUserOnly,
   handleResponseError,
   successResponse,
 } from '../mock-utils';
@@ -15,7 +15,7 @@ import { db } from '../records/db';
 export const channelHandlers = [
   http.post('/api/channels', async ({ cookies, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const data = CreateChannelSchema.parse(await request.json());
 
@@ -127,7 +127,7 @@ export const channelHandlers = [
   }),
   http.put('/api/channels/:channelId', async ({ cookies, params, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const channelId = params.channelId;
 
@@ -154,7 +154,7 @@ export const channelHandlers = [
   }),
   http.put('/api/channels/:channelId/archive', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const channelId = params.channelId;
 
@@ -179,7 +179,7 @@ export const channelHandlers = [
   }),
   http.put('/api/channels/:channelId/restore', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const channelId = params.channelId;
 

@@ -1,4 +1,4 @@
-import { adminHandlers } from './handlers/admin.handler';
+import { userHandlers } from './handlers/user.handler';
 import { authHandlers } from './handlers/auth.handler';
 import { clientHandlers } from './handlers/client.handler';
 import { channelHandlers } from './handlers/channel.handler';
@@ -9,7 +9,7 @@ import { actionFieldHandlers } from './handlers/action-field.handler';
 import { RequestHandler } from 'msw';
 
 export const handlers: RequestHandler[] = [
-  ...adminHandlers,
+  ...userHandlers,
   ...authHandlers,
   ...clientHandlers,
   ...channelHandlers,

@@ -29,7 +29,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/base/avatar';
 import { getInitials } from '@/utils/text.util';
 import { Button, IconButton } from '@/components/base/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/base/popover';
-import { useAdminIndexQuery } from '@/queries/admin.query';
+import { useUserIndexQuery } from '@/queries/user.query';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Command } from 'cmdk';
 import { inputClassName } from '@/components/base/input';
@@ -39,10 +39,10 @@ import {
   useDeleteTicketAssignmentMutation,
 } from '@/mutations/ticket.mutation';
 import { Ticket, TicketAssignmentWithRelations } from '@/schemas/ticket.schema';
-import { fetchLoggedInAdminQuery, useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { fetchLoggedInUserQuery, useLoggedInUserQuery } from '@/queries/logged-in-user.query';
 import { cn } from '@/libs/cn.lib';
 import { Spinner } from '@/components/base/spinner';
-import { AdminWithoutPassword } from '@/schemas/admin.schema';
+import { UserWithoutPassword } from '@/schemas/user.schema';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/base/menu';
 import { useActionIndexQuery } from '@/queries/action.query';
 import { Action } from '@/schemas/action.schema';
@@ -59,7 +59,7 @@ function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
     const requestData = TicketShowRequestSchema.parse(params);
 
-    await fetchLoggedInAdminQuery({ queryClient });
+    await fetchLoggedInUserQuery({ queryClient });
 
     await fetchTicketShowQuery({ queryClient, request: requestData }).catch((err) => {
       console.error(err);
@@ -82,7 +82,7 @@ export function TicketShowPage() {
   });
   const ticket = ticketShowQuery.data?.data;
 
-  const loggedInAdminQuery = useLoggedInAdminQuery();
+  const loggedInUserQuery = useLoggedInUserQuery();
   const createTicketAssignmentMutation = useCreateTicketAssignmentMutation();
 
   const activeTicketAssigments = ticket?.assignments ?? [];
@@ -199,7 +199,7 @@ export function TicketShowPage() {
                 <button
                   onClick={() => {
                     createTicketAssignmentMutation.mutate({
-                      admin_id: loggedInAdminQuery.data!.data.id,
+                      user_id: loggedInUserQuery.data!.data.id,
                       ticket_id: ticket.id,
                     });
                   }}
@@ -350,7 +350,7 @@ export function TicketShowPage() {
                           <button
                             onClick={() => {
                               createTicketAssignmentMutation.mutate({
-                                admin_id: loggedInAdminQuery.data!.data.id,
+                                user_id: loggedInUserQuery.data!.data.id,
                                 ticket_id: ticket.id,
                               });
                             }}
@@ -485,14 +485,14 @@ type AddTicketAssigneePopoverProps = {
 
 function AddTicketAssigneePopover({ ticketId, trigger }: AddTicketAssigneePopoverProps) {
   const [open, setOpen] = React.useState(false);
-  const [searchAdmin, setSearchAdmin] = React.useState('');
-  const debouncedSearchAdmin = useDebounce(searchAdmin, 500);
+  const [searchUser, setSearchUser] = React.useState('');
+  const debouncedSearchUser = useDebounce(searchUser, 500);
 
-  const adminIndexQuery = useAdminIndexQuery({
-    search: debouncedSearchAdmin,
+  const userIndexQuery = useUserIndexQuery({
+    search: debouncedSearchUser,
     assignable_ticket_id: ticketId,
   });
-  const admins = adminIndexQuery.data?.data ?? [];
+  const users = userIndexQuery.data?.data ?? [];
 
   return (
     <Popover
@@ -508,14 +508,14 @@ function AddTicketAssigneePopover({ ticketId, trigger }: AddTicketAssigneePopove
         <span className="text-gray-500 text-sm">Assign agent</span>
         <Command shouldFilter={false} className="w-full mt-2">
           <Command.Input
-            value={searchAdmin}
-            onValueChange={(value) => setSearchAdmin(value)}
+            value={searchUser}
+            onValueChange={(value) => setSearchUser(value)}
             placeholder="Search by name or email"
             className={inputClassName({ className: 'w-full' })}
           />
 
           <Command.List className="flex flex-col mt-2 gap-y-1">
-            {adminIndexQuery.isLoading && (
+            {userIndexQuery.isLoading && (
               <Command.Loading>
                 <Loop amount={2}>
                   <div className="flex items-center gap-x-2.5 cursor-default px-2.5 py-1.5 rounded-md">
@@ -529,14 +529,14 @@ function AddTicketAssigneePopover({ ticketId, trigger }: AddTicketAssigneePopove
               </Command.Loading>
             )}
 
-            {adminIndexQuery.isSuccess && admins.length === 0 && (
+            {userIndexQuery.isSuccess && users.length === 0 && (
               <div role="presentation" className="py-3.5 text-center text-gray-500">
                 No results found.
               </div>
             )}
 
-            {admins.map((admin) => (
-              <AddTicketAssigneePopoverItem key={admin.id} admin={admin} ticketId={ticketId} />
+            {users.map((user) => (
+              <AddTicketAssigneePopoverItem key={user.id} user={user} ticketId={ticketId} />
             ))}
           </Command.List>
         </Command>
@@ -546,25 +546,25 @@ function AddTicketAssigneePopover({ ticketId, trigger }: AddTicketAssigneePopove
 }
 
 type AddTicketAssigneePopoverItemProps = {
-  admin: AdminWithoutPassword;
+  user: UserWithoutPassword;
   ticketId: Ticket['id'];
 };
 
 const AddTicketAssigneePopoverItem = React.forwardRef<
   React.ElementRef<typeof Command.Item>,
   AddTicketAssigneePopoverItemProps
->(({ admin, ticketId }, ref) => {
+>(({ user, ticketId }, ref) => {
   const createTicketAssignmentMutation = useCreateTicketAssignmentMutation();
 
   return (
     <Command.Item
       ref={ref}
-      value={admin.id}
+      value={user.id}
       disabled={createTicketAssignmentMutation.isPending}
       onSelect={(value) => {
         createTicketAssignmentMutation.mutate({
           ticket_id: ticketId,
-          admin_id: value,
+          user_id: value,
         });
       }}
       className={cn(
@@ -574,14 +574,14 @@ const AddTicketAssigneePopoverItem = React.forwardRef<
     >
       <Avatar className="w-8 h-8 cursor-default group-aria-disabled:opacity-70">
         <AvatarImage src={undefined} />
-        <AvatarFallback>{admin.full_name ? getInitials(admin.full_name) : ''}</AvatarFallback>
+        <AvatarFallback>{user.full_name ? getInitials(user.full_name) : ''}</AvatarFallback>
       </Avatar>
       <div className="flex flex-col flex-1 text-left group-aria-disabled:opacity-70">
         <span className="text-sm line-clamp-1 group-data-[selected]:text-brand-800 text-gray-800">
-          {admin.full_name}
+          {user.full_name}
         </span>
         <span className="text-xs line-clamp-1 group-data-[selected]:text-brand-700 text-gray-500">
-          {admin.email}
+          {user.email}
         </span>
       </div>
       {createTicketAssignmentMutation.isPending ? (
@@ -610,12 +610,12 @@ function TicketAssignmentItem({ assignment }: TicketAssignmentItemProps) {
         <Avatar className="w-8 h-8 cursor-default">
           <AvatarImage src={undefined} />
           <AvatarFallback>
-            {assignment.admin.full_name ? getInitials(assignment.admin.full_name) : ''}
+            {assignment.user.full_name ? getInitials(assignment.user.full_name) : ''}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col flex-1 text-left">
-          <span className="text-sm text-gray-800 line-clamp-1">{assignment.admin.full_name}</span>
-          <span className="text-xs text-gray-500 line-clamp-1">{assignment.admin.email}</span>
+          <span className="text-sm text-gray-800 line-clamp-1">{assignment.user.full_name}</span>
+          <span className="text-xs text-gray-500 line-clamp-1">{assignment.user.email}</span>
         </div>
       </div>
       <IconButton

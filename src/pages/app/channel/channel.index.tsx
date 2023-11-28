@@ -17,7 +17,7 @@ import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { useDebounce } from '@/hooks/use-debounce';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Table } from '@/components/base/table';
-import { useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { useLoggedInUserQuery } from '@/queries/logged-in-user.query';
 import { formatDateTime } from '@/utils/date';
 import { AppPageContainer } from '@/components/derived/app-page-container';
 import { ArchiveChannelDialog } from './_components/archive-channel-dialog';
@@ -61,8 +61,8 @@ export function ChannelIndexPage() {
     action: null,
   });
 
-  const loggedInAdminQuery = useLoggedInAdminQuery();
-  const loggedInAdmin = loggedInAdminQuery.data?.data;
+  const loggedInUserQuery = useLoggedInUserQuery();
+  const loggedInUser = loggedInUserQuery.data?.data;
 
   const channelIndexQuery = useChannelIndexQuery(loaderData.data.request);
 
@@ -128,7 +128,7 @@ export function ChannelIndexPage() {
 
   return (
     <>
-      {loggedInAdmin?.role === 'super_admin' && (
+      {loggedInUser?.role === 'super_admin' && (
         <Link
           aria-label="Add Channel"
           to="/channels/create"
@@ -141,7 +141,7 @@ export function ChannelIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            loggedInAdmin?.role === 'super_admin' && (
+            loggedInUser?.role === 'super_admin' && (
               <Button
                 as={Link}
                 to="/channels/create"
@@ -222,7 +222,7 @@ export function ChannelIndexPage() {
                 label={`Edit ${channel.name}`}
                 tooltip="Edit Channel"
               />
-              {loggedInAdmin?.role === 'super_admin' &&
+              {loggedInUser?.role === 'super_admin' &&
                 (!channel.is_archived ? (
                   <IconButton
                     icon={(props) => <Archive {...props} />}

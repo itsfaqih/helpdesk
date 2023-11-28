@@ -11,7 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { AppPageContainer } from '@/components/derived/app-page-container';
-import { mockAdminRecords } from '@/mocks/records/admin.record';
+import { mockUserRecords } from '@/mocks/records/user.record';
 
 function loader() {
   return async () => {
@@ -29,7 +29,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const loginForm = useForm<LoginSchema>({
     resolver: zodResolver(LoginSchema),
-    defaultValues: mockAdminRecords[0],
+    defaultValues: mockUserRecords[0],
   });
 
   const loginMutation = useLoginMutation();

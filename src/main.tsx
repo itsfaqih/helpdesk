@@ -13,14 +13,14 @@ import { RegisterPage } from './pages/auth/register';
 import { ForgotPasswordPage } from './pages/auth/forgot-password';
 import { AppRoot } from './pages/app/app.root';
 import { DashboardPage } from './pages/app/dashboard';
-import { AdminIndexPage } from './pages/app/admin/admin.index';
-import { AdminCreatePage } from './pages/app/admin/admin.create';
-import { AdminShowPage } from './pages/app/admin/admin.show';
+import { UserIndexPage } from './pages/app/user/user.index';
+import { UserCreatePage } from './pages/app/user/user.create';
+import { UserShowPage } from './pages/app/user/user.show';
 import { ClientIndexPage } from './pages/app/client/client.index';
 import { ClientShowPage } from './pages/app/client/client.show';
 import { ClientCreatePage } from './pages/app/client/client.create';
 import { TicketIndexPage } from './pages/app/ticket/ticket.index';
-import { Admin, AdminSchema } from './schemas/admin.schema';
+import { User, UserSchema } from './schemas/user.schema';
 import { Client, ClientSchema } from './schemas/client.schema';
 import {
   Ticket,
@@ -34,7 +34,7 @@ import { TicketShowPage } from './pages/app/ticket/ticket.show';
 import { TicketTagIndexPage } from './pages/app/ticket-tag/ticket-tag.index';
 import { TicketTagShowPage } from './pages/app/ticket-tag/ticket-tag.show';
 import { TicketTagCreatePage } from './pages/app/ticket-tag/ticket-tag.create';
-import { mockAdminRecords } from './mocks/records/admin.record';
+import { mockUserRecords } from './mocks/records/user.record';
 import { mockClientRecords } from './mocks/records/client.record';
 import { mockTicketTagRecords } from './mocks/records/ticket-tag.record';
 import { mockTicketRecords } from './mocks/records/ticket.record';
@@ -43,7 +43,7 @@ import { Channel, ChannelSchema } from './schemas/channel.schema';
 import { mockChannelRecords } from './mocks/records/channel.record';
 import { ChannelCreatePage } from './pages/app/channel/channel.create';
 import { ChannelShowPage } from './pages/app/channel/channel.show';
-import { loggedInAdminQuery } from './queries/logged-in-admin.query';
+import { loggedInUserQuery } from './queries/logged-in-user.query';
 import { mockTicketAssignments } from './mocks/records/ticket-assignment.record';
 import { Action, ActionSchema } from './schemas/action.schema';
 import { mockActionRecords } from './mocks/records/action.record';
@@ -61,18 +61,18 @@ async function prepare() {
   await worker.start();
 
   // seed dummy data to indexeddb
-  let existingAdmins: Admin[] = [];
-  const unparsedAdmins = await db.admins.toArray();
+  let existingUsers: User[] = [];
+  const unparsedUsers = await db.users.toArray();
 
-  const existingAdminsParsing = AdminSchema.array().safeParse(unparsedAdmins);
+  const existingUsersParsing = UserSchema.array().safeParse(unparsedUsers);
 
-  if (!existingAdminsParsing.success || existingAdminsParsing.data.length === 0) {
-    existingAdmins = mockAdminRecords;
+  if (!existingUsersParsing.success || existingUsersParsing.data.length === 0) {
+    existingUsers = mockUserRecords;
 
-    await db.admins.clear();
-    await db.admins.bulkAdd(existingAdmins);
+    await db.users.clear();
+    await db.users.bulkAdd(existingUsers);
   } else {
-    existingAdmins = existingAdminsParsing.data;
+    existingUsers = existingUsersParsing.data;
   }
 
   let existingChannels: Channel[] = [];
@@ -183,7 +183,7 @@ prepare()
         path: 'auth',
         async loader() {
           try {
-            await loggedInAdminQuery().queryFn();
+            await loggedInUserQuery().queryFn();
 
             return redirect('/');
           } catch (error) {
@@ -212,7 +212,7 @@ prepare()
         path: '/',
         async loader() {
           try {
-            await loggedInAdminQuery().queryFn();
+            await loggedInUserQuery().queryFn();
 
             return null;
           } catch (error) {
@@ -247,22 +247,22 @@ prepare()
             ],
           },
           {
-            path: 'admins',
+            path: 'users',
             children: [
               {
-                element: <AdminIndexPage />,
-                loader: AdminIndexPage.loader(queryClient),
+                element: <UserIndexPage />,
+                loader: UserIndexPage.loader(queryClient),
                 index: true,
               },
               {
                 path: ':id',
-                loader: AdminShowPage.loader(queryClient),
-                element: <AdminShowPage />,
+                loader: UserShowPage.loader(queryClient),
+                element: <UserShowPage />,
               },
               {
                 path: 'create',
-                loader: AdminCreatePage.loader(),
-                element: <AdminCreatePage />,
+                loader: UserCreatePage.loader(),
+                element: <UserCreatePage />,
               },
             ],
           },

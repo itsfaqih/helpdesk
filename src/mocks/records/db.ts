@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie';
 import { ActionField } from '@/schemas/action-field.schema';
 import { Action } from '@/schemas/action.schema';
-import { Admin } from '@/schemas/admin.schema';
+import { User } from '@/schemas/user.schema';
 import { Channel } from '@/schemas/channel.schema';
 import { Client } from '@/schemas/client.schema';
 import { Ticket, TicketAssignment, TicketTag, TicketTagging } from '@/schemas/ticket.schema';
@@ -9,7 +9,7 @@ import { Ticket, TicketAssignment, TicketTag, TicketTagging } from '@/schemas/ti
 export class MainDatabase extends Dexie {
   action_fields!: Table<ActionField>;
   actions!: Table<Action>;
-  admins!: Table<Admin>;
+  users!: Table<User>;
   channels!: Table<Channel>;
   clients!: Table<Client>;
   ticket_assignments!: Table<TicketAssignment>;
@@ -25,10 +25,10 @@ export class MainDatabase extends Dexie {
         'id, action_id, name, label, type, placeholder, helper_text, is_required, order',
       actions:
         'id, icon_type, icon_value, label, description, form_method, webhook_url, is_archived, is_disabled, created_at, updated_at',
-      admins: 'id, full_name, email, password, role, is_active, created_at, updated_at',
+      users: 'id, full_name, email, password, role, is_active, created_at, updated_at',
       channels: 'id, name, description, is_archived, created_at, updated_at',
       clients: 'id, full_name, is_archived, created_at, updated_at',
-      ticket_assignments: 'id, ticket_id, admin_id, created_at, deleted_at',
+      ticket_assignments: 'id, ticket_id, user_id, created_at, deleted_at',
       ticket_taggings: 'id, ticket_id, ticket_tag_id, created_at, deleted_at',
       ticket_tags: 'id, name, description, is_archived, created_at, updated_at',
       tickets:

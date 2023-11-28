@@ -82,7 +82,7 @@ export function ActionCreatePage() {
                   placeholder="Enter Label"
                   disabled={createActionMutation.isPending}
                   error={createActionForm.formState.errors.label?.message}
-                  srOnlyLabel
+                  noLabel
                 />
               </div>
             </div>
@@ -95,7 +95,7 @@ export function ActionCreatePage() {
                   placeholder="Enter Description"
                   disabled={createActionMutation.isPending}
                   error={createActionForm.formState.errors.description?.message}
-                  srOnlyLabel
+                  noLabel
                   rows={3}
                 />
               </div>

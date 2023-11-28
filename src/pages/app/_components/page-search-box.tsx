@@ -13,7 +13,7 @@ export const AppPageSearchBox = React.forwardRef<
       label="Search"
       type="search"
       placeholder={placeholder ?? 'Search...'}
-      srOnlyLabel
+      noLabel
       className={cn('flex-1 min-w-[20rem]', className)}
       {...props}
     />

@@ -23,7 +23,7 @@ import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { useDebounce } from '@/hooks/use-debounce';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Table } from '@/components/base/table';
-import { useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { useLoggedInUserQuery } from '@/queries/logged-in-user.query';
 import { formatDateTime } from '@/utils/date';
 import { AppPageContainer } from '@/components/derived/app-page-container';
 import { AppPageSearchBox } from '../_components/page-search-box';
@@ -62,8 +62,8 @@ export function ClientIndexPage() {
     action: null,
   });
 
-  const loggedInAdminQuery = useLoggedInAdminQuery();
-  const loggedInAdmin = loggedInAdminQuery.data?.data;
+  const loggedInUserQuery = useLoggedInUserQuery();
+  const loggedInUser = loggedInUserQuery.data?.data;
 
   const clientIndexQuery = useClientIndexQuery(loaderData.data.request);
 
@@ -122,7 +122,7 @@ export function ClientIndexPage() {
 
   return (
     <>
-      {loggedInAdmin?.role === 'super_admin' && (
+      {loggedInUser?.role === 'super_admin' && (
         <Link
           to="/clients/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
@@ -134,7 +134,7 @@ export function ClientIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            loggedInAdmin?.role === 'super_admin' && (
+            loggedInUser?.role === 'super_admin' && (
               <Button
                 as={Link}
                 to="/clients/create"
@@ -210,7 +210,7 @@ export function ClientIndexPage() {
             client.full_name,
             formatDateTime(client.created_at),
             <div className="flex items-center justify-end gap-x-1">
-              {loggedInAdmin?.role === 'super_admin' &&
+              {loggedInUser?.role === 'super_admin' &&
                 (!client.is_archived ? (
                   <>
                     <IconButton
@@ -237,10 +237,10 @@ export function ClientIndexPage() {
                     />
 
                     <IconButton
-                      icon={(props) => <ArrowCounterClockwise {...props} />}
                       tooltip="Restore"
+                      severity="primary"
+                      icon={(props) => <ArrowCounterClockwise {...props} />}
                       onClick={restoreClient(client.id)}
-                      className="text-brand-600"
                     />
                   </>
                 ))}

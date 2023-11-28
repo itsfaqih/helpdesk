@@ -10,7 +10,7 @@ import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
   allowAuthenticatedOnly,
-  allowSuperAdminOnly,
+  allowSuperUserOnly,
   handleResponseError,
   successResponse,
 } from '../mock-utils';
@@ -158,7 +158,7 @@ export const ticketHandlers = [
   }),
   http.put('/api/tickets/:ticketId/restore', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const ticketId = params.ticketId;
 
@@ -202,7 +202,7 @@ export const ticketHandlers = [
       const newTicketAssignment: TicketAssignment = {
         id: nanoid(),
         ticket_id: data.ticket_id,
-        admin_id: data.admin_id,
+        user_id: data.user_id,
         created_at: new Date().toISOString(),
       };
 
@@ -220,7 +220,7 @@ export const ticketHandlers = [
     '/api/tickets/:ticketId/assignments/:ticketAssignmentId',
     async ({ cookies, params }) => {
       try {
-        await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+        await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
         const ticketId = params.ticketId;
 

@@ -64,7 +64,7 @@ export function ChannelCreatePage() {
                 placeholder="Enter Name"
                 disabled={createChannelMutation.isPending}
                 error={createChannelForm.formState.errors.name?.message}
-                srOnlyLabel
+                noLabel
               />
             </div>
           </div>
@@ -77,7 +77,7 @@ export function ChannelCreatePage() {
                 placeholder="Enter Description"
                 disabled={createChannelMutation.isPending}
                 error={createChannelForm.formState.errors.description?.message}
-                srOnlyLabel
+                noLabel
                 rows={3}
               />
             </div>

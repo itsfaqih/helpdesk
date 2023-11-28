@@ -1,4 +1,4 @@
-import { Admin } from '@/schemas/admin.schema';
+import { User } from '@/schemas/user.schema';
 import { LoginSchema, RegisterSchema } from '@/schemas/auth.schema';
 import { http } from 'msw';
 import { nanoid } from 'nanoid';
@@ -9,20 +9,20 @@ export const authHandlers = [
   http.post('/api/login', async ({ request }) => {
     const data = LoginSchema.parse(await request.json());
 
-    const admin = await db.admins
+    const user = await db.users
       .where({
         email: data.email,
         password: data.password,
       })
       .first();
 
-    if (admin) {
+    if (user) {
       return successResponse({
-        data: admin,
+        data: user,
         message: 'Successfully authenticated',
         httpResponseInit: {
           headers: {
-            'Set-Cookie': `sessionId=${admin.id}; Max-Age=3600; Path=/`,
+            'Set-Cookie': `sessionId=${user.id}; Max-Age=3600; Path=/`,
           },
         },
       });
@@ -36,36 +36,37 @@ export const authHandlers = [
   http.post('/api/register', async ({ request }) => {
     const data = RegisterSchema.parse(await request.json());
 
-    const isAdminExisted = (await db.admins.where({ email: data.email }).count()) > 0;
+    const isUserExisted = (await db.users.where({ email: data.email }).count()) > 0;
 
-    if (isAdminExisted) {
+    if (isUserExisted) {
       return errorResponse({
         message: 'Email is already registered',
         status: 409,
       });
     }
 
-    const newAdmin: Admin = {
+    const newUser: User = {
       id: nanoid(),
       full_name: data.full_name,
       email: data.email,
       password: data.password,
       role: 'super_admin',
       is_active: true,
+      is_archived: false,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
-    await db.admins.add(newAdmin);
+    await db.users.add(newUser);
 
-    const { password: _, ...newAdminWithoutPassword } = newAdmin;
+    const { password: _, ...newUserWithoutPassword } = newUser;
 
     return successResponse({
-      data: newAdminWithoutPassword,
-      message: 'Successfully registered admin',
+      data: newUserWithoutPassword,
+      message: 'Successfully registered user',
       httpResponseInit: {
         headers: {
-          'Set-Cookie': `sessionId=${newAdmin.id}; Max-Age=3600; Path=/`,
+          'Set-Cookie': `sessionId=${newUser.id}; Max-Age=3600; Path=/`,
         },
       },
     });
@@ -78,9 +79,9 @@ export const authHandlers = [
       });
     }
 
-    const loggedInAdmin = await db.admins.where({ id: cookies.sessionId }).first();
+    const loggedInUser = await db.users.where({ id: cookies.sessionId }).first();
 
-    if (!loggedInAdmin) {
+    if (!loggedInUser) {
       return errorResponse({
         message: 'Unauthorized',
         status: 401,
@@ -88,8 +89,8 @@ export const authHandlers = [
     }
 
     return successResponse({
-      data: loggedInAdmin,
-      message: 'Successfully retrieved current admin',
+      data: loggedInUser,
+      message: 'Successfully retrieved current user',
     });
   }),
   http.post('/api/logout', async () => {

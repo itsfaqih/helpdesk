@@ -81,7 +81,7 @@ export function TicketIndexPage() {
 
   const filtersForm = useForm<TicketIndexRequest>({
     resolver: zodResolver(TicketIndexRequestSchema),
-    defaultValues: {
+    values: {
       ...loaderData.data.request,
       status: loaderData.data.request.status ?? 'all',
       tag_id: loaderData.data.request.tag_id ?? 'all',
@@ -110,18 +110,6 @@ export function TicketIndexPage() {
 
     setSearchParams(searchParams);
   });
-
-  React.useEffect(() => {
-    if (filtersForm.getValues('is_archived') !== loaderData.data.request.is_archived) {
-      filtersForm.setValue('is_archived', loaderData.data.request.is_archived);
-    }
-    if (filtersForm.getValues('search') !== loaderData.data.request.search) {
-      filtersForm.setValue('search', loaderData.data.request.search);
-    }
-    if (filtersForm.getValues('page') !== loaderData.data.request.page) {
-      filtersForm.setValue('page', loaderData.data.request.page);
-    }
-  }, [filtersForm, loaderData.data.request]);
 
   const ticketTagIndexQuery = useTicketTagIndexQuery({});
 
@@ -265,11 +253,11 @@ export function TicketIndexPage() {
                   <Avatar className="w-8 h-8 hover:relative">
                     <AvatarImage src={undefined} />
                     <AvatarFallback>
-                      {assignment.admin.full_name ? getInitials(assignment.admin.full_name) : ''}
+                      {assignment.user.full_name ? getInitials(assignment.user.full_name) : ''}
                     </AvatarFallback>
                   </Avatar>
                 </TooltipTrigger>
-                <TooltipContent>{assignment.admin.full_name}</TooltipContent>
+                <TooltipContent>{assignment.user.full_name}</TooltipContent>
               </Tooltip>
             ))}
           </div>,

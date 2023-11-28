@@ -1,6 +1,6 @@
 import { AppPageTitle } from '../_components/page-title.app';
 import { APIResponseSchema } from '@/schemas/api.schema';
-import { AdminSchema, CreateAdminSchema } from '@/schemas/admin.schema';
+import { UserSchema, CreateUserSchema } from '@/schemas/user.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { UnprocessableEntityError } from '@/utils/error.util';
@@ -15,7 +15,7 @@ import {
 import { Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Textbox } from '@/components/derived/textbox';
-import { adminRoleOptions } from '@/utils/admin.util';
+import { userRoleOptions } from '@/utils/user.util';
 import { Label } from '@/components/base/label';
 import { Card } from '@/components/base/card';
 import { useLoaderData, useNavigate } from 'react-router-dom';
@@ -23,51 +23,52 @@ import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { AppPageContainer } from '@/components/derived/app-page-container';
 import { AppPageBackLink } from '../_components/page-back-link';
 import { SaveButton } from '@/components/derived/save-button';
+import { toast } from '@/components/base/toast';
 
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: 'Create Administrator',
+      pageTitle: 'Create User',
     });
   };
 }
 
-AdminCreatePage.loader = loader;
+UserCreatePage.loader = loader;
 
-export function AdminCreatePage() {
+export function UserCreatePage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
 
   const navigate = useNavigate();
-  const createAdminForm = useForm<CreateAdminSchema>({
-    resolver: zodResolver(CreateAdminSchema),
+  const createUserForm = useForm<CreateUserSchema>({
+    resolver: zodResolver(CreateUserSchema),
   });
 
-  const createAdminMutation = useCreateAdminMutation();
+  const createUserMutation = useCreateUserMutation();
 
-  const onSubmit = createAdminForm.handleSubmit((data) => {
-    createAdminMutation.mutate(data, {
+  const onSubmit = createUserForm.handleSubmit((data) => {
+    createUserMutation.mutate(data, {
       onSuccess(res) {
-        navigate(`/admins/${res.data.id}`);
+        navigate(`/users/${res.data.id}`);
       },
     });
   });
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
-      <AppPageBackLink to="/admins" />
+      <AppPageBackLink to="/users" />
       <AppPageTitle title={loaderData.pageTitle} className="mt-4" />
       <Card className="px-4.5 py-5 mt-6 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
-        <form id="create-admin-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
+        <form id="create-user-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
             <Label htmlFor="full_name">Full Name</Label>
             <div className="col-span-3">
               <Textbox
-                {...createAdminForm.register('full_name')}
+                {...createUserForm.register('full_name')}
                 label="Full Name"
                 placeholder="Enter Full Name"
-                disabled={createAdminMutation.isPending}
-                error={createAdminForm.formState.errors.full_name?.message}
-                srOnlyLabel
+                disabled={createUserMutation.isPending}
+                error={createUserForm.formState.errors.full_name?.message}
+                noLabel
               />
             </div>
           </div>
@@ -75,13 +76,13 @@ export function AdminCreatePage() {
             <Label htmlFor="email">Email</Label>
             <div className="col-span-3">
               <Textbox
-                {...createAdminForm.register('email')}
+                {...createUserForm.register('email')}
                 label="Email"
                 type="email"
                 placeholder="Enter Email"
-                disabled={createAdminMutation.isPending}
-                error={createAdminForm.formState.errors.email?.message}
-                srOnlyLabel
+                disabled={createUserMutation.isPending}
+                error={createUserForm.formState.errors.email?.message}
+                noLabel
               />
             </div>
           </div>
@@ -89,13 +90,13 @@ export function AdminCreatePage() {
             <Label htmlFor="password">Password</Label>
             <div className="col-span-3">
               <Textbox
-                {...createAdminForm.register('password')}
+                {...createUserForm.register('password')}
                 label="Password"
                 type="password"
                 placeholder="Enter Password"
-                disabled={createAdminMutation.isPending}
-                error={createAdminForm.formState.errors.password?.message}
-                srOnlyLabel
+                disabled={createUserMutation.isPending}
+                error={createUserForm.formState.errors.password?.message}
+                noLabel
               />
             </div>
           </div>
@@ -103,13 +104,13 @@ export function AdminCreatePage() {
             <Label htmlFor="role">Role</Label>
             <div className="col-span-3">
               <Controller
-                control={createAdminForm.control}
+                control={createUserForm.control}
                 name="role"
                 render={({ field }) => (
                   <Select
                     name={field.name}
-                    disabled={createAdminMutation.isPending}
-                    items={adminRoleOptions}
+                    disabled={createUserMutation.isPending}
+                    items={userRoleOptions}
                     onValueChange={(e) => {
                       const value = e.value[0];
 
@@ -123,13 +124,13 @@ export function AdminCreatePage() {
                       <SelectLabel className="sr-only">Role</SelectLabel>
                       <SelectTrigger
                         ref={field.ref}
-                        error={createAdminForm.formState.errors.role?.message}
+                        error={createUserForm.formState.errors.role?.message}
                         placeholder="Select role"
                         className="w-full"
                       />
                     </div>
                     <SelectContent>
-                      {adminRoleOptions.map((option) => (
+                      {userRoleOptions.map((option) => (
                         <SelectOption key={option.value} item={option} />
                       ))}
                     </SelectContent>
@@ -141,8 +142,8 @@ export function AdminCreatePage() {
           <div className="flex justify-end">
             <SaveButton
               type="submit"
-              loading={createAdminMutation.isPending}
-              success={createAdminMutation.isSuccess}
+              loading={createUserMutation.isPending}
+              success={createUserMutation.isSuccess}
             />
           </div>
         </form>
@@ -151,8 +152,8 @@ export function AdminCreatePage() {
   );
 }
 
-const CreateAdminResponseSchema = APIResponseSchema({
-  schema: AdminSchema.pick({
+const CreateUserResponseSchema = APIResponseSchema({
+  schema: UserSchema.pick({
     id: true,
     email: true,
     full_name: true,
@@ -161,15 +162,15 @@ const CreateAdminResponseSchema = APIResponseSchema({
   }),
 });
 
-function useCreateAdminMutation() {
+function useCreateUserMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    async mutationFn(data: CreateAdminSchema) {
+    async mutationFn(data: CreateUserSchema) {
       try {
-        const res = await api.post(data, '/admins');
+        const res = await api.post(data, '/users');
 
-        return CreateAdminResponseSchema.parse(res);
+        return CreateUserResponseSchema.parse(res);
       } catch (error) {
         if (error instanceof UnprocessableEntityError) {
           throw new Error('Email is already registered');
@@ -179,7 +180,12 @@ function useCreateAdminMutation() {
       }
     },
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ['admin', 'index'] });
+      toast.create({
+        title: 'User created successfully',
+        type: 'success',
+      });
+
+      await queryClient.invalidateQueries({ queryKey: ['user', 'index'] });
     },
   });
 }

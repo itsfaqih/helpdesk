@@ -3,12 +3,12 @@ import * as Ark from '@ark-ui/react';
 import { cn } from '@/libs/cn.lib';
 
 export const Menu = Ark.Menu;
-export const MenuTrigger = Ark.MenuTrigger;
-export const MenuContextTrigger = Ark.MenuContextTrigger;
+export const MenuTrigger = Ark.Menu.Trigger;
+export const MenuContextTrigger = Ark.Menu.ContextTrigger;
 
 export const MenuContent = React.forwardRef<
-  React.ElementRef<typeof Ark.MenuContent>,
-  React.ComponentPropsWithoutRef<typeof Ark.MenuContent>
+  React.ElementRef<typeof Ark.Menu.Content>,
+  React.ComponentPropsWithoutRef<typeof Ark.Menu.Content>
 >(({ className, ...props }, ref) => (
   <Ark.Portal>
     <Ark.MenuPositioner>
@@ -24,18 +24,18 @@ export const MenuContent = React.forwardRef<
   </Ark.Portal>
 ));
 
-MenuContent.displayName = Ark.MenuContent.displayName;
+MenuContent.displayName = Ark.Menu.Content.displayName;
 
-type MenuItemProps = React.ComponentPropsWithoutRef<typeof Ark.MenuItem> & {
-  destructive?: boolean;
+type MenuItemProps = React.ComponentPropsWithoutRef<typeof Ark.Menu.Item> & {
+  severity?: boolean;
 };
 
-export const MenuItem = React.forwardRef<React.ElementRef<typeof Ark.MenuItem>, MenuItemProps>(
-  ({ destructive, className, ...props }, ref) => (
-    <Ark.MenuItem
+export const MenuItem = React.forwardRef<React.ElementRef<typeof Ark.Menu.Item>, MenuItemProps>(
+  ({ severity: destructive, children, className, ...props }, ref) => (
+    <Ark.Menu.Item
       ref={ref}
       className={cn(
-        'flex w-full select-none items-center rounded-lg px-2.5 py-2 text-sm font-medium',
+        'flex w-full gap-2 select-none items-center rounded-lg px-2.5 py-2 text-sm font-medium',
         'data-[focus]:outline-none data-[focus]:bg-gray-100',
         {
           'data-[highlighted]:bg-gray-100': !destructive,
@@ -44,8 +44,17 @@ export const MenuItem = React.forwardRef<React.ElementRef<typeof Ark.MenuItem>, 
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+    </Ark.Menu.Item>
   ),
 );
 
-MenuItem.displayName = Ark.MenuItem.displayName;
+MenuItem.displayName = Ark.Menu.Item.displayName;
+
+export const MenuSeparator = React.forwardRef<
+  React.ElementRef<typeof Ark.Menu.Separator>,
+  React.ComponentPropsWithoutRef<typeof Ark.Menu.Separator>
+>((props, ref) => (
+  <Ark.Menu.Separator ref={ref} className="border-t border-gray-300 my-1" {...props} />
+));

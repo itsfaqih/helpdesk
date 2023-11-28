@@ -5,7 +5,7 @@ import { http } from 'msw';
 import { nanoid } from 'nanoid';
 import {
   allowAuthenticatedOnly,
-  allowSuperAdminOnly,
+  allowSuperUserOnly,
   handleResponseError,
   successResponse,
 } from '../mock-utils';
@@ -15,7 +15,7 @@ import { db } from '../records/db';
 export const clientHandlers = [
   http.post('/api/clients', async ({ cookies, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const data = CreateClientSchema.parse(await request.json());
 
@@ -45,7 +45,7 @@ export const clientHandlers = [
   }),
   http.put('/api/clients/:clientId', async ({ cookies, params, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const data = UpdateClientSchema.parse(await request.json());
 
@@ -153,7 +153,7 @@ export const clientHandlers = [
   }),
   http.put('/api/clients/:clientId/archive', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const clientId = params.clientId;
 
@@ -178,7 +178,7 @@ export const clientHandlers = [
   }),
   http.put('/api/clients/:clientId/restore', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const clientId = params.clientId;
 

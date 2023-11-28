@@ -2,7 +2,7 @@ import { http } from 'msw';
 import { matchSorter } from 'match-sorter';
 import {
   allowAuthenticatedOnly,
-  allowSuperAdminOnly,
+  allowSuperUserOnly,
   handleResponseError,
   successResponse,
 } from '../mock-utils';
@@ -94,7 +94,7 @@ export const actionHandlers = [
   }),
   http.post('/api/actions', async ({ cookies, request }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const data = CreateActionSchema.parse(await request.json());
 
@@ -130,7 +130,7 @@ export const actionHandlers = [
   }),
   http.put('/api/actions/:actionId', async ({ cookies, request, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const data = UpdateActionSchema.parse(await request.json());
 
@@ -163,7 +163,7 @@ export const actionHandlers = [
   }),
   http.put('/api/actions/:actionId/archive', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const actionId = params.actionId;
 
@@ -188,7 +188,7 @@ export const actionHandlers = [
   }),
   http.put('/api/actions/:actionId/restore', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const actionId = params.actionId;
 
@@ -213,7 +213,7 @@ export const actionHandlers = [
   }),
   http.put('/api/actions/:actionId/enable', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const actionId = params.actionId;
 
@@ -238,7 +238,7 @@ export const actionHandlers = [
   }),
   http.put('/api/actions/:actionId/disable', async ({ cookies, params }) => {
     try {
-      await allowSuperAdminOnly({ sessionId: cookies.sessionId });
+      await allowSuperUserOnly({ sessionId: cookies.sessionId });
 
       const actionId = params.actionId;
 

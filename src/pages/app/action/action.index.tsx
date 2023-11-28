@@ -17,7 +17,7 @@ import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { useDebounce } from '@/hooks/use-debounce';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Table } from '@/components/base/table';
-import { useLoggedInAdminQuery } from '@/queries/logged-in-admin.query';
+import { useLoggedInUserQuery } from '@/queries/logged-in-user.query';
 import { formatDateTime } from '@/utils/date';
 import { AppPageContainer } from '@/components/derived/app-page-container';
 import { AppPageSearchBox } from '../_components/page-search-box';
@@ -32,7 +32,7 @@ import { ArchiveActionDialog } from './_components/archive-action-dialog';
 import { RestoreActionDialog } from './_components/restore-action-dialog';
 import { DisabledBadge } from './_components/disabled-badge';
 import { EnabledBadge } from './_components/enabled-badge';
-import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/base/menu';
+import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '@/components/base/menu';
 import { TablePagination } from '@/components/derived/table-pagination';
 
 function loader(queryClient: QueryClient) {
@@ -65,8 +65,8 @@ export function ActionIndexPage() {
     action: null,
   });
 
-  const loggedInAdminQuery = useLoggedInAdminQuery();
-  const loggedInAdmin = loggedInAdminQuery.data?.data;
+  const loggedInUserQuery = useLoggedInUserQuery();
+  const loggedInUser = loggedInUserQuery.data?.data;
 
   const actionIndexQuery = useActionIndexQuery(loaderData.data.request);
 
@@ -125,7 +125,7 @@ export function ActionIndexPage() {
 
   return (
     <>
-      {loggedInAdmin?.role === 'super_admin' && (
+      {loggedInUser?.role === 'super_admin' && (
         <Link
           to="/actions/create"
           className="fixed z-10 flex items-center justify-center p-3 rounded-full bottom-4 right-4 bg-haptic-brand-600 shadow-haptic-brand-900 animate-in fade-in sm:hidden"
@@ -137,7 +137,7 @@ export function ActionIndexPage() {
         <AppPageTitle
           title={loaderData.pageTitle}
           actions={
-            loggedInAdmin?.role === 'super_admin' && (
+            loggedInUser?.role === 'super_admin' && (
               <Button
                 as={Link}
                 to="/actions/create"
@@ -223,19 +223,20 @@ export function ActionIndexPage() {
                 <MenuContent>
                   <MenuItem asChild id="edit">
                     <Link to={`/actions/${action.id}`}>
-                      <PencilSimple className="mr-2 w-4 h-4" />
+                      <PencilSimple className="w-4 h-4" />
                       Edit
                     </Link>
                   </MenuItem>
-                  {loggedInAdmin?.role === 'super_admin' &&
+                  <MenuSeparator />
+                  {loggedInUser?.role === 'super_admin' &&
                     (action.is_archived ? (
                       <MenuItem id="restore" onClick={restoreAction(action.id)}>
-                        <ArrowCounterClockwise className="mr-2 w-4 h-4" />
+                        <ArrowCounterClockwise className="w-4 h-4 text-brand-600" />
                         Restore
                       </MenuItem>
                     ) : (
-                      <MenuItem id="archive" onClick={archiveAction(action.id)} destructive>
-                        <Archive className="mr-2 w-4 h-4" />
+                      <MenuItem id="archive" severity onClick={archiveAction(action.id)}>
+                        <Archive className="w-4 h-4" />
                         Archive
                       </MenuItem>
                     ))}
