@@ -6,7 +6,7 @@ import {
   PencilSimple,
   Plus,
 } from '@phosphor-icons/react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import qs from 'qs';
 import { Button, IconButton } from '@/components/base/button';
 import { TabIndicator, TabList, TabTrigger, Tabs } from '@/components/base/tabs';
@@ -69,33 +69,23 @@ export function TicketTagIndexPage() {
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
-    if (search === null) return;
+    if (search === null || filtersForm.getValues('search') === search) {
+      return;
+    }
     filtersForm.setValue('search', search);
   }, 500);
 
   const filtersForm = useForm<TicketTagIndexRequest>({
     resolver: zodResolver(TicketTagIndexRequestSchema),
-    defaultValues: loaderData.data.request,
+    values: loaderData.data.request,
   });
 
-  const watchedFiltersForm = useWatch({ control: filtersForm.control });
+  filtersForm.watch((data) => {
+    const queryStrings = qs.stringify(data);
+    const searchParams = new URLSearchParams(queryStrings);
 
-  React.useEffect(() => {
-    const queryStrings = qs.stringify(watchedFiltersForm);
-    setSearchParams(queryStrings);
-  }, [watchedFiltersForm, setSearchParams]);
-
-  React.useEffect(() => {
-    if (filtersForm.getValues('is_archived') !== loaderData.data.request.is_archived) {
-      filtersForm.setValue('is_archived', loaderData.data.request.is_archived);
-    }
-    if (filtersForm.getValues('search') !== loaderData.data.request.search) {
-      filtersForm.setValue('search', loaderData.data.request.search);
-    }
-    if (filtersForm.getValues('page') !== loaderData.data.request.page) {
-      filtersForm.setValue('page', loaderData.data.request.page);
-    }
-  }, [filtersForm, loaderData.data.request]);
+    setSearchParams(searchParams);
+  });
 
   const archiveTicketTag = React.useCallback((ticketTagId: string) => {
     return () =>

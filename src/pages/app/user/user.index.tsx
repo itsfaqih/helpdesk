@@ -44,7 +44,7 @@ import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '@/compo
 import { User } from '@/schemas/user.schema';
 import { ArchiveUserDialog } from './_components/archive-user-dialog';
 import { RestoreUserDialog } from './_components/restore-user-dialog';
-import { Badge } from '@/components/base/badge';
+import { ActiveBadge, InactiveBadge } from '@/components/derived/activity-badge';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -108,7 +108,9 @@ export function UserIndexPage() {
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
-    if (search === null) return;
+    if (search === null || filtersForm.getValues('search') === search) {
+      return;
+    }
     filtersForm.setValue('search', search);
   }, 500);
 
@@ -313,9 +315,7 @@ export function UserIndexPage() {
             user.full_name,
             user.email,
             userRoleValueToLabel(user.role),
-            <Badge color={user.is_active ? 'emerald' : 'rose'}>
-              {user.is_active ? 'Active' : 'Inactive'}
-            </Badge>,
+            user.is_active ? <ActiveBadge /> : <InactiveBadge />,
             formatDateTime(user.created_at),
             <div className="flex items-center justify-end gap-x-1">
               <Menu>

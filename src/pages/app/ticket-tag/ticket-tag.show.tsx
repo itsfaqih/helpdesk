@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import { TicketTag, TicketTagSchema, UpdateTicketTagSchema } from '@/schemas/ticket.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -56,7 +55,7 @@ export function TicketTagShowPage() {
 
   const updateTicketTagForm = useForm<UpdateTicketTagSchema>({
     resolver: zodResolver(UpdateTicketTagSchema),
-    defaultValues: ticketTag,
+    values: ticketTag,
   });
 
   const updateTicketTagMutation = useUpdateTicketTagMutation({
@@ -66,10 +65,6 @@ export function TicketTagShowPage() {
   const onSubmit = updateTicketTagForm.handleSubmit((data) => {
     updateTicketTagMutation.mutate(data);
   });
-
-  React.useEffect(() => {
-    updateTicketTagForm.reset(ticketTag);
-  }, [ticketTag, updateTicketTagForm]);
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">

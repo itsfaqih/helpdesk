@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import { Client, ClientSchema, UpdateClientSchema } from '@/schemas/client.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -52,7 +51,7 @@ export function ClientShowPage() {
 
   const updateClientForm = useForm<UpdateClientSchema>({
     resolver: zodResolver(UpdateClientSchema),
-    defaultValues: client,
+    values: client,
   });
 
   const updateClientMutation = useUpdateClientMutation({
@@ -62,10 +61,6 @@ export function ClientShowPage() {
   const onSubmit = updateClientForm.handleSubmit((data) => {
     updateClientMutation.mutate(data);
   });
-
-  React.useEffect(() => {
-    updateClientForm.reset(client);
-  }, [client, updateClientForm]);
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">

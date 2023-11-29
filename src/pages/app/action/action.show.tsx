@@ -110,7 +110,7 @@ export function ActionShowPage() {
 
   const updateActionForm = useForm<UpdateActionFormSchema>({
     resolver: zodResolver(UpdateActionFormSchema),
-    defaultValues: {
+    values: {
       icon_type: action?.icon_type,
       icon_value: action?.icon_value,
       description: action?.description,
@@ -125,15 +125,6 @@ export function ActionShowPage() {
   const onSubmit = updateActionForm.handleSubmit((data) => {
     updateActionMutation.mutate(data);
   });
-
-  React.useEffect(() => {
-    updateActionForm.reset({
-      icon_type: action?.icon_type,
-      icon_value: action?.icon_value,
-      description: action?.description,
-      label: action?.label,
-    });
-  }, [action, updateActionForm]);
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">

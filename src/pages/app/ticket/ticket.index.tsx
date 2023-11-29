@@ -73,7 +73,9 @@ export function TicketIndexPage() {
 
   const [search, setSearch] = React.useState<string | null>(null);
   useDebounce(() => {
-    if (search === null) return;
+    if (search === null || filtersForm.getValues('search') === search) {
+      return;
+    }
     filtersForm.setValue('search', search);
   }, 500);
 

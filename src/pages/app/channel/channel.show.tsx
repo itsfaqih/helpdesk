@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
@@ -59,7 +58,7 @@ export function ChannelShowPage() {
 
   const updateChannelForm = useForm<UpdateChannelFormSchema>({
     resolver: zodResolver(UpdateChannelFormSchema),
-    defaultValues: channel,
+    values: channel,
   });
 
   const updateChannelMutation = useUpdateChannelMutation({
@@ -69,10 +68,6 @@ export function ChannelShowPage() {
   const onSubmit = updateChannelForm.handleSubmit((data) => {
     updateChannelMutation.mutate(data);
   });
-
-  React.useEffect(() => {
-    updateChannelForm.reset(channel);
-  }, [channel, updateChannelForm]);
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">

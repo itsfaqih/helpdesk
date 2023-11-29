@@ -16,6 +16,16 @@ export const MenuContent = React.forwardRef<
         ref={ref}
         className={cn(
           'min-w-[14rem] rounded-md bg-white shadow-menu focus:outline-none p-1',
+          'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:scale-in',
+          'data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:scale-out',
+          'data-[state=open]:data-[placement^=top]:slide-in-from-bottom-4',
+          'data-[state=open]:data-[placement^=bottom]:slide-in-from-top-4',
+          'data-[state=open]:data-[placement^=left]:slide-in-from-right-4',
+          'data-[state=open]:data-[placement^=right]:slide-in-from-left-4',
+          'data-[state=closed]:data-[placement^=top]:slide-out-to-bottom-4',
+          'data-[state=closed]:data-[placement^=bottom]:slide-out-to-top-4',
+          'data-[state=closed]:data-[placement^=left]:slide-out-to-right-4',
+          'data-[state=closed]:data-[placement^=right]:slide-out-to-left-4',
           className,
         )}
         {...props}

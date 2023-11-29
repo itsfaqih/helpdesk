@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AppPageTitle } from '../_components/page-title.app';
 import { User, UserSchema, UpdateUserSchema } from '@/schemas/user.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -49,7 +48,7 @@ export function UserShowPage() {
 
   const updateUserForm = useForm<UpdateUserSchema>({
     resolver: zodResolver(UpdateUserSchema),
-    defaultValues: user,
+    values: user,
   });
 
   const updateUserMutation = useUpdateUserMutation({
@@ -59,10 +58,6 @@ export function UserShowPage() {
   const onSubmit = updateUserForm.handleSubmit((data) => {
     updateUserMutation.mutate(data);
   });
-
-  React.useEffect(() => {
-    updateUserForm.reset(user);
-  }, [user, updateUserForm]);
 
   return (
     <AppPageContainer title={loaderData.pageTitle} className="pb-5">
