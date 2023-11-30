@@ -25,17 +25,17 @@ export function Table({
 }: TableProps) {
   return (
     <div className={cn('flow-root', className)} {...props}>
-      <div className="-mx-6 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-6">
-        <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-6">
-          <div className="overflow-hidden shadow-haptic-gray-300 sm:rounded-xl">
-            <table className="min-w-full text-sm divide-y divide-gray-300">
-              <thead>
+      <div className="-mx-6 -my-2 overflow-x-auto">
+        <div className="inline-block min-w-full py-2 align-middle px-0 sm:px-6 lg:px-0 2xl:px-6">
+          <div className="overflow-hidden shadow-haptic-gray-300 sm:rounded-xl lg:rounded-none 2xl:rounded-xl">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-100">
                 <tr>
                   {headings.map((heading, index) => (
                     <th
                       key={index}
                       scope="col"
-                      className="py-2.5 px-3 text-left text-sm font-medium text-gray-500 whitespace-nowrap"
+                      className="first-of-type:pl-6 sm:first-of-type:pl-3 lg:first-of-type:pl-6 2xl:first-of-type:pl-3 py-2.5 px-3 text-left text-sm font-medium text-gray-600 whitespace-nowrap"
                     >
                       {heading}
                     </th>
@@ -77,11 +77,14 @@ export function Table({
                       {row.map((data, index, arr) => (
                         <td
                           key={index}
-                          className={cn('whitespace-nowrap py-2 text-sm text-gray-800', {
-                            'relative pl-3 pr-4 text-right font-medium sm:pr-6':
-                              index === arr.length - 1,
-                            'px-3': index !== arr.length - 1,
-                          })}
+                          className={cn(
+                            'first-of-type:pl-6 sm:first-of-type:pl-3 lg:first-of-type:pl-6 2xl:first-of-type:pl-3 whitespace-nowrap py-2 text-sm text-gray-800',
+                            {
+                              'relative pl-3 pr-4 text-right font-medium sm:pr-6':
+                                index === arr.length - 1,
+                              'px-3': index !== arr.length - 1,
+                            },
+                          )}
                         >
                           {data}
                         </td>
