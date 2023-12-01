@@ -48,65 +48,67 @@ function ButtonComponent(
       )}
       {...props}
     >
-      {leading &&
-        leading({
-          className: cn(iconClass({ size, leading: size }), {
+      <div className="inline-flex tracking-wide leading-none items-center group-active:scale-95 transition-transform">
+        {leading &&
+          leading({
+            className: cn(iconClass({ size, leading: size }), {
+              invisible: loading || success,
+            }),
+          })}
+        {loading && (
+          <span className="animate-in fade-in inline-flex items-center gap-x-0.5 h-5 absolute left-1/2 -translate-x-1/2">
+            <span
+              className={cn('animate-blink mx-px h-1.5 w-1.5 rounded-full bg-white', {
+                'bg-white': variant === 'filled' && severity !== 'secondary',
+                'bg-brand-700': variant !== 'filled' && severity === 'primary',
+                'bg-red-700': variant !== 'filled' && severity === 'danger',
+                'bg-gray-700': severity === 'secondary',
+              })}
+            ></span>
+            <span
+              className={cn(
+                'animate-blink animation-delay-150 mx-px h-1.5 w-1.5 rounded-full bg-white',
+                {
+                  'bg-white': variant === 'filled' && severity !== 'secondary',
+                  'bg-brand-700': variant !== 'filled' && severity === 'primary',
+                  'bg-red-700': variant !== 'filled' && severity === 'danger',
+                  'bg-gray-700': severity === 'secondary',
+                },
+              )}
+            ></span>
+            <span
+              className={cn(
+                'animate-blink animation-delay-300 mx-px h-1.5 w-1.5 rounded-full bg-white',
+                {
+                  'bg-white': variant === 'filled' && severity !== 'secondary',
+                  'bg-brand-700': variant !== 'filled' && severity === 'primary',
+                  'bg-red-700': variant !== 'filled' && severity === 'danger',
+                  'bg-gray-700': severity === 'secondary',
+                },
+              )}
+            ></span>
+          </span>
+        )}
+        {success && (
+          <Check
+            weight="bold"
+            className="absolute w-5 h-5 -translate-x-1/2 left-1/2 animate-in fade-in"
+          />
+        )}
+        <span
+          className={cn({
             invisible: loading || success,
-          }),
-        })}
-      {loading && (
-        <span className="animate-in fade-in inline-flex items-center gap-x-0.5 h-5 absolute left-1/2 -translate-x-1/2">
-          <span
-            className={cn('animate-blink mx-px h-1.5 w-1.5 rounded-full bg-white', {
-              'bg-white': variant === 'filled' && severity !== 'secondary',
-              'bg-brand-700': variant !== 'filled' && severity === 'primary',
-              'bg-red-700': variant !== 'filled' && severity === 'danger',
-              'bg-gray-700': severity === 'secondary',
-            })}
-          ></span>
-          <span
-            className={cn(
-              'animate-blink animation-delay-150 mx-px h-1.5 w-1.5 rounded-full bg-white',
-              {
-                'bg-white': variant === 'filled' && severity !== 'secondary',
-                'bg-brand-700': variant !== 'filled' && severity === 'primary',
-                'bg-red-700': variant !== 'filled' && severity === 'danger',
-                'bg-gray-700': severity === 'secondary',
-              },
-            )}
-          ></span>
-          <span
-            className={cn(
-              'animate-blink animation-delay-300 mx-px h-1.5 w-1.5 rounded-full bg-white',
-              {
-                'bg-white': variant === 'filled' && severity !== 'secondary',
-                'bg-brand-700': variant !== 'filled' && severity === 'primary',
-                'bg-red-700': variant !== 'filled' && severity === 'danger',
-                'bg-gray-700': severity === 'secondary',
-              },
-            )}
-          ></span>
+          })}
+        >
+          {children}
         </span>
-      )}
-      {success && (
-        <Check
-          weight="bold"
-          className="absolute w-5 h-5 -translate-x-1/2 left-1/2 animate-in fade-in"
-        />
-      )}
-      <span
-        className={cn({
-          invisible: loading || success,
-        })}
-      >
-        {children}
-      </span>
-      {trailing &&
-        trailing({
-          className: cn(iconClass({ size, trailing: size }), {
-            invisible: loading || success,
-          }),
-        })}
+        {trailing &&
+          trailing({
+            className: cn(iconClass({ size, trailing: size }), {
+              invisible: loading || success,
+            }),
+          })}
+      </div>
     </Component>
   );
 }
@@ -114,7 +116,7 @@ function ButtonComponent(
 export const Button = forwardRefWithAs<ButtonProps, 'button'>(ButtonComponent);
 
 const buttonClass = cva(
-  'leading-none relative disabled:opacity-70 rounded-lg inline-flex tracking-wide focus:outline-2 focus:outline-offset-4 items-center active:scale-95 transition-all',
+  'group inline-flex relative disabled:opacity-70 rounded-lg focus:outline-2 focus:outline-offset-4 items-center transition-all',
   {
     variants: {
       variant: {
@@ -130,7 +132,7 @@ const buttonClass = cva(
       },
       size: {
         sm: 'py-2 sm:py-1 px-2.5',
-        md: 'px-2.5 py-1.5',
+        md: 'px-2.5 py-2',
         lg: 'px-4 py-2.5',
       },
       loading: {
@@ -142,24 +144,25 @@ const buttonClass = cva(
       {
         variant: ['filled'],
         severity: ['primary', 'danger'],
-        className: 'text-white',
+        className: 'text-white active:text-white/90',
       },
       {
         variant: ['filled'],
         severity: ['primary'],
         className:
-          'bg-haptic-brand-700 hover:bg-haptic-brand-600 shadow-haptic-brand-900 hover:shadow-haptic-brand-800',
+          'bg-haptic-brand-700 hover:bg-haptic-brand-600 shadow-haptic-brand-900 hover:shadow-haptic-brand-800 active:shadow-inner-haptic-brand-900',
       },
       {
         variant: ['filled'],
         severity: ['danger'],
         className:
-          'bg-haptic-red-700 hover:bg-haptic-red-600 shadow-haptic-red-900 hover:shadow-haptic-red-800',
+          'bg-haptic-red-700 hover:bg-haptic-red-600 shadow-haptic-red-900 hover:shadow-haptic-red-800 active:shadow-inner-haptic-red-900',
       },
       {
         variant: ['filled'],
         severity: ['secondary'],
-        className: 'bg-white text-gray-700 shadow-haptic-gray-300 hover:shadow-haptic-gray-400',
+        className:
+          'bg-white text-gray-700 shadow-haptic-gray-300 hover:shadow-haptic-gray-400 active:shadow-inner-haptic-gray-300',
       },
       {
         variant: ['subtle'],
@@ -186,27 +189,27 @@ const buttonClass = cva(
       {
         variant: ['transparent'],
         severity: ['danger'],
-        className: 'text-red-600 hover:text-red-500 active:text-red-600',
+        className: 'text-red-600 hover:text-red-500 active:text-red-600/80',
       },
       {
         variant: ['transparent'],
         severity: ['secondary'],
-        className: 'text-gray-700 hover:text-gray-800 active:text-gray-900',
+        className: 'text-gray-700 hover:text-gray-800 active:text-gray-900/80',
       },
       {
         variant: ['white'],
         severity: ['primary'],
-        className: 'text-brand-600',
+        className: 'text-brand-600 active:text-brand-600/80',
       },
       {
         variant: ['white'],
         severity: ['danger'],
-        className: 'text-red-600',
+        className: 'text-red-600 active:text-red-600/80',
       },
       {
         variant: ['white'],
         severity: ['secondary'],
-        className: 'text-gray-700',
+        className: 'text-gray-700 active:text-gray-700/80',
       },
       {
         severity: ['primary', 'secondary'],
@@ -218,7 +221,7 @@ const buttonClass = cva(
       },
       {
         variant: ['white', 'transparent'],
-        className: 'font-medium',
+        className: 'font-medium active:shadow-inner-haptic-gray-300',
       },
       {
         size: ['sm', 'md'],

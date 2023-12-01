@@ -76,6 +76,12 @@ export default {
           'bg-haptic': (value) => ({
             backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(0deg, ${value} 0%, ${value} 100%)`,
           }),
+          'shadow-inner-haptic': (value) => ({
+            boxShadow: `0px 1px 2px ${hexToRgbA(value, 0.4)},0px 0px 0px 1px ${hexToRgbA(
+              value,
+              0.76,
+            )}, inset -2px 0 16px ${hexToRgbA(value, 0.3)}, inset 2px 2px 16px ${hexToRgbA(value, 0.3)}`,
+          }),
           'shadow-haptic': (value) => ({
             boxShadow: `0px 1px 2px ${hexToRgbA(value, 0.4)},0px 0px 0px 1px ${hexToRgbA(
               value,
