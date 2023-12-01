@@ -63,13 +63,15 @@ PaginationNextTrigger.displayName = Ark.Pagination.NextTrigger.displayName;
 export const PaginationItem = React.forwardRef<
   React.ElementRef<typeof Ark.PaginationItem>,
   React.ComponentPropsWithoutRef<typeof Ark.PaginationItem>
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <Ark.PaginationItem
     ref={ref}
     className={cn(
-      'tabular-nums aria-[current]:bg-haptic-brand-700 aria-[current]:text-white aria-[current]:hover:bg-haptic-brand-600 active:scale-95 text-gray-800 text-sm w-8 font-medium h-8 flex items-center justify-center disabled:cursor-not-allowed hover:bg-gray-100 rounded-lg',
+      'group active:shadow-inner-haptic-brand-800 tabular-nums aria-[current]:bg-haptic-brand-700 aria-[current]:text-white aria-[current]:hover:bg-haptic-brand-600 text-gray-800 text-sm w-8 font-medium h-8 flex items-center justify-center disabled:cursor-not-allowed hover:bg-gray-100 rounded-lg',
       className,
     )}
     {...props}
-  />
+  >
+    <div className="group-active:scale-90">{children}</div>
+  </Ark.PaginationItem>
 ));

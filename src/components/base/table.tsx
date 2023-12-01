@@ -29,7 +29,7 @@ export function Table({
         <div className="inline-block min-w-full py-2 align-middle px-0 sm:px-6 lg:px-0 2xl:px-6">
           <div className="overflow-hidden shadow-haptic-gray-300 sm:rounded-xl lg:rounded-none 2xl:rounded-xl">
             <table className="min-w-full text-sm">
-              <thead className="bg-gray-100">
+              <thead className="bg-gray-50 border-b border-gray-300">
                 <tr>
                   {headings.map((heading, index) => (
                     <th

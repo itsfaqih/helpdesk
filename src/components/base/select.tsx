@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as Ark from '@ark-ui/react';
 import { cn } from '@/libs/cn.lib';
+import { Check } from '@phosphor-icons/react';
 
 type SelectOptionType = { label: string; value: string };
 
@@ -97,7 +98,12 @@ export const SelectContent = React.forwardRef<
     <Ark.Select.Positioner>
       <Ark.Select.Content
         ref={ref}
-        className={cn('rounded-md bg-white shadow-menu focus:outline-none p-1', className)}
+        className={cn(
+          'rounded-lg bg-white shadow-menu focus:outline-none p-1',
+          'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-90',
+          'data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-90',
+          className,
+        )}
         {...props}
       >
         <div className="flex flex-col gap-1">{children}</div>
@@ -122,17 +128,19 @@ export const SelectOption = React.forwardRef<
     ref={ref}
     item={item}
     className={cn(
-      'cursor-default flex w-full items-center rounded-lg px-2.5 py-1.5 text-sm font-medium',
-      'data-[highlighted]:bg-gray-100',
+      'cursor-default flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-sm font-medium transition',
+      'aria-[selected=false]:data-[highlighted]:bg-gray-100',
       'data-[disabled]:opacity-70',
-      'aria-selected:text-white aria-selected:bg-brand-700',
-      'aria-selected:data-[highlighted]:bg-brand-600',
+      'aria-selected:text-white aria-selected:bg-gradient-to-r aria-selected:from-brand-700 aria-selected:to-brand-600',
+      'aria-selected:data-[highlighted]:bg-gradient-to-r aria-selected:data-[highlighted]:from-brand-600 aria-selected:data-[highlighted]:to-brand-500',
       className,
     )}
     {...props}
   >
     <Ark.Select.ItemText>{item.label}</Ark.Select.ItemText>
-    <Ark.Select.ItemIndicator />
+    <Ark.Select.ItemIndicator>
+      <Check weight="bold" className="w-4 h-4" />
+    </Ark.Select.ItemIndicator>
   </Ark.Select.Item>
 ));
 

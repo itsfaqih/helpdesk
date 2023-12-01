@@ -184,7 +184,7 @@ function MainMenuItem({ icon: Icon, label, className, ...props }: MainMenuItemPr
           {
             'text-gray-500 hover:shadow-haptic-gray-300 hover:text-gray-600 active:bg-gray-50 active:shadow-haptic-gray-400':
               !isActive,
-            'text-gray-700 active:bg-haptic-gray-50 bg-haptic-white hover:shadow-haptic-gray-500 shadow-haptic-gray-400':
+            'text-gray-700 active:bg-haptic-gray-100 bg-haptic-gray-50 hover:shadow-haptic-gray-500 shadow-haptic-gray-400':
               isActive,
             'animate-pulse': isPending,
           },
@@ -195,7 +195,10 @@ function MainMenuItem({ icon: Icon, label, className, ...props }: MainMenuItemPr
     >
       {({ isActive }) => (
         <>
-          <Icon weight={isActive ? 'duotone' : 'regular'} className="w-5 h-5" />
+          <Icon
+            weight={isActive ? 'duotone' : 'regular'}
+            className={cn('w-5 h-5', { 'text-brand-600': isActive })}
+          />
           {label}
         </>
       )}
