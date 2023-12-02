@@ -10,8 +10,10 @@ import {
   Function,
   House,
   List,
+  SignOut,
   Tag,
   Ticket,
+  User,
   Users,
 } from '@phosphor-icons/react';
 import { useLoggedInUserQuery } from '@/queries/logged-in-user.query';
@@ -150,8 +152,12 @@ export function AppRoot() {
                   </Avatar>
                 </MenuTrigger>
                 <MenuContent>
-                  <MenuItem id="profile">Profile</MenuItem>
+                  <MenuItem id="profile">
+                    <User className="w-4 h-4" />
+                    Profile
+                  </MenuItem>
                   <MenuItem id="logout" onClick={handleLogOut}>
+                    <SignOut className="w-4 h-4" />
                     Log out
                   </MenuItem>
                 </MenuContent>
