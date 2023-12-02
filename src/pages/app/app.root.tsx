@@ -123,8 +123,8 @@ export function AppRoot() {
           </Ark.Dialog.Positioner>
         </Ark.Portal>
       </Ark.Dialog>
-      <div className="lg:pl-64 py-3 min-h-screen">
-        <main className="bg-white rounded-l-2xl border border-gray-300 min-h-[calc(100vh-1.5rem)]">
+      <div className="lg:pl-64 lg:py-3 min-h-screen">
+        <main className="bg-white lg:rounded-l-2xl border border-gray-300 min-h-[calc(100vh-1.5rem)]">
           <nav className="py-2.5 px-3 border-b border-gray-300">
             <div className="flex items-center justify-between container mx-auto">
               <div className="flex items-center gap-4">
