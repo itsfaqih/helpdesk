@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useSpinDelay } from 'spin-delay';
 import { cn } from '@/libs/cn.lib';
 import { Loop } from './loop';
 import { Skeleton } from './skeleton';
@@ -23,6 +24,8 @@ export function Table({
   className,
   ...props
 }: TableProps) {
+  const showSkeleton = useSpinDelay(loading ?? false);
+
   return (
     <div className={cn('flow-root', className)} {...props}>
       <div className="-mx-6 -my-2 overflow-x-auto">
@@ -46,7 +49,7 @@ export function Table({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {loading && <TableSkeleton columnAmount={headings.length + 1} />}
+                {showSkeleton && <TableSkeleton columnAmount={headings.length + 1} />}
                 {error && (
                   <tr>
                     <td

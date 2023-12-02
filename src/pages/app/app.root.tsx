@@ -195,10 +195,7 @@ function MainMenuItem({ icon: Icon, label, className, ...props }: MainMenuItemPr
     >
       {({ isActive }) => (
         <>
-          <Icon
-            weight={isActive ? 'duotone' : 'regular'}
-            className={cn('w-5 h-5', { 'text-brand-600': isActive })}
-          />
+          <Icon weight={isActive ? 'duotone' : 'regular'} className="w-5 h-5" />
           {label}
         </>
       )}
