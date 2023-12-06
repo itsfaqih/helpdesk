@@ -22,8 +22,8 @@ test('channel management', async ({ page }) => {
     page.getByRole('status').filter({ hasText: 'Channel created successfully' }).first(),
   ).toBeVisible();
 
-  // redirect to view channel
-  await page.waitForURL(/\/channels\/(?!.*\bcreate\b)[\w]+/);
+  // redirect to edit channel
+  await page.waitForURL(/\/channels\/(?!create).*$/);
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Edit Channel');
   await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
@@ -111,7 +111,7 @@ test('channel management', async ({ page }) => {
   // go to edit channel
   await page.getByRole('link', { name: 'Edit Test Channel', exact: true }).click();
 
-  await page.waitForURL(/\/channels\/(?!.*\bcreate\b)[\w]+/);
+  await page.waitForURL(/\/channels\/(?!create).*$/);
 
   // archive channel from edit page
   await expect(page.getByRole('button', { name: 'Restore', exact: true })).toBeHidden();

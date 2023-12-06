@@ -28,8 +28,8 @@ export const TooltipContent = React.forwardRef<
             'data-[state=closed]:data-[placement^=left]:slide-out-to-right-4',
             'data-[state=closed]:data-[placement^=top]:slide-out-to-bottom-4',
             'data-[state=closed]:data-[placement^=bottom]:slide-out-to-top-4',
-            'data-[state=open]:animate-in data-[state=open]:fade-in',
-            'data-[state=closed]:animate-out data-[state=closed]:fade-out',
+            'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-90',
+            'data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-90',
             className,
           )}
           {...props}

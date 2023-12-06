@@ -11,7 +11,11 @@ export type BadgeProps = {
 export function Badge({ children, color, variant = 'solid', className }: BadgeProps) {
   return (
     <span
-      className={cn('inline-flex items-center gap-1', badgeClass({ color, variant }), className)}
+      className={cn(
+        'inline-flex items-center gap-1 h-fit',
+        badgeClass({ color, variant }),
+        className,
+      )}
     >
       {variant === 'outline' && <span className={badgeIndicatorClass({ color })} />}
       {children}

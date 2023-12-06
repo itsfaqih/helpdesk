@@ -2,10 +2,10 @@ import * as React from 'react';
 import {
   Archive,
   ArrowCounterClockwise,
-  DotsThree,
+  ArrowsClockwise,
+  CaretRight,
   PencilSimple,
   Plus,
-  Power,
 } from '@phosphor-icons/react';
 import { Controller, useForm } from 'react-hook-form';
 import qs from 'qs';
@@ -40,11 +40,11 @@ import { DeactivateUserDialog } from './_components/deactivate-user-dialog';
 import { ActivateUserDialog } from './_components/activate-user-dialog';
 import { AppPageSearchBox } from '../_components/page-search-box';
 import { TablePagination } from '@/components/derived/table-pagination';
-import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '@/components/base/menu';
 import { User } from '@/schemas/user.schema';
 import { ArchiveUserDialog } from './_components/archive-user-dialog';
 import { RestoreUserDialog } from './_components/restore-user-dialog';
 import { ActiveBadge, InactiveBadge } from '@/components/derived/activity-badge';
+import { cn } from '@/libs/cn.lib';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -80,17 +80,20 @@ const userStatusOptions = [
 export function UserIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
-  const [userDialogState, setUserDialogState] = React.useState<
+  const [actionDialogState, setActionDialogState] = React.useState<
     | {
         userId: User['id'];
+        userFullName: User['full_name'];
         action: 'deactivate' | 'activate' | 'archive' | 'restore';
       }
     | {
         userId: null;
+        userFullName: null;
         action: null;
       }
   >({
     userId: null,
+    userFullName: null,
     action: null,
   });
 
@@ -141,41 +144,57 @@ export function UserIndexPage() {
     setSearchParams(searchParams);
   });
 
-  const deactivateUser = React.useCallback((userId: User['id']) => {
-    return () =>
-      setUserDialogState((prev) => ({
-        ...prev,
-        userId,
-        action: 'deactivate',
-      }));
-  }, []);
+  const deactivateUser = React.useCallback(
+    ({ userId, userFullName }: { userId: User['id']; userFullName: User['full_name'] }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          userId,
+          userFullName,
+          action: 'deactivate',
+        }));
+    },
+    [],
+  );
 
-  const activateUser = React.useCallback((userId: User['id']) => {
-    return () =>
-      setUserDialogState((prev) => ({
-        ...prev,
-        userId,
-        action: 'activate',
-      }));
-  }, []);
+  const activateUser = React.useCallback(
+    ({ userId, userFullName }: { userId: User['id']; userFullName: User['full_name'] }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          userId,
+          userFullName,
+          action: 'activate',
+        }));
+    },
+    [],
+  );
 
-  const archiveUser = React.useCallback((userId: User['id']) => {
-    return () =>
-      setUserDialogState((prev) => ({
-        ...prev,
-        userId,
-        action: 'archive',
-      }));
-  }, []);
+  const archiveUser = React.useCallback(
+    ({ userId, userFullName }: { userId: User['id']; userFullName: User['full_name'] }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          userId,
+          userFullName,
+          action: 'archive',
+        }));
+    },
+    [],
+  );
 
-  const restoreUser = React.useCallback((userId: User['id']) => {
-    return () =>
-      setUserDialogState((prev) => ({
-        ...prev,
-        userId,
-        action: 'restore',
-      }));
-  }, []);
+  const restoreUser = React.useCallback(
+    ({ userId, userFullName }: { userId: User['id']; userFullName: User['full_name'] }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          userId,
+          userFullName,
+          action: 'restore',
+        }));
+    },
+    [],
+  );
 
   return (
     <>
@@ -315,66 +334,121 @@ export function UserIndexPage() {
             user.full_name,
             user.email,
             userRoleValueToLabel(user.role),
-            user.is_active ? <ActiveBadge /> : <InactiveBadge />,
+            <div className="flex gap-2 items-center">
+              {user.is_active ? (
+                <>
+                  <ActiveBadge />
+                  <IconButton
+                    type="button"
+                    id="status"
+                    label="Deactivate"
+                    tooltip="Deactivate"
+                    disabledTooltip={
+                      loggedInUser?.id === user.id
+                        ? "You can't deactivate your own account"
+                        : "You can't deactivate an archived user"
+                    }
+                    disabled={loggedInUser?.id === user.id || user.is_archived}
+                    icon={({ className, ...props }) => (
+                      <ArrowsClockwise
+                        className={cn(
+                          className,
+                          'transition-transform',
+                          'group-data-[loading=false]:group-hover:rotate-90',
+                          'group-data-[loading=true]:animate-spin',
+                        )}
+                        {...props}
+                      />
+                    )}
+                    onClick={deactivateUser({ userId: user.id, userFullName: user.full_name })}
+                    className="group"
+                  />
+                </>
+              ) : (
+                <>
+                  <InactiveBadge />
+                  <IconButton
+                    type="button"
+                    id="status"
+                    label="Activate"
+                    tooltip="Activate"
+                    disabledTooltip="You can't activate an archived user"
+                    disabled={user.is_archived}
+                    icon={({ className, ...props }) => (
+                      <ArrowsClockwise
+                        className={cn(
+                          className,
+                          'transition-transform',
+                          'group-data-[loading=false]:group-hover:rotate-90',
+                          'group-data-[loading=true]:animate-spin',
+                        )}
+                        {...props}
+                      />
+                    )}
+                    onClick={activateUser({ userId: user.id, userFullName: user.full_name })}
+                    className="group"
+                  />
+                </>
+              )}
+            </div>,
             formatDateTime(user.created_at),
             <div className="flex items-center justify-end gap-x-1">
-              <Menu>
-                <MenuTrigger asChild>
+              {loggedInUser?.id === user.id && (
+                <>
                   <IconButton
-                    icon={(props) => <DotsThree {...props} />}
-                    label={`Open menu ${user.email}`}
-                    tooltip="Open menu"
+                    as={Link}
+                    to={`/profile`}
+                    icon={(props) => <PencilSimple {...props} />}
+                    tooltip="Edit your profile"
+                    label="Edit your profile"
                   />
-                </MenuTrigger>
-                <MenuContent>
-                  {loggedInUser?.id === user.id && (
-                    <MenuItem asChild id="edit">
-                      <Link to="/profile">
-                        <PencilSimple className="w-4 h-4" />
-                        Edit
-                      </Link>
-                    </MenuItem>
-                  )}
-                  {loggedInUser?.id !== user.id && loggedInUser?.role === 'super_admin' && (
-                    <>
-                      {!user.is_archived && (
-                        <>
-                          <MenuItem asChild id="edit">
-                            <Link to={`/users/${user.id}`}>
-                              <PencilSimple className="w-4 h-4" />
-                              Edit
-                            </Link>
-                          </MenuItem>
-                          <MenuSeparator />
-                          {user.is_active ? (
-                            <MenuItem id="deactivate" severity onClick={deactivateUser(user.id)}>
-                              <Power className="w-4 h-4" />
-                              Deactivate
-                            </MenuItem>
-                          ) : (
-                            <MenuItem id="activate" onClick={activateUser(user.id)}>
-                              <Power className="w-4 h-4 text-brand-600" />
-                              Activate
-                            </MenuItem>
-                          )}
-                        </>
-                      )}
-                      {!user.is_archived && (
-                        <MenuItem id="archive" severity onClick={archiveUser(user.id)}>
-                          <Archive className="w-4 h-4" />
-                          Archive
-                        </MenuItem>
-                      )}
-                      {user.is_archived && (
-                        <MenuItem id="restore" onClick={restoreUser(user.id)}>
-                          <ArrowCounterClockwise className="w-4 h-4 text-brand-600" />
-                          Restore
-                        </MenuItem>
-                      )}
-                    </>
-                  )}
-                </MenuContent>
-              </Menu>
+
+                  <IconButton
+                    severity="danger"
+                    disabledTooltip="You can't archive your own account"
+                    label={`Archive ${user.email}`}
+                    icon={(props) => <Archive {...props} />}
+                    disabled
+                  />
+                </>
+              )}
+              {loggedInUser?.id !== user.id &&
+                loggedInUser?.role === 'super_admin' &&
+                (user.is_archived ? (
+                  <>
+                    <IconButton
+                      as={Link}
+                      to={`/users/${user.id}`}
+                      tooltip="View"
+                      icon={(props) => <CaretRight {...props} />}
+                    />
+
+                    <IconButton
+                      severity="primary"
+                      tooltip="Restore"
+                      label={`Restore ${user.email}`}
+                      icon={(props) => <ArrowCounterClockwise {...props} />}
+                      onClick={restoreUser({ userId: user.id, userFullName: user.full_name })}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <IconButton
+                      as={Link}
+                      to={`/users/${user.id}`}
+                      tooltip="Edit"
+                      label={`Edit ${user.email}`}
+                      icon={(props) => <PencilSimple {...props} />}
+                    />
+                    <IconButton
+                      severity="danger"
+                      tooltip="Archive"
+                      label={`Archive ${user.email}`}
+                      icon={(props) => <Archive {...props} />}
+                      onClick={archiveUser({ userId: user.id, userFullName: user.full_name })}
+                    />
+                  </>
+                ))}
             </div>,
           ])}
           className="mt-5"
@@ -400,52 +474,60 @@ export function UserIndexPage() {
         )}
       </AppPageContainer>
       <DeactivateUserDialog
-        key={`deactivate-${userDialogState.userId ?? 'null'}`}
-        userId={userDialogState.userId ?? ''}
-        isOpen={userDialogState.action === 'deactivate'}
+        key={`deactivate-${actionDialogState.userId ?? 'null'}`}
+        userId={actionDialogState.userId ?? ''}
+        userFullName={actionDialogState.userFullName ?? ''}
+        isOpen={actionDialogState.action === 'deactivate'}
         onOpenChange={(open) => {
           if (!open) {
-            setUserDialogState(() => ({
+            setActionDialogState(() => ({
               userId: null,
+              userFullName: null,
               action: null,
             }));
           }
         }}
       />
       <ActivateUserDialog
-        key={`activate-${userDialogState.userId ?? 'null'}`}
-        userId={userDialogState.userId ?? ''}
-        isOpen={userDialogState.action === 'activate'}
+        key={`activate-${actionDialogState.userId ?? 'null'}`}
+        userId={actionDialogState.userId ?? ''}
+        userFullName={actionDialogState.userFullName ?? ''}
+        isOpen={actionDialogState.action === 'activate'}
         onOpenChange={(open) => {
           if (!open) {
-            setUserDialogState(() => ({
+            setActionDialogState(() => ({
               userId: null,
+              userFullName: null,
               action: null,
             }));
           }
         }}
       />
       <ArchiveUserDialog
-        key={`archive-${userDialogState.userId ?? 'null'}`}
-        userId={userDialogState.userId ?? ''}
-        isOpen={userDialogState.action === 'archive'}
+        key={`archive-${actionDialogState.userId ?? 'null'}`}
+        userId={actionDialogState.userId ?? ''}
+        userFullName={actionDialogState.userFullName ?? ''}
+        isOpen={actionDialogState.action === 'archive'}
         onOpenChange={(open) => {
           if (!open) {
-            setUserDialogState(() => ({
+            setActionDialogState(() => ({
               userId: null,
+              userFullName: null,
               action: null,
             }));
           }
         }}
       />
       <RestoreUserDialog
-        key={`restore-${userDialogState.userId ?? 'null'}`}
-        userId={userDialogState.userId ?? ''}
-        isOpen={userDialogState.action === 'restore'}
+        key={`restore-${actionDialogState.userId ?? 'null'}`}
+        userId={actionDialogState.userId ?? ''}
+        userFullName={actionDialogState.userFullName ?? ''}
+        isOpen={actionDialogState.action === 'restore'}
         onOpenChange={(open) => {
           if (!open) {
-            setUserDialogState(() => ({
+            setActionDialogState(() => ({
               userId: null,
+              userFullName: null,
               action: null,
             }));
           }

@@ -1,7 +1,7 @@
 import { cn } from '@/libs/cn.lib';
 import * as React from 'react';
 
-export const labelClass = 'text-sm font-medium text-gray-700';
+export const labelClass = 'leading-none text-sm font-medium text-gray-700';
 
 export const Label = React.forwardRef<
   React.ElementRef<'label'>,

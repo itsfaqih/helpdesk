@@ -14,6 +14,7 @@ import { AppPageContainer } from '@/components/derived/app-page-container';
 import { AppPageBackLink } from '../_components/page-back-link';
 import { UnprocessableEntityError } from '@/utils/error.util';
 import { SaveButton } from '@/components/derived/save-button';
+import { toast } from '@/components/base/toast';
 
 function loader() {
   return async () => {
@@ -103,6 +104,11 @@ function useCreateClientMutation() {
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Client created successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['client', 'index'] });
     },
   });

@@ -29,17 +29,19 @@ test('user management', async ({ page }) => {
     page.getByRole('status').filter({ hasText: 'User created successfully' }).first(),
   ).toBeVisible();
 
-  // redirect to view user
-  await page.waitForURL(/\/users\/(?!.*\bcreate\b)[\w]+/);
+  // redirect to edit user
+  await page.waitForURL(/\/users\/(?!create).*$/);
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Edit User');
-  await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('Test User');
+  await expect(page.getByRole('textbox', { name: 'Full Name', exact: true })).toHaveValue(
+    'Test User',
+  );
   await expect(page.getByRole('textbox', { name: 'Email', exact: true })).toHaveValue(
     'test@example.com',
   );
 
   // update user
-  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Test User Updated');
+  await page.getByRole('textbox', { name: 'Full Name', exact: true }).fill('Test User Updated');
 
   await page.getByRole('button', { name: 'Save', exact: true }).click();
 
@@ -62,7 +64,7 @@ test('user management', async ({ page }) => {
   await page.getByRole('button', { name: `Archive test@example.com`, exact: true }).click();
 
   await page
-    .getByRole('dialog', { name: 'Archive test@example.com', exact: true })
+    .getByRole('dialog', { name: 'Archive Test User Updated', exact: true })
     .getByRole('button', { name: 'Archive', exact: true })
     .click();
 
@@ -117,7 +119,43 @@ test('user management', async ({ page }) => {
   // go to edit user
   await page.getByRole('link', { name: 'Edit test@example.com', exact: true }).click();
 
-  await page.waitForURL(/\/users\/(?!.*\bcreate\b)[\w]+/);
+  await page.waitForURL(/\/users\/(?!create).*$/);
+
+  // deactivate user from edit page
+  await expect(page.getByText('Active', { exact: true })).toBeVisible();
+
+  await page.getByRole('switch', { name: 'Deactivate', exact: true }).click();
+
+  await page
+    .getByRole('dialog', { name: 'Deactivate Test User Updated', exact: true })
+    .getByRole('button', { name: 'Deactivate', exact: true })
+    .click();
+
+  await expect(
+    page.getByRole('dialog', { name: 'Deactivate Test User Updated', exact: true }),
+  ).toBeHidden();
+
+  await expect(
+    page.getByRole('status').filter({ hasText: 'User deactivated successfully' }),
+  ).toBeVisible();
+
+  // activate user from edit page
+  await expect(page.getByText('Inactive', { exact: true })).toBeVisible();
+
+  await page.getByRole('switch', { name: 'Activate', exact: true }).click();
+
+  await page
+    .getByRole('dialog', { name: 'Activate Test User Updated', exact: true })
+    .getByRole('button', { name: 'Activate', exact: true })
+    .click();
+
+  await expect(
+    page.getByRole('dialog', { name: 'Activate Test User Updated', exact: true }),
+  ).toBeHidden();
+
+  await expect(
+    page.getByRole('status').filter({ hasText: 'User activated successfully' }),
+  ).toBeVisible();
 
   // archive user from edit page
   await expect(page.getByRole('button', { name: 'Restore', exact: true })).toBeHidden();
@@ -143,11 +181,13 @@ test('user management', async ({ page }) => {
   await page.getByRole('button', { name: 'Restore', exact: true }).click();
 
   await page
-    .getByRole('dialog', { name: 'Restore Test User', exact: true })
+    .getByRole('dialog', { name: 'Restore Test User Updated', exact: true })
     .getByRole('button', { name: 'Restore', exact: true })
     .click();
 
-  await expect(page.getByRole('dialog', { name: 'Restore Test User', exact: true })).toBeHidden();
+  await expect(
+    page.getByRole('dialog', { name: 'Restore Test User Updated', exact: true }),
+  ).toBeHidden();
 
   await expect(
     page.getByRole('status').filter({ hasText: 'User restored successfully' }),

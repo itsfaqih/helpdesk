@@ -25,6 +25,7 @@ import { RestoreChannelDialog } from './_components/restore-channel-dialog';
 import { AppPageSearchBox } from '../_components/page-search-box';
 import { AppPageResetButton } from '../_components/page-reset-button';
 import { TablePagination } from '@/components/derived/table-pagination';
+import { Channel } from '@/schemas/channel.schema';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -50,8 +51,8 @@ export function ChannelIndexPage() {
   const [_, setSearchParams] = useSearchParams();
   const [actionDialogState, setActionDialogState] = React.useState<
     | {
-        channelId: string;
-        channelName: string;
+        channelId: Channel['id'];
+        channelName: Channel['name'];
         action: 'archive' | 'restore';
       }
     | { channelId: null; channelName: null; action: null }
@@ -216,16 +217,16 @@ export function ChannelIndexPage() {
                     icon={(props) => <Archive {...props} />}
                     label={`Archive ${channel.name}`}
                     tooltip="Archive channel"
-                    onClick={archiveChannel({ channelId: channel.id, channelName: channel.name })}
                     severity="danger"
+                    onClick={archiveChannel({ channelId: channel.id, channelName: channel.name })}
                   />
                 ) : (
                   <IconButton
                     icon={(props) => <ArrowCounterClockwise {...props} />}
                     label={`Restore ${channel.name}`}
                     tooltip="Restore channel"
-                    onClick={restoreChannel({ channelId: channel.id, channelName: channel.name })}
                     severity="primary"
+                    onClick={restoreChannel({ channelId: channel.id, channelName: channel.name })}
                   />
                 ))}
             </div>,

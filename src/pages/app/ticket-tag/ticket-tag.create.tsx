@@ -18,11 +18,12 @@ import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { AppPageContainer } from '@/components/derived/app-page-container';
 import { AppPageBackLink } from '../_components/page-back-link';
 import { SaveButton } from '@/components/derived/save-button';
+import { toast } from '@/components/base/toast';
 
 function loader() {
   return async () => {
     return loaderResponse({
-      pageTitle: 'Create Ticket tag',
+      pageTitle: 'Create Ticket Tag',
     });
   };
 }
@@ -112,6 +113,11 @@ function useCreateTicketTagMutation() {
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Ticket tag created successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['ticket-tag', 'index'] });
     },
   });

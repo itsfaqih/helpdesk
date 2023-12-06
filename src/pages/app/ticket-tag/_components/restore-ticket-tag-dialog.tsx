@@ -1,3 +1,4 @@
+import { toast } from '@/components/base/toast';
 import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
 import { api } from '@/libs/api.lib';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -7,6 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type RestoreTicketTagDialogProps = {
   ticketTagId: TicketTag['id'];
+  ticketTagName: TicketTag['name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -14,6 +16,7 @@ type RestoreTicketTagDialogProps = {
 
 export function RestoreTicketTagDialog({
   ticketTagId,
+  ticketTagName,
   trigger,
   isOpen,
   onOpenChange,
@@ -26,7 +29,7 @@ export function RestoreTicketTagDialog({
     <ConfirmationDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Restore Ticket tag"
+      title={`Restore ${ticketTagName}`}
       description="Are you sure you want to restore this ticket tag? After restoring, the
       ticket tag will be listed in the ticket tag list"
       isLoading={restoreTicketTagMutation.isPending}
@@ -68,6 +71,11 @@ function useRestoreTicketTagMutation({ ticketTagId }: UseRestoreTicketTagMutatio
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Ticket tag restored successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['ticket-tag', 'index'] });
       await queryClient.invalidateQueries({
         queryKey: ['ticket-tag', 'show', ticketTagId],

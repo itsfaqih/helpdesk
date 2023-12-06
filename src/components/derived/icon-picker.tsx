@@ -54,7 +54,7 @@ export const IconPicker = React.forwardRef<React.ElementRef<typeof Picker>, Icon
           </PopoverTrigger>
           <Portal>
             <PopoverContent className="p-0">
-              <Tabs>
+              <Tabs defaultValue="emoji">
                 <div className="flex items-center justify-between px-2">
                   <TabList className="flex gap-1.5">
                     <TabTrigger value="emoji">Emoji</TabTrigger>

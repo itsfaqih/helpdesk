@@ -4,7 +4,13 @@ import { APIResponseSchema } from '@/schemas/api.schema';
 import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { api } from '@/libs/api.lib';
-import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/base/select';
+import {
+  Select,
+  SelectContent,
+  SelectLabel,
+  SelectOption,
+  SelectTrigger,
+} from '@/components/base/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import { userRoleOptions } from '@/utils/user.util';
@@ -19,9 +25,16 @@ import { AppPageBackLink } from '../_components/page-back-link';
 import { DeactivateUserDialog } from './_components/deactivate-user-dialog';
 import { ActivateUserDialog } from './_components/activate-user-dialog';
 import { SaveButton } from '@/components/derived/save-button';
-import { DeactivateButton } from '@/components/derived/deactivate-button';
-import { ActivateButton } from '@/components/derived/activate-button';
 import { toast } from '@/components/base/toast';
+import { RestoreUserDialog } from './_components/restore-user-dialog';
+import { ArchiveUserDialog } from './_components/archive-user-dialog';
+import { ArchiveButton } from '@/components/derived/archive-button';
+import { RestoreButton } from '@/components/derived/restore-button';
+import { ActiveBadge, InactiveBadge } from '@/components/derived/activity-badge';
+import { IconButton } from '@/components/base/button';
+import { ArrowsClockwise, Question } from '@phosphor-icons/react';
+import { cn } from '@/libs/cn.lib';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/base/popover';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -65,12 +78,20 @@ export function UserShowPage() {
       <div className="flex items-center mt-4">
         <AppPageTitle title={loaderData.pageTitle} />
 
-        <div className="ml-auto">
+        <div className="ml-auto flex gap-2">
           {user &&
-            (user.is_active ? (
-              <DeactivateUserDialog userId={user.id} trigger={<DeactivateButton type="button" />} />
+            (user.is_archived ? (
+              <RestoreUserDialog
+                userId={user.id}
+                userFullName={user.full_name}
+                trigger={<RestoreButton type="button" />}
+              />
             ) : (
-              <ActivateUserDialog userId={user.id} trigger={<ActivateButton type="button" />} />
+              <ArchiveUserDialog
+                userId={user.id}
+                userFullName={user.full_name}
+                trigger={<ArchiveButton type="button" />}
+              />
             ))}
         </div>
       </div>
@@ -99,6 +120,7 @@ export function UserShowPage() {
               {userShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
               {userShowQuery.isSuccess && (
                 <Textbox
+                  name="email"
                   label="Email"
                   type="email"
                   placeholder="Enter Email"
@@ -115,41 +137,125 @@ export function UserShowPage() {
             <div className="col-span-3">
               {userShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
               {userShowQuery.isSuccess && (
-                <Controller
-                  control={updateUserForm.control}
-                  name="role"
-                  render={({ field }) => (
-                    <Select
-                      name={field.name}
-                      disabled={updateUserMutation.isPending}
-                      items={userRoleOptions}
-                      onValueChange={(e) => {
-                        const value = e?.value[0];
+                <div className="grid w-full items-center gap-1.5">
+                  <Controller
+                    control={updateUserForm.control}
+                    name="role"
+                    render={({ field }) => (
+                      <Select
+                        name={field.name}
+                        items={userRoleOptions}
+                        onValueChange={(e) => {
+                          const value = e?.value[0];
 
-                        if (value === 'super_admin' || value === 'operator') {
-                          field.onChange(value);
+                          if (value === 'all' || value === 'super_admin' || value === 'operator') {
+                            field.onChange(value);
+                          }
+                        }}
+                        value={field.value ? [field.value] : []}
+                      >
+                        <SelectLabel className="sr-only">Role</SelectLabel>
+                        <SelectTrigger placeholder="Select role" className="w-full" />
+                        <SelectContent>
+                          {userRoleOptions.map((option) => (
+                            <SelectOption key={option.value} item={option} />
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="status">Status</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <IconButton
+                    type="button"
+                    tooltip="What's status?"
+                    icon={(props) => <Question {...props} />}
+                  />
+                </PopoverTrigger>
+                <PopoverContent className="max-w-xs">
+                  <div className="grid gap-1">
+                    <p>
+                      User status only determines whether the user can log in to the system or not.
+                    </p>
+                    <p>If you consider the user as unused, archive the user instead.</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="col-span-3">
+              {user && (
+                <div className="flex items-center gap-2">
+                  {user.is_active ? (
+                    <>
+                      <ActiveBadge />
+                      <DeactivateUserDialog
+                        userId={user.id}
+                        userFullName={user.full_name}
+                        trigger={
+                          <IconButton
+                            type="button"
+                            id="status"
+                            role="switch"
+                            label="Deactivate"
+                            tooltip="Deactivate"
+                            disabledTooltip="You can't deactivate an archived user"
+                            disabled={user.is_archived}
+                            icon={({ className, ...props }) => (
+                              <ArrowsClockwise
+                                className={cn(
+                                  className,
+                                  'transition-transform',
+                                  'group-enabled:group-data-[loading=false]:group-hover:rotate-90',
+                                  'group-data-[loading=true]:animate-spin',
+                                )}
+                                {...props}
+                              />
+                            )}
+                            className="group"
+                          />
                         }
-                      }}
-                      value={[field.value]}
-                      readOnly={!user?.is_active}
-                    >
-                      <div className="grid w-full items-center gap-1.5">
-                        <SelectTrigger
-                          id="role"
-                          ref={field.ref}
-                          error={updateUserForm.formState.errors.role?.message}
-                          placeholder="Select role"
-                          className="w-full"
-                        />
-                      </div>
-                      <SelectContent className="w-full">
-                        {userRoleOptions.map((option) => (
-                          <SelectOption key={option.value} item={option} />
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <InactiveBadge />
+                      <ActivateUserDialog
+                        userId={user.id}
+                        userFullName={user.full_name}
+                        trigger={
+                          <IconButton
+                            type="button"
+                            id="status"
+                            role="switch"
+                            label="Activate"
+                            tooltip="Activate"
+                            disabledTooltip="You can't activate an archived user"
+                            disabled={user.is_archived}
+                            icon={({ className, ...props }) => (
+                              <ArrowsClockwise
+                                className={cn(
+                                  className,
+                                  'transition-transform',
+                                  'group-enabled:group-data-[loading=false]:group-hover:rotate-90',
+                                  'group-data-[loading=true]:animate-spin',
+                                )}
+                                {...props}
+                              />
+                            )}
+                            className="group"
+                          />
+                        }
+                      />
+                    </>
                   )}
-                />
+                </div>
               )}
             </div>
           </div>

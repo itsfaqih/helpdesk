@@ -24,6 +24,7 @@ import { ArchiveTicketTagDialog } from './_components/archive-ticket-tag-dialog'
 import { ArchiveButton } from '@/components/derived/archive-button';
 import { SaveButton } from '@/components/derived/save-button';
 import { RestoreButton } from '@/components/derived/restore-button';
+import { toast } from '@/components/base/toast';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -37,7 +38,7 @@ function loader(queryClient: QueryClient) {
     });
 
     return loaderResponse({
-      pageTitle: 'Edit Ticket tag',
+      pageTitle: 'Edit Ticket Tag',
       data: { request: requestData },
     });
   };
@@ -77,11 +78,13 @@ export function TicketTagShowPage() {
             (ticketTag.is_archived ? (
               <RestoreTicketTagDialog
                 ticketTagId={ticketTag.id}
+                ticketTagName={ticketTag.name}
                 trigger={<RestoreButton type="button" />}
               />
             ) : (
               <ArchiveTicketTagDialog
                 ticketTagId={ticketTag.id}
+                ticketTagName={ticketTag.name}
                 trigger={<ArchiveButton type="button" />}
               />
             ))}
@@ -90,13 +93,14 @@ export function TicketTagShowPage() {
       <Card className="px-4.5 py-5 mt-6 sm:mx-0 -mx-6 sm:rounded-md rounded-none">
         <form id="update-ticket-tag-form" onSubmit={onSubmit} className="flex flex-col gap-y-4">
           <div className="flex flex-col grid-cols-4 gap-1.5 sm:grid">
-            <Label htmlFor="full_name">Name</Label>
+            <Label htmlFor="name">Name</Label>
             <div className="col-span-3">
               {ticketTagShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
               {ticketTagShowQuery.isSuccess && (
                 <Textbox
+                  name="name"
                   label="Name"
-                  placeholder="Name"
+                  placeholder="Enter Name"
                   disabled={updateTicketTagMutation.isPending}
                   value={ticketTag?.name}
                   readOnly
@@ -163,6 +167,11 @@ function useUpdateTicketTagMutation({ ticketTagId }: UseUpdateTicketTagMutationP
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Ticket tag updated successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['ticket-tag', 'index'] });
       await queryClient.invalidateQueries({
         queryKey: ['ticket-tag', 'show', ticketTagId],

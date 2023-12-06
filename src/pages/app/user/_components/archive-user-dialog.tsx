@@ -4,9 +4,11 @@ import { User, UserSchema } from '@/schemas/user.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { Archive } from '@phosphor-icons/react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { toast } from '@/components/base/toast';
 
 type ArchiveUserDialogProps = {
   userId: User['id'];
+  userFullName: User['full_name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -14,6 +16,7 @@ type ArchiveUserDialogProps = {
 
 export function ArchiveUserDialog({
   userId,
+  userFullName,
   trigger,
   isOpen,
   onOpenChange,
@@ -24,7 +27,7 @@ export function ArchiveUserDialog({
     <ConfirmationDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Archive User"
+      title={`Archive ${userFullName}`}
       description="Are you sure you want to archive this user? After archiving
       the user will not have any access to the system and will not be listed in any action related to users"
       destructive
@@ -70,6 +73,11 @@ function useArchiveUserMutation({ userId }: UseArchiveUserMutationParams) {
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'User archived successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['user', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['user', 'show', userId] });
     },

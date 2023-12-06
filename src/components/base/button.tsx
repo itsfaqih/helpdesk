@@ -116,14 +116,17 @@ function ButtonComponent(
 export const Button = forwardRefWithAs<ButtonProps, 'button'>(ButtonComponent);
 
 const buttonClass = cva(
-  'group inline-flex relative disabled:opacity-70 rounded-lg focus:outline-2 focus:outline-offset-4 items-center transition-all',
+  [
+    'group inline-flex relative rounded-lg focus:outline-2 focus:outline-offset-4 items-center transition-all',
+    'disabled:opacity-50 disabled:cursor-not-allowed',
+  ],
   {
     variants: {
       variant: {
         filled: '',
         subtle: '',
         white: 'bg-white shadow-haptic-gray-300 hover:shadow-haptic-gray-400',
-        transparent: 'hover:bg-gray-100 ',
+        transparent: 'enabled:hover:bg-gray-100 ',
       },
       severity: {
         primary: '',
@@ -150,66 +153,67 @@ const buttonClass = cva(
         variant: ['filled'],
         severity: ['primary'],
         className:
-          'bg-haptic-brand-700 hover:bg-haptic-brand-600 shadow-haptic-brand-900 hover:shadow-haptic-brand-800 active:shadow-inner-haptic-brand-900',
+          'bg-haptic-brand-700 enabled:hover:bg-haptic-brand-600 shadow-haptic-brand-900 enabled:hover:shadow-haptic-brand-800 enabled:active:shadow-inner-haptic-brand-900',
       },
       {
         variant: ['filled'],
         severity: ['danger'],
         className:
-          'bg-haptic-red-700 hover:bg-haptic-red-600 shadow-haptic-red-900 hover:shadow-haptic-red-800 active:shadow-inner-haptic-red-900',
+          'bg-haptic-red-700 enabled:hover:bg-haptic-red-600 shadow-haptic-red-900 enabled:hover:shadow-haptic-red-800 enabled:active:shadow-inner-haptic-red-900',
       },
       {
         variant: ['filled'],
         severity: ['secondary'],
         className:
-          'bg-white text-gray-700 shadow-haptic-gray-300 hover:shadow-haptic-gray-400 active:shadow-inner-haptic-gray-300',
+          'bg-white text-gray-700 shadow-haptic-gray-300 enabled:hover:shadow-haptic-gray-400 enabled:active:shadow-inner-haptic-gray-300',
       },
       {
         variant: ['subtle'],
         severity: ['primary'],
         className:
-          'bg-haptic-brand-100 text-brand-700 hover:bg-haptic-brand-200 hover:text-brand-800 active:bg-haptic-brand-300',
+          'bg-haptic-brand-100 text-brand-700 enabled:hover:bg-haptic-brand-200 enabled:hover:text-brand-800 enabled:active:bg-haptic-brand-300',
       },
       {
         variant: ['subtle'],
         severity: ['danger'],
         className:
-          'bg-haptic-red-100 text-red-700 hover:bg-haptic-red-200 hover:text-red-800 active:bg-haptic-red-300',
+          'bg-haptic-red-100 text-red-700 enabled:hover:bg-haptic-red-200 enabled:hover:text-red-800 enabled:active:bg-haptic-red-300',
       },
       {
         variant: ['subtle'],
         severity: ['secondary'],
-        className: 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300',
+        className: 'bg-gray-100 text-gray-700 enabled:hover:bg-gray-200 enabled:active:bg-gray-300',
       },
       {
         variant: ['transparent'],
         severity: ['primary'],
-        className: 'text-brand-700 hover:text-brand-800 active:text-brand-900',
+        className:
+          'text-brand-700 hover:text-brand-800 enabled:hover:text-brand-800 enabled:active:text-brand-900',
       },
       {
         variant: ['transparent'],
         severity: ['danger'],
-        className: 'text-red-600 hover:text-red-500 active:text-red-600/80',
+        className: 'text-red-600 enabled:hover:text-red-500 enabled:active:text-red-600/80',
       },
       {
         variant: ['transparent'],
         severity: ['secondary'],
-        className: 'text-gray-700 hover:text-gray-800 active:text-gray-900/80',
+        className: 'text-gray-700 enabled:hover:text-gray-800 enabled:active:text-gray-900/80',
       },
       {
         variant: ['white'],
         severity: ['primary'],
-        className: 'text-brand-600 active:text-brand-600/80',
+        className: 'text-brand-600 enabled:active:text-brand-600/80',
       },
       {
         variant: ['white'],
         severity: ['danger'],
-        className: 'text-red-600 active:text-red-600/80',
+        className: 'text-red-600 enabled:active:text-red-600/80',
       },
       {
         variant: ['white'],
         severity: ['secondary'],
-        className: 'text-gray-700 active:text-gray-700/80',
+        className: 'text-gray-700 enabled:active:text-gray-700/80',
       },
       {
         severity: ['primary', 'secondary'],
@@ -221,7 +225,7 @@ const buttonClass = cva(
       },
       {
         variant: ['white', 'transparent'],
-        className: 'font-medium active:shadow-inner-haptic-gray-300',
+        className: 'font-medium enabled:active:shadow-inner-haptic-gray-300',
       },
       {
         size: ['sm', 'md'],
@@ -255,6 +259,7 @@ type IconButtonProps = {
   icon?: (props: { className: string }) => React.ReactNode;
   label?: string;
   tooltip?: string;
+  disabledTooltip?: string;
   size?: VariantProps<typeof buttonClass>['size'];
   variant?: VariantProps<typeof buttonClass>['variant'];
   severity?: VariantProps<typeof buttonClass>['severity'];
@@ -269,6 +274,7 @@ function IconButtonComponent(
     icon,
     label,
     tooltip,
+    disabledTooltip,
     as: Component = 'button',
     size = 'md',
     variant = 'transparent',
@@ -283,7 +289,13 @@ function IconButtonComponent(
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return (
-    <Tooltip disabled={tooltip === undefined || disabled || loading}>
+    <Tooltip
+      disabled={
+        (tooltip === undefined && disabledTooltip === undefined) ||
+        (disabled && !disabledTooltip) ||
+        loading
+      }
+    >
       <TooltipTrigger asChild>
         <div className={cn('inline-flex', containerClassName)}>
           <Component
@@ -310,7 +322,7 @@ function IconButtonComponent(
           </Component>
         </div>
       </TooltipTrigger>
-      <TooltipContent>{tooltip}</TooltipContent>
+      <TooltipContent>{disabled ? disabledTooltip : tooltip}</TooltipContent>
     </Tooltip>
   );
 }

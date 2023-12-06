@@ -13,7 +13,6 @@ import {
 } from '@/queries/client.query';
 import { LoaderDataReturn, loaderResponse } from '@/utils/router.util';
 import { Textbox } from '@/components/derived/textbox';
-import { Button } from '@/components/base/button';
 import { Label } from '@/components/base/label';
 import { Card } from '@/components/base/card';
 import { Skeleton } from '@/components/base/skeleton';
@@ -23,6 +22,8 @@ import { RestoreClientDialog } from './_components/restore-client-dialog';
 import { ArchiveClientDialog } from './_components/archive-client-dialog';
 import { SaveButton } from '@/components/derived/save-button';
 import { ArchiveButton } from '@/components/derived/archive-button';
+import { toast } from '@/components/base/toast';
+import { RestoreButton } from '@/components/derived/restore-button';
 
 function loader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -73,14 +74,15 @@ export function ClientShowPage() {
             (client.is_archived ? (
               <RestoreClientDialog
                 clientId={client.id}
-                trigger={
-                  <Button type="button" variant="white">
-                    Restore Client
-                  </Button>
-                }
+                clientFullName={client.full_name}
+                trigger={<RestoreButton type="button" />}
               />
             ) : (
-              <ArchiveClientDialog clientId={client.id} trigger={<ArchiveButton type="button" />} />
+              <ArchiveClientDialog
+                clientId={client.id}
+                clientFullName={client.full_name}
+                trigger={<ArchiveButton type="button" />}
+              />
             ))}
         </div>
       </div>
@@ -147,6 +149,11 @@ function useUpdateClientMutation({ clientId }: UseUpdateClientMutationParams) {
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Client updated successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['client', 'index'] });
     },
   });

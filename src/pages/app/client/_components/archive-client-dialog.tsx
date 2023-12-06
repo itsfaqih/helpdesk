@@ -1,3 +1,4 @@
+import { toast } from '@/components/base/toast';
 import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
 import { api } from '@/libs/api.lib';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -7,6 +8,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 type ArchiveClientDialogProps = {
   clientId: Client['id'];
+  clientFullName: Client['full_name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -14,6 +16,7 @@ type ArchiveClientDialogProps = {
 
 export function ArchiveClientDialog({
   clientId,
+  clientFullName,
   trigger,
   isOpen,
   onOpenChange,
@@ -24,7 +27,7 @@ export function ArchiveClientDialog({
     <ConfirmationDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Archive Client"
+      title={`Archive ${clientFullName}`}
       description="Are you sure you want to archive this client? After archiving, the
       client will not be listed in the client list"
       destructive
@@ -66,6 +69,11 @@ function useArchiveClientMutation({ clientId }: UseArchiveClientMutationParams) 
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Client archived successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['client', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['client', 'show', clientId] });
     },

@@ -1,3 +1,4 @@
+import { toast } from '@/components/base/toast';
 import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
 import { api } from '@/libs/api.lib';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -7,6 +8,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 type RestoreClientDialogProps = {
   clientId: Client['id'];
+  clientFullName: Client['full_name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -14,6 +16,7 @@ type RestoreClientDialogProps = {
 
 export function RestoreClientDialog({
   clientId,
+  clientFullName,
   trigger,
   isOpen,
   onOpenChange,
@@ -24,7 +27,7 @@ export function RestoreClientDialog({
     <ConfirmationDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Restore Client"
+      title={`Restore ${clientFullName}`}
       description="Are you sure you want to restore this client? After archiving, the
       client will be listed in the client list"
       isLoading={restoreClientMutation.isPending}
@@ -65,6 +68,11 @@ function useRestoreClientMutation({ clientId }: UseRestoreClientMutationParams) 
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Client restored successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['client', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['client', 'show', clientId] });
     },

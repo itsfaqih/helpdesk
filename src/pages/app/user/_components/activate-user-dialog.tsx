@@ -4,9 +4,11 @@ import { User, UserSchema } from '@/schemas/user.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { Power } from '@phosphor-icons/react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { toast } from '@/components/base/toast';
 
 type ActivateUserDialogProps = {
   userId: User['id'];
+  userFullName: User['full_name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -14,6 +16,7 @@ type ActivateUserDialogProps = {
 
 export function ActivateUserDialog({
   userId,
+  userFullName,
   trigger,
   isOpen,
   onOpenChange,
@@ -24,7 +27,7 @@ export function ActivateUserDialog({
     <ConfirmationDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Activate User"
+      title={`Activate ${userFullName}`}
       description="Are you sure you want to activate this user? After activating
       the user will be able to login to the system"
       isLoading={activateUserMutation.isPending}
@@ -69,6 +72,11 @@ function useActivateUserMutation({ userId }: UseActivateUserMutationParams) {
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'User activated successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['user', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['user', 'show', userId] });
     },

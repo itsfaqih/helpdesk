@@ -4,9 +4,11 @@ import { User, UserSchema } from '@/schemas/user.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { Power } from '@phosphor-icons/react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { toast } from '@/components/base/toast';
 
 type DeactivateUserDialogProps = {
   userId: User['id'];
+  userFullName: User['full_name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -14,6 +16,7 @@ type DeactivateUserDialogProps = {
 
 export function DeactivateUserDialog({
   userId,
+  userFullName,
   trigger,
   isOpen,
   onOpenChange,
@@ -24,7 +27,7 @@ export function DeactivateUserDialog({
     <ConfirmationDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Deactivate User"
+      title={`Deactivate ${userFullName}`}
       description="Are you sure you want to deactivate this user? After deactivating,
       the user will not be able to login to the system"
       destructive
@@ -70,6 +73,11 @@ function useDeactivateUserMutation({ userId }: UseDeactivateUserMutationParams) 
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'User deactivated successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['user', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['user', 'show', userId] });
     },

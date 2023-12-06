@@ -1,3 +1,4 @@
+import { toast } from '@/components/base/toast';
 import { ConfirmationDialog } from '@/components/derived/confirmation-dialog';
 import { api } from '@/libs/api.lib';
 import { APIResponseSchema } from '@/schemas/api.schema';
@@ -7,6 +8,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 type ArchiveTicketTagDialogProps = {
   ticketTagId: TicketTag['id'];
+  ticketTagName: TicketTag['name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -14,6 +16,7 @@ type ArchiveTicketTagDialogProps = {
 
 export function ArchiveTicketTagDialog({
   ticketTagId,
+  ticketTagName,
   trigger,
   isOpen,
   onOpenChange,
@@ -26,7 +29,7 @@ export function ArchiveTicketTagDialog({
     <ConfirmationDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Archive Ticket tag"
+      title={`Archive ${ticketTagName}`}
       description="Are you sure you want to archive this ticket tag? After archiving, the
       ticket tag will no longer be listed in the ticket tag list"
       destructive
@@ -69,6 +72,11 @@ function useArchiveTicketTagMutation({ ticketTagId }: UseArchiveTicketTagMutatio
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'Ticket tag archived successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['ticket-tag', 'index'] });
       await queryClient.invalidateQueries({
         queryKey: ['ticket-tag', 'show', ticketTagId],

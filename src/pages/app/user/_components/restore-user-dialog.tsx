@@ -4,9 +4,11 @@ import { User, UserSchema } from '@/schemas/user.schema';
 import { APIResponseSchema } from '@/schemas/api.schema';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { toast } from '@/components/base/toast';
 
 type RestoreUserDialogProps = {
   userId: User['id'];
+  userFullName: User['full_name'];
   trigger?: React.ReactNode;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
@@ -14,6 +16,7 @@ type RestoreUserDialogProps = {
 
 export function RestoreUserDialog({
   userId,
+  userFullName,
   trigger,
   isOpen,
   onOpenChange,
@@ -24,7 +27,7 @@ export function RestoreUserDialog({
     <ConfirmationDialog
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      title="Restore User"
+      title={`Restore ${userFullName}`}
       description="Are you sure you want to restore this user? After restoring
       the user will be listed in any action related to users"
       isLoading={restoreUserMutation.isPending}
@@ -69,6 +72,11 @@ function useRestoreUserMutation({ userId }: UseRestoreUserMutationParams) {
       }
     },
     async onSuccess() {
+      toast.create({
+        title: 'User restored successfully',
+        type: 'success',
+      });
+
       await queryClient.invalidateQueries({ queryKey: ['user', 'index'] });
       await queryClient.invalidateQueries({ queryKey: ['user', 'show', userId] });
     },

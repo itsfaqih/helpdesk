@@ -100,8 +100,8 @@ export const SelectContent = React.forwardRef<
         ref={ref}
         className={cn(
           'rounded-lg bg-white shadow-menu focus:outline-none p-1',
-          'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-90',
-          'data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-90',
+          'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-4',
+          'data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-top-4',
           className,
         )}
         {...props}
@@ -130,7 +130,7 @@ export const SelectOption = React.forwardRef<
     className={cn(
       'cursor-default flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-sm font-medium transition',
       'aria-[selected=false]:data-[highlighted]:bg-gray-100',
-      'data-[disabled]:opacity-70',
+      'data-[disabled]:opacity-50',
       'aria-selected:text-white aria-selected:bg-gradient-to-r aria-selected:from-brand-700 aria-selected:to-brand-600',
       'aria-selected:data-[highlighted]:bg-gradient-to-r aria-selected:data-[highlighted]:from-brand-600 aria-selected:data-[highlighted]:to-brand-500',
       className,

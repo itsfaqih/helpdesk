@@ -31,6 +31,7 @@ import { AppPageResetButton } from '../_components/page-reset-button';
 import { RestoreClientDialog } from './_components/restore-client-dialog';
 import { ArchiveClientDialog } from './_components/archive-client-dialog';
 import { TablePagination } from '@/components/derived/table-pagination';
+import { Client } from '@/schemas/client.schema';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -43,7 +44,7 @@ function loader(queryClient: QueryClient) {
     });
 
     return loaderResponse({
-      pageTitle: 'Client',
+      pageTitle: 'Clients',
       data: { request: requestData },
     });
   };
@@ -54,11 +55,16 @@ ClientIndexPage.loader = loader;
 export function ClientIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
-  const [actionDialogState, setActionDialogState] = React.useState<{
-    clientId: string | null;
-    action: 'archive' | 'restore' | null;
-  }>({
+  const [actionDialogState, setActionDialogState] = React.useState<
+    | {
+        clientId: Client['id'];
+        clientFullName: Client['full_name'];
+        action: 'archive' | 'restore';
+      }
+    | { clientId: null; clientFullName: null; action: null }
+  >({
     clientId: null,
+    clientFullName: null,
     action: null,
   });
 
@@ -90,23 +96,43 @@ export function ClientIndexPage() {
     setSearchParams(searchParams);
   });
 
-  const archiveClient = React.useCallback((clientId: string) => {
-    return () =>
-      setActionDialogState((prev) => ({
-        ...prev,
-        clientId,
-        action: 'archive',
-      }));
-  }, []);
+  const archiveClient = React.useCallback(
+    ({
+      clientId,
+      clientFullName,
+    }: {
+      clientId: Client['id'];
+      clientFullName: Client['full_name'];
+    }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          clientId,
+          clientFullName,
+          action: 'archive',
+        }));
+    },
+    [],
+  );
 
-  const restoreClient = React.useCallback((clientId: string) => {
-    return () =>
-      setActionDialogState((prev) => ({
-        ...prev,
-        clientId,
-        action: 'restore',
-      }));
-  }, []);
+  const restoreClient = React.useCallback(
+    ({
+      clientId,
+      clientFullName,
+    }: {
+      clientId: Client['id'];
+      clientFullName: Client['full_name'];
+    }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          clientId,
+          clientFullName,
+          action: 'restore',
+        }));
+    },
+    [],
+  );
 
   return (
     <>
@@ -204,14 +230,19 @@ export function ClientIndexPage() {
                     <IconButton
                       as={Link}
                       to={`/clients/${client.id}`}
-                      icon={(props) => <PencilSimple {...props} />}
                       tooltip="Edit"
+                      label={`Edit ${client.full_name}`}
+                      icon={(props) => <PencilSimple {...props} />}
                     />
 
                     <IconButton
                       icon={(props) => <Archive {...props} />}
                       tooltip="Archive"
-                      onClick={archiveClient(client.id)}
+                      label={`Archive ${client.full_name}`}
+                      onClick={archiveClient({
+                        clientId: client.id,
+                        clientFullName: client.full_name,
+                      })}
                       className="text-red-600"
                     />
                   </>
@@ -220,15 +251,20 @@ export function ClientIndexPage() {
                     <IconButton
                       as={Link}
                       to={`/clients/${client.id}`}
-                      icon={(props) => <CaretRight {...props} />}
                       tooltip="View"
+                      label={`View ${client.full_name}`}
+                      icon={(props) => <CaretRight {...props} />}
                     />
 
                     <IconButton
                       tooltip="Restore"
                       severity="primary"
+                      label={`Restore ${client.full_name}`}
                       icon={(props) => <ArrowCounterClockwise {...props} />}
-                      onClick={restoreClient(client.id)}
+                      onClick={restoreClient({
+                        clientId: client.id,
+                        clientFullName: client.full_name,
+                      })}
                     />
                   </>
                 ))}
@@ -259,24 +295,32 @@ export function ClientIndexPage() {
       <ArchiveClientDialog
         key={`archive-${actionDialogState.clientId ?? 'null'}`}
         clientId={actionDialogState.clientId ?? ''}
+        clientFullName={actionDialogState.clientFullName ?? ''}
         isOpen={actionDialogState.action === 'archive'}
         onOpenChange={(open) => {
-          setActionDialogState((prev) => ({
-            clientId: open ? prev.clientId : null,
-            action: open ? 'archive' : null,
-          }));
+          if (!open) {
+            setActionDialogState(() => ({
+              clientId: null,
+              clientFullName: null,
+              action: null,
+            }));
+          }
         }}
       />
       <RestoreClientDialog
         key={`restore-${actionDialogState.clientId ?? 'null'}`}
         clientId={actionDialogState.clientId ?? ''}
+        clientFullName={actionDialogState.clientFullName ?? ''}
         isOpen={actionDialogState.action === 'restore'}
-        onOpenChange={(open) =>
-          setActionDialogState((prev) => ({
-            clientId: open ? prev.clientId : null,
-            action: open ? 'restore' : null,
-          }))
-        }
+        onOpenChange={(open) => {
+          if (!open) {
+            setActionDialogState(() => ({
+              clientId: null,
+              clientFullName: null,
+              action: null,
+            }));
+          }
+        }}
       />
     </>
   );

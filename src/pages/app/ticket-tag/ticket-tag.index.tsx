@@ -31,6 +31,7 @@ import { AppPageSearchBox } from '../_components/page-search-box';
 import { RestoreTicketTagDialog } from './_components/restore-ticket-tag-dialog';
 import { ArchiveTicketTagDialog } from './_components/archive-ticket-tag-dialog';
 import { TablePagination } from '@/components/derived/table-pagination';
+import { TicketTag } from '@/schemas/ticket.schema';
 
 function loader(queryClient: QueryClient) {
   return async ({ request }: LoaderFunctionArgs) => {
@@ -54,11 +55,16 @@ TicketTagIndexPage.loader = loader;
 export function TicketTagIndexPage() {
   const loaderData = useLoaderData() as LoaderDataReturn<typeof loader>;
   const [_, setSearchParams] = useSearchParams();
-  const [actionDialogState, setActionDialogState] = React.useState<{
-    ticketTagId: string | null;
-    action: 'archive' | 'restore' | null;
-  }>({
+  const [actionDialogState, setActionDialogState] = React.useState<
+    | {
+        ticketTagId: TicketTag['id'];
+        ticketTagName: TicketTag['name'];
+        action: 'archive' | 'restore';
+      }
+    | { ticketTagId: null; ticketTagName: null; action: null }
+  >({
     ticketTagId: null,
+    ticketTagName: null,
     action: null,
   });
 
@@ -87,23 +93,43 @@ export function TicketTagIndexPage() {
     setSearchParams(searchParams);
   });
 
-  const archiveTicketTag = React.useCallback((ticketTagId: string) => {
-    return () =>
-      setActionDialogState((prev) => ({
-        ...prev,
-        ticketTagId,
-        action: 'archive',
-      }));
-  }, []);
+  const archiveTicketTag = React.useCallback(
+    ({
+      ticketTagId,
+      ticketTagName,
+    }: {
+      ticketTagId: TicketTag['id'];
+      ticketTagName: TicketTag['name'];
+    }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          ticketTagId,
+          ticketTagName,
+          action: 'archive',
+        }));
+    },
+    [],
+  );
 
-  const restoreTicketTag = React.useCallback((ticketTagId: string) => {
-    return () =>
-      setActionDialogState((prev) => ({
-        ...prev,
-        ticketTagId,
-        action: 'restore',
-      }));
-  }, []);
+  const restoreTicketTag = React.useCallback(
+    ({
+      ticketTagId,
+      ticketTagName,
+    }: {
+      ticketTagId: TicketTag['id'];
+      ticketTagName: TicketTag['name'];
+    }) => {
+      return () =>
+        setActionDialogState((prev) => ({
+          ...prev,
+          ticketTagId,
+          ticketTagName,
+          action: 'restore',
+        }));
+    },
+    [],
+  );
 
   return (
     <>
@@ -128,7 +154,7 @@ export function TicketTagIndexPage() {
                 leading={(props) => <Plus weight="bold" {...props} />}
                 className="hidden sm:inline-flex"
               >
-                Add tag
+                Add Ticket Tag
               </Button>
             )
           }
@@ -200,30 +226,37 @@ export function TicketTagIndexPage() {
                   <IconButton
                     as={Link}
                     to={`/ticket-tags/${tag.id}`}
-                    icon={(props) => <PencilSimple {...props} />}
+                    label={`Edit ${tag.name}`}
                     tooltip="Edit"
+                    icon={(props) => <PencilSimple {...props} />}
                   />
 
                   <IconButton
                     icon={(props) => <Archive {...props} />}
+                    label={`Archive ${tag.name}`}
                     tooltip="Archive"
-                    onClick={archiveTicketTag(tag.id)}
-                    className="text-red-600"
+                    severity="danger"
+                    onClick={archiveTicketTag({ ticketTagId: tag.id, ticketTagName: tag.name })}
                   />
                 </>
               ) : (
                 <>
                   <IconButton
                     as={Link}
-                    tooltip="View"
                     to={`/ticket-tags/${tag.id}`}
+                    label={`View ${tag.name}`}
+                    tooltip="View"
                     icon={(props) => <CaretRight {...props} />}
                   />
                   <IconButton
                     severity="primary"
+                    label={`Restore ${tag.name}`}
                     tooltip="Restore"
                     icon={(props) => <ArrowCounterClockwise {...props} />}
-                    onClick={restoreTicketTag(tag.id)}
+                    onClick={restoreTicketTag({
+                      ticketTagId: tag.id,
+                      ticketTagName: tag.name,
+                    })}
                   />
                 </>
               )}
@@ -254,23 +287,31 @@ export function TicketTagIndexPage() {
       <ArchiveTicketTagDialog
         key={`archive-${actionDialogState.ticketTagId ?? 'null'}`}
         ticketTagId={actionDialogState.ticketTagId ?? ''}
+        ticketTagName={actionDialogState.ticketTagName ?? ''}
         isOpen={actionDialogState.action === 'archive'}
         onOpenChange={(open) => {
-          setActionDialogState((prev) => ({
-            ticketTagId: open ? prev.ticketTagId : null,
-            action: open ? 'archive' : null,
-          }));
+          if (!open) {
+            setActionDialogState(() => ({
+              ticketTagId: null,
+              ticketTagName: null,
+              action: null,
+            }));
+          }
         }}
       />
       <RestoreTicketTagDialog
         key={`restore-${actionDialogState.ticketTagId ?? 'null'}`}
         ticketTagId={actionDialogState.ticketTagId ?? ''}
+        ticketTagName={actionDialogState.ticketTagName ?? ''}
         isOpen={actionDialogState.action === 'restore'}
         onOpenChange={(open) => {
-          setActionDialogState((prev) => ({
-            ticketTagId: open ? prev.ticketTagId : null,
-            action: open ? 'restore' : null,
-          }));
+          if (!open) {
+            setActionDialogState(() => ({
+              ticketTagId: null,
+              ticketTagName: null,
+              action: null,
+            }));
+          }
         }}
       />
     </>

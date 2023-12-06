@@ -100,7 +100,7 @@ export function ChannelShowPage() {
               {channelShowQuery.isLoading && <Skeleton className="mb-6 h-9" />}
               {channelShowQuery.isSuccess && (
                 <Textbox
-                  name="Name"
+                  name="name"
                   label="Name"
                   placeholder="Enter Name"
                   value={channel?.name}

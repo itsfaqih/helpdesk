@@ -18,7 +18,7 @@ export const PopoverContent = React.forwardRef<
         <Ark.PopoverContent
           ref={ref}
           className={cn(
-            'bg-white rounded-xl shadow-menu px-3 py-2',
+            'bg-white rounded-xl shadow-menu px-3 py-2 text-gray-700 text-sm',
             'data-[state=open]:data-[placement^=right]:slide-in-from-left-4',
             'data-[state=open]:data-[placement^=left]:slide-in-from-right-4',
             'data-[state=open]:data-[placement^=top]:slide-in-from-bottom-4',
@@ -27,8 +27,8 @@ export const PopoverContent = React.forwardRef<
             'data-[state=closed]:data-[placement^=left]:slide-out-to-right-4',
             'data-[state=closed]:data-[placement^=top]:slide-out-to-bottom-4',
             'data-[state=closed]:data-[placement^=bottom]:slide-out-to-top-4',
-            'data-[state=open]:animate-in data-[state=open]:fade-in',
-            'data-[state=closed]:animate-out data-[state=closed]:fade-out',
+            'data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-90',
+            'data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-90',
             className,
           )}
           {...props}
